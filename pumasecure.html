@@ -136,9 +136,31 @@ button:focus-visible,.btn:focus-visible{
   font-size:13px;color:var(--green-dim);text-transform:uppercase;
   letter-spacing:2px;
 }
-.hdr-resources{display:flex;gap:16px;align-items:center;font-size:15px}
-.hdr-resources span{display:flex;align-items:center;gap:4px}
-.res-label{color:var(--green-dim);font-size:12px}
+.hdr-center{display:flex;flex-direction:column;align-items:center;min-width:160px}
+.hdr-budget{font-size:22px;letter-spacing:2px;text-shadow:var(--glow-text);transition:color 0.2s,text-shadow 0.2s}
+.hdr-budget.pulse{color:#00ff41;text-shadow:0 0 12px rgba(0,255,65,0.6)}
+@keyframes budget-pulse{0%{color:#00ff41;text-shadow:0 0 12px rgba(0,255,65,0.6)}100%{color:var(--green);text-shadow:var(--glow-text)}}
+.hdr-drip-bar{width:100%;height:3px;background:var(--bg);border-radius:2px;overflow:hidden}
+.hdr-drip-fill{height:100%;width:0;background:var(--amber);transition:width 0.15s linear;border-radius:2px}
+.hdr-drip-text{font-size:10px;color:var(--green-dim);white-space:nowrap}
+.hdr-analysts-wrap{display:flex;flex-direction:column;align-items:center;gap:0}
+.hdr-analysts-row{display:flex;align-items:baseline;gap:4px}
+.hdr-analysts-labels{display:flex;align-items:center;gap:8px}
+.hdr-analysts-label{font-size:10px;color:var(--green-dim);letter-spacing:1px;text-transform:uppercase}
+.hdr-hire-cost{font-size:10px;color:var(--amber-dim,#b38600);letter-spacing:1px}
+.hdr-hire-cost.hidden{display:none}
+.hdr-analysts-value{font-size:22px;letter-spacing:2px;text-shadow:var(--glow-text);transition:color 0.3s,text-shadow 0.3s,opacity 0.3s}
+.hdr-analysts-value.busy{color:var(--amber)}
+.hdr-analysts-value.analyst-free{color:#00ff41;text-shadow:0 0 14px rgba(0,255,65,0.7)}
+.hdr-analysts-value.analyst-busy{opacity:0.5;text-shadow:none}
+.btn-hire{
+  font-size:22px;font-family:'Share Tech Mono',monospace;letter-spacing:2px;
+  background:rgba(255,176,0,0.15);color:var(--amber);border:1px solid var(--amber);
+  border-radius:2px;cursor:pointer;padding:0 6px;line-height:1;
+}
+.btn-hire:hover{background:rgba(255,176,0,0.25)}
+.btn-hire.dimmed{opacity:0.35;cursor:not-allowed}
+.btn-hire.hidden{display:none}
 
 /* Main game area */
 #game-area{
@@ -155,10 +177,10 @@ button:focus-visible,.btn:focus-visible{
   text-transform:uppercase;color:var(--green-dim);
   border-bottom:1px solid var(--border);
 }
-#asset-list{flex:1;overflow-y:auto;padding:4px 0}
+#asset-list{flex:1;overflow-y:auto;padding:4px 0 12px}
 .asset-item{
   padding:6px 12px;cursor:pointer;border-left:3px solid transparent;
-  font-size:14px;display:flex;align-items:center;gap:8px;
+  font-size:14px;display:flex;flex-direction:column;gap:0;
 }
 .asset-item:hover{background:#041a08}
 .asset-item:focus-visible{outline:1px solid var(--amber);outline-offset:-1px;background:#041a08}
@@ -176,6 +198,27 @@ button:focus-visible,.btn:focus-visible{
 .badge-low{color:var(--green);border-color:var(--green-dark)}
 .badge-clean{color:var(--green-dim);border-color:var(--green-dark)}
 .badge-unknown{color:var(--green-dark);border-color:var(--green-dark)}
+
+/* Asset item progress bars — two bars: scan + risk */
+.asset-bars{margin-top:2px;display:flex;flex-direction:column;gap:1px;width:100%}
+.asset-bar-track{height:3px;background:var(--bg);border-radius:1px;overflow:hidden;position:relative}
+.asset-bar-fill{height:100%;width:0;transition:width 0.15s linear;border-radius:1px;position:absolute;left:0;top:0}
+/* Scan bar layers: passive (dim green) < scan (bright green) < deep (cyan) */
+.ab-passive{background:var(--green-dark);animation:pulse 2s infinite;z-index:1}
+.ab-scan{background:linear-gradient(90deg,var(--green) calc(100% - 8px),var(--bg) calc(100% - 4px),transparent 100%);z-index:2}
+.ab-deep{background:linear-gradient(90deg,var(--cyan,#00e5ff) calc(100% - 8px),var(--bg) calc(100% - 4px),transparent 100%);z-index:3}
+.ab-scan.done{background:var(--green)}
+.ab-deep.done{background:var(--cyan,#00e5ff)}
+/* Risk bar layers: risk (amber) < compromise (red pulse) < investigation (cyan) */
+.ab-risk{background:var(--amber);z-index:1}
+.ab-comp{background:var(--red);animation:pulse 1.5s infinite;z-index:2}
+.ab-invest{background:linear-gradient(90deg,var(--cyan,#00e5ff) calc(100% - 8px),var(--bg) calc(100% - 4px),transparent 100%);z-index:3}
+@keyframes ab-reclaim{0%{opacity:1}25%{opacity:0.3}50%{opacity:1}75%{opacity:0.3}100%{opacity:0}}
+.ab-invest.reclaimed{animation:ab-reclaim 1s ease-out forwards}
+/* Fix bar — alternating colors for stacked fixes */
+.ab-fix{background:linear-gradient(90deg,var(--amber) calc(100% - 8px),var(--bg) calc(100% - 4px),transparent 100%);animation:pulse 2s infinite}
+.ab-fix-alt{background:linear-gradient(90deg,#d4a017 calc(100% - 8px),var(--bg) calc(100% - 4px),transparent 100%);animation:pulse 2s infinite}
+.ab-fix.done,.ab-fix-alt.done{animation:none}
 
 /* Center - canvas */
 #panel-center{flex:1;position:relative;overflow:hidden;background:var(--bg)}
@@ -601,9 +644,20 @@ button:focus-visible,.btn:focus-visible{
         <div class="hdr-clock" id="hdr-clock">0:00</div>
         <div class="hdr-phase" id="hdr-phase">RECON</div>
       </div>
-      <div class="hdr-resources">
-        <span><span class="res-label">BUDGET</span> $<span id="res-budget">50000</span></span>
-        <span><span class="res-label">TEAM</span> <span id="res-team">0/1</span></span>
+      <div class="hdr-center">
+        <div class="hdr-budget" id="hdr-budget">$50,000</div>
+        <div class="hdr-drip-bar"><div class="hdr-drip-fill" id="hdr-drip-fill"></div></div>
+        <span class="hdr-drip-text" id="hdr-drip-text">+$5K</span>
+      </div>
+      <div class="hdr-analysts-wrap">
+        <div class="hdr-analysts-row">
+          <span class="hdr-analysts-value" id="hdr-analysts">0 / 2</span>
+          <button class="btn-hire" id="btn-hire" onclick="hireContractor()" title="Hire Contractor">+1</button>
+        </div>
+        <div class="hdr-analysts-labels">
+          <span class="hdr-analysts-label">ANALYSTS</span>
+          <span class="hdr-hire-cost" id="hdr-hire-cost">$10K</span>
+        </div>
       </div>
       <div>
         <button class="btn-sm btn-amber" onclick="showModal('run-help-modal')" title="Help">?</button>
@@ -637,14 +691,7 @@ button:focus-visible,.btn:focus-visible{
     <div id="game-area">
       <div id="panel-left">
         <h3>Assets <span id="asset-count">(0/0)</span></h3>
-        <div id="resource-dashboard">
-          <div class="res-stat"><span class="res-stat-label">Time</span><span class="res-stat-value" id="res-timer-text">0:00</span></div>
-          <div class="res-timer-bar"><div class="res-timer-fill" id="res-timer-fill"></div></div>
-          <div class="res-stat"><span class="res-stat-label">Budget</span><span class="res-stat-value" id="res-dash-budget">$50,000</span></div>
-          <div class="res-stat"><span class="res-stat-label">Next $</span><span class="res-stat-value" id="res-drip-text" style="font-size:10px">+$3K in 60s</span></div>
-          <div class="res-timer-bar" style="height:3px;margin-bottom:4px"><div class="res-timer-fill" id="res-drip-fill" style="width:0%;background:var(--amber)"></div></div>
-          <div class="res-stat"><span class="res-stat-label">Team</span><span class="res-stat-value" id="res-dash-team">0 / 1</span></div>
-        </div>
+        <!-- Resource dashboard moved to header -->
         <div id="asset-list" role="listbox" aria-label="Network assets"></div>
       </div>
       <div id="panel-center">
@@ -733,9 +780,9 @@ button:focus-visible,.btn:focus-visible{
         <p>Discover as much of the network as possible, scan assets for vulnerabilities, fix or mitigate the worst ones, and hope the red team can't break through what's left. You're scored on how well you did across five areas: discovery, assessment, remediation, efficiency, and audit survival.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">RESOURCES</p>
-        <p><strong style="color:var(--green)">Team Slots</strong> — Your most precious resource. Each team member can do one thing at a time: scan an asset, fix a vulnerability, deep scan, or investigate a compromised node. You start with 1-2 slots depending on upgrades. Hire a contractor mid-run for +1 slot ($10K), or unlock permanent extra slots in the Skill Tree. The display shows "active/total" — e.g., "1/2" means 1 task running, 2 slots available.</p>
-        <p style="margin-top:6px"><strong style="color:var(--green)">Scanning</strong> — Assign a team member to scan an asset. Scans take 15-25 seconds and occupy one team slot. While scanning, that slot can't be used for fixes. Scan results reveal all vulnerabilities and discover connected nodes. You can scan any discovered asset at any time — but every scan is time your team isn't fixing things.</p>
-        <p style="margin-top:6px"><strong style="color:var(--green)">Budget ($)</strong> — Money to pay for fixes. Each fix action (Patch, Configure, Replace, Mitigate) has a dollar cost. Budget replenishes slowly over time. You can also spend $10K to hire a contractor for an extra team slot.</p>
+        <p><strong style="color:var(--green)">Analysts</strong> — Your most precious resource. Each analyst can do one thing at a time: scan an asset, fix a vulnerability, deep scan, or investigate a compromised node. You start with 1-2 analysts depending on upgrades. Hire a contractor mid-run for +1 analyst ($10K), or unlock permanent extra analysts in the Skill Tree. The display shows "active/total" — e.g., "1/2" means 1 task running, 2 analysts available.</p>
+        <p style="margin-top:6px"><strong style="color:var(--green)">Scanning</strong> — Assign an analyst to scan an asset. Scans take 15-25 seconds and occupy one analyst. While scanning, that analyst can't be used for fixes. Scan results reveal all vulnerabilities and discover connected nodes. You can scan any discovered asset at any time — but every scan is time your team isn't fixing things.</p>
+        <p style="margin-top:6px"><strong style="color:var(--green)">Budget ($)</strong> — Money to pay for fixes. Each fix action (Patch, Configure, Replace, Mitigate) has a dollar cost. Budget replenishes slowly over time. You can also spend $10K to hire a contractor for an extra analyst.</p>
         <p style="margin-top:6px"><strong style="color:var(--green)">Time</strong> — The clock counts up to 15:00. The red team escalates through ATT&CK phases as time progresses. You can scan and fix at any point — but threats increase over time.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">RED TEAM PHASES</p>
@@ -775,7 +822,7 @@ button:focus-visible,.btn:focus-visible{
         <p style="margin-top:4px">Grades: S (95+, Threat 5+ only) / A (85+) / B (70+) / C (55+) / D (40+) / F</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">BETWEEN RUNS</p>
-        <p>You earn <strong style="color:var(--amber)">Intel</strong> based on your score and threat level. Spend Intel in the Skill Tree to unlock permanent upgrades like faster scanning, extra team slots, or budget boosts. Unlock new network templates by hitting milestones. Grade F earns zero Intel.</p>
+        <p>You earn <strong style="color:var(--amber)">Intel</strong> based on your score and threat level. Spend Intel in the Skill Tree to unlock permanent upgrades like faster scanning, extra analysts, or budget boosts. Unlock new network templates by hitting milestones. Grade F earns zero Intel.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">KEYBOARD SHORTCUTS</p>
         <p style="padding-left:12px">
@@ -828,13 +875,23 @@ const UNDOC_DISCOVER_MSGS = [
   'Undocumented endpoint found: {name} — no change ticket on file',
   'Found rogue asset: {name} — someone forgot the paperwork',
 ];
-const PHASE_BOUNDARIES = [
-  { name: 'RECONNAISSANCE', start: 0, end: 180, color: 'var(--green)' },
-  { name: 'INITIAL ACCESS', start: 180, end: 360, color: 'var(--amber)' },
-  { name: 'LATERAL MOVEMENT', start: 360, end: 600, color: 'var(--amber)' },
-  { name: 'PRIV ESCALATION', start: 600, end: 780, color: 'var(--red)' },
-  { name: 'EXFILTRATION', start: 780, end: 900, color: 'var(--red)' },
+// Hybrid phase system: min time (floor) + max time (ceiling) + event trigger
+const PHASE_SEQUENCE = [
+  { name: 'RECONNAISSANCE', min: 0, max: 180, color: 'var(--green)',
+    trigger: () => R.redTeam.probedNodes.size >= 3 },
+  { name: 'INITIAL ACCESS', min: 120, max: 180, color: 'var(--amber)',
+    trigger: () => true }, // always ready after min
+  { name: 'LATERAL MOVEMENT', min: 240, max: 360, color: 'var(--amber)',
+    trigger: () => R.redTeam.footholds.length >= 1 },
+  { name: 'PRIV ESCALATION', min: 360, max: 600, color: 'var(--red)',
+    trigger: () => R.redTeam.footholds.length >= 2 || R.redTeam.footholds.some(fId => R.net.nodes[fId] && R.net.nodes[fId].zone >= 2) },
+  { name: 'EXFILTRATION', min: 480, max: 780, color: 'var(--red)',
+    trigger: () => R.redTeam.footholds.some(fId => R.net.nodes[fId] && R.net.nodes[fId].zone >= 3) },
 ];
+// Keep old constant for backward compat in any remaining references
+const PHASE_BOUNDARIES = PHASE_SEQUENCE.map((p, i, arr) => ({
+  name: p.name, start: p.min, end: i < arr.length - 1 ? arr[i + 1].min : 900, color: p.color
+}));
 
 const ASSET_TYPES = {
   firewall:    { icon: '🛡', label: 'Firewall', zones: [0] },
@@ -943,6 +1000,10 @@ const FIX_TYPES = {
   mitigate:  { label: 'Mitigate',  costRange: [1000,4000],  timeRange: [5,15], successRange: [1.0,1.0],   downtime: false, effect: 'mitigate' },
 };
 
+// Burn & Rebuild costs by zone (higher zones = more expensive infrastructure)
+const REBUILD_COSTS = { 0: 10000, 1: 12000, 2: 10000, 3: 15000, 4: 20000, 5: 8000 };
+const REBUILD_TIMES = { 0: [25,35], 1: [25,35], 2: [20,30], 3: [30,40], 4: [35,45], 5: [20,28] };
+
 const NETWORK_TEMPLATES = [
   { id: 'small_office', name: 'Small Office', weights: [0.6,0.7,0.5,0.4,0.5,0.3], unlocked: true },
   { id: 'enterprise',   name: 'Enterprise',   weights: [1,1,1,1,1,0.7], unlocked: false, req: 'Complete any run with grade C+' },
@@ -961,7 +1022,7 @@ const RUN_MODIFIERS = [
   { id: 'insider',     name: 'Insider Threat',  desc: 'One asset is pre-compromised', effect: 'insider' },
   { id: 'zeroday_mod', name: 'Zero Day',        desc: 'One critical vuln has no patch', effect: 'zeroday' },
   { id: 'compliance',  name: 'Compliance Audit',desc: 'Bonus for full discovery, penalty for gaps', effect: 'compliance' },
-  { id: 'skeleton',    name: 'Skeleton Crew',   desc: '50% less team capacity', effect: 'skeleton' },
+  { id: 'skeleton',    name: 'Skeleton Crew',   desc: '50% fewer analysts', effect: 'skeleton' },
   { id: 'surplus',     name: 'Budget Surplus',  desc: '50% more budget, 20% less time', effect: 'surplus' },
 ];
 
@@ -974,10 +1035,10 @@ const SKILL_TREE = {
     { id: 'osint',       name: 'OSINT Integration',    desc: 'See asset types before probing', cost: 400 },
   ],
   engineering: [
-    { id: 'jr_analyst',  name: 'Junior Analyst',       desc: '+1 team capacity slot', cost: 75 },
+    { id: 'jr_analyst',  name: 'Junior Analyst',       desc: '+1 analyst', cost: 75 },
     { id: 'patch_auto',  name: 'Patch Automation',     desc: 'Patch success rate +10%', cost: 150 },
     { id: 'config_tmpl', name: 'Config Templates',     desc: 'Configure actions 50% faster', cost: 200 },
-    { id: 'sr_engineer', name: 'Senior Engineer',      desc: '+1 team capacity slot', cost: 350 },
+    { id: 'sr_engineer', name: 'Senior Engineer',      desc: '+1 analyst', cost: 350 },
     { id: 'playbooks',   name: 'Incident Playbooks',   desc: 'First fix on each asset is free', cost: 500 },
   ],
   strategy: [
@@ -1203,6 +1264,13 @@ function generateNetwork(templateId, threatLevel) {
         fixQueue: [],
         firstFixFree: hasUpgrade('playbooks'),
         compromised: false,
+        anomaly: false,
+        compromiseConfirmed: false,
+        persistence: false,
+        rebuilding: false,
+        rebuildProgress: 0,
+        rebuildTotalTime: 0,
+        irType: null,
         passiveReveals: 0,
         radarPhase: Math.random() * Math.PI * 2,
       });
@@ -1270,6 +1338,13 @@ function generateNetwork(templateId, threatLevel) {
       fixQueue: [],
       firstFixFree: hasUpgrade('playbooks'),
       compromised: false,
+      anomaly: false,
+      compromiseConfirmed: false,
+      persistence: false,
+      rebuilding: false,
+      rebuildProgress: 0,
+      rebuildTotalTime: 0,
+      irType: null,
       shadowIT: true,
       passiveTimer: 0,
       passiveReveals: 0,
@@ -1546,6 +1621,27 @@ function initCanvas() {
   });
   canvas.addEventListener('mouseleave', () => dragging = false);
 
+  // Double-click on canvas node: investigate > scan > deep scan
+  canvas.addEventListener('dblclick', e => {
+    if (!R || R.paused) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left - cam.x) / cam.zoom;
+    const my = (e.clientY - rect.top - cam.y) / cam.zoom;
+    let closest = null, minDist = 30 / cam.zoom;
+    for (const n of R.net.nodes) {
+      if (!n.discovered) continue;
+      const dist = Math.sqrt((n.x - mx) ** 2 + (n.y - my) ** 2);
+      if (dist < minDist) { minDist = dist; closest = n; }
+    }
+    if (!closest) return;
+    if ((closest.anomaly && !closest.compromiseConfirmed && !closest.investigating) ||
+        (closest.compromised && closest.compromiseConfirmed && !closest.investigating) ||
+        (closest.compromised && !closest.compromiseConfirmed && getDetectionTier(closest) === 1 && !closest.investigating)) {
+      startInvestigation(closest.id);
+    } else if (!closest.scanned && !closest.scanning) scanAsset(closest.id);
+    else if (closest.scanned && !closest.deepScanned && !closest.deepScanning) deepScan(closest.id);
+  });
+
   // Zoom toward mouse pointer
   canvas.addEventListener('wheel', e => {
     e.preventDefault();
@@ -1666,14 +1762,15 @@ function renderCanvas() {
     ctx.setLineDash([]);
   }
 
-  // Draw red team compromised connections
+  // Draw red team compromised connections (only visible compromises)
   if (R.redTeam && R.redTeam.compromised.size > 0) {
     const compSet = R.redTeam.compromised;
+    const playerKnows = n => n.compromiseConfirmed || (n.compromised && getDetectionTier(n) === 1);
     for (const [a, b] of R.net.edges) {
       if (compSet.has(a) && compSet.has(b)) {
         const na = R.net.nodes[a], nb = R.net.nodes[b];
         if (!na.discovered || !nb.discovered) continue;
-        if (!na.scanned && !nb.scanned) continue;
+        if (!playerKnows(na) || !playerKnows(nb)) continue;
         const mx2 = (na.x + nb.x) / 2, my2 = (na.y + nb.y) / 2;
         const dx2 = mx2 - cx, dy2 = my2 - cy;
         const dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2) || 1;
@@ -1711,7 +1808,8 @@ function renderCanvas() {
 
     // Node circle
     let color = P ? '#665533' : '#446644'; // discovered, unscanned
-    if (n.compromised) color = '#ff3333';
+    if (n.compromised && (n.compromiseConfirmed || getDetectionTier(n) === 1)) color = '#ff3333';
+    else if (n.anomaly && !n.compromiseConfirmed) color = '#ffb000'; // amber for anomaly
     else if (n.scanned && n.vulns.length === 0) color = G;
     else if (n.scanned && n.vulns.every(v => v.fixed)) color = G;
     else if (n.scanned && n.vulns.some(v => v.severity >= 9 && !v.fixed && !v.mitigated)) color = '#ff3333';
@@ -1759,7 +1857,7 @@ function renderCanvas() {
     // Radar sweep on unscanned nodes (passive monitoring indicator)
     // Keeps spinning until a full scan is performed, even after passive detections exhaust
     // Stops when paused
-    if (!P && !n.scanned && !n.scanning && !n.compromised) {
+    if (!P && !n.scanned && !n.scanning && !(n.compromised && (n.compromiseConfirmed || getDetectionTier(n) === 1))) {
       const hasPassiveLeft = n.vulns.some(v => !v.revealed && PASSIVE_VULN_CATS.has(v.category.id));
       const sweepPeriod = Math.min(PASSIVE_INTERVALS[Math.min(n.passiveReveals || 0, PASSIVE_INTERVALS.length - 1)], 30);
       const sweepAngle = (n.radarPhase || 0) + ((R.elapsed % sweepPeriod) / sweepPeriod) * Math.PI * 2;
@@ -1870,7 +1968,8 @@ function renderCanvas() {
     }
 
     // Compromised node — pulsing red glow, expanding ring, and skull indicator
-    if (n.compromised) {
+    // Only show if player knows about it (Tier 1 confirmed, or anomaly confirmed)
+    if (n.compromised && (n.compromiseConfirmed || getDetectionTier(n) === 1)) {
       const pulse = (Math.sin(R.elapsed * 3) + 1) / 2;
       // Outer pulsing glow fill
       ctx.beginPath();
@@ -1896,21 +1995,42 @@ function renderCanvas() {
       ctx.fillText('☠', n.x - 14, n.y - 14);
     }
 
-    // Investigation progress ring (cyan)
+    // Anomaly node — pulsing amber glow
+    if (n.anomaly && !n.compromiseConfirmed) {
+      const pulse = (Math.sin(R.elapsed * 2.5) + 1) / 2;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 20 + pulse * 5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,176,0,${0.04 + pulse * 0.06})`;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 16 + pulse * 3, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(255,176,0,${0.3 + pulse * 0.4})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.font = '10px serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = `rgba(255,176,0,${0.6 + pulse * 0.4})`;
+      ctx.fillText('⚠', n.x - 14, n.y - 14);
+    }
+
+    // Investigation progress ring (cyan for IR, amber for anomaly)
     if (n.investigating) {
       const pct = clamp(n.irProgress / n.irTotalTime, 0, 1);
       const startAngle = -Math.PI / 2;
       const endAngle = startAngle + pct * Math.PI * 2;
+      const isAnomaly = n.irType === 'anomaly';
+      const trackColor = isAnomaly ? 'rgba(255,176,0,0.15)' : 'rgba(0,229,255,0.15)';
+      const progressColor = isAnomaly ? '#ffb000' : '#00e5ff';
       // Track
       ctx.beginPath();
       ctx.arc(n.x, n.y, 20, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(0,229,255,0.15)';
+      ctx.strokeStyle = trackColor;
       ctx.lineWidth = 3;
       ctx.stroke();
       // Progress
       ctx.beginPath();
       ctx.arc(n.x, n.y, 20, startAngle, endAngle);
-      ctx.strokeStyle = '#00e5ff';
+      ctx.strokeStyle = progressColor;
       ctx.lineWidth = 3;
       ctx.lineCap = 'round';
       ctx.stroke();
@@ -1992,7 +2112,8 @@ function getActiveWorkCount() {
     c + n.vulns.filter(v => v.fixing).length
     + (n.investigating ? 1 : 0)
     + (n.scanning ? 1 : 0)
-    + (n.deepScanning ? 1 : 0), 0);
+    + (n.deepScanning ? 1 : 0)
+    + (n.rebuilding ? 1 : 0), 0);
   _activeWorkCache = { frame, count };
   return count;
 }
@@ -2002,7 +2123,7 @@ function scanAsset(nodeId) {
   const node = R.net.nodes[nodeId];
   if (!node || !node.discovered || node.scanned || node.scanning) return;
   if (getActiveWorkCount() >= R.teamSlots) {
-    addLog('All team slots busy — wait or hire contractor', 'warn'); return;
+    addLog('All analysts busy — wait or hire contractor', 'warn'); return;
   }
   node.scanning = true;
   node.scanProgress = 0;
@@ -2010,6 +2131,7 @@ function scanAsset(nodeId) {
   addLog(`Scanning ${node.name}... ETA ${node.scanTotalTime}s`, 'info');
   updateResourceDisplay();
   renderDetail();
+  renderAssetList();
   renderAssetList();
 }
 
@@ -2031,6 +2153,11 @@ function startFix(nodeId, vulnIdx, fixType) {
   if (node.firstFixFree) { cost = 0; node.firstFixFree = false; }
   else { cost = rand(ft.costRange[0], Math.min(ft.costRange[1], R.budget)); }
 
+  // Rework cost: 1.5x when re-fixing a mitigated/configured vuln
+  if ((vuln.mitigated || vuln.configured) && ft.effect === 'full') {
+    cost = Math.round(cost * 1.5);
+  }
+
   let time = rand(ft.timeRange[0], ft.timeRange[1]);
   let successRate = randf(ft.successRange[0], ft.successRange[1]);
 
@@ -2040,7 +2167,7 @@ function startFix(nodeId, vulnIdx, fixType) {
 
   // Check team capacity (fixes + investigations)
   const activeFixCount = getActiveWorkCount();
-  if (activeFixCount >= R.teamSlots) { addLog('All team slots busy — wait or hire contractor', 'warn'); return; }
+  if (activeFixCount >= R.teamSlots) { addLog('All analysts busy — wait or hire contractor', 'warn'); return; }
 
   R.budget -= cost;
   R.budgetSpent += cost;
@@ -2065,8 +2192,10 @@ function hireContractor() {
   R.budgetSpent += 10000;
   R.teamSlots++;
   R.contractorHired = true;
-  addLog('Contractor hired — +1 team slot', 'ok');
+  addLog('Contractor hired — +1 analyst', 'ok');
+  sfxFixOk();
   updateResourceDisplay();
+  renderDetail();
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -2118,18 +2247,38 @@ function startRun() {
     totalVulns: 0,
     totalFixed: 0,
     redTeam: {
-      footholds: [],
-      compromised: new Set(),
-      activeAttack: null,
+      footholds: [],           // node IDs with active footholds
+      persistedNodes: new Set(), // node IDs with established persistence (survive IR)
+      compromised: new Set(),  // all currently compromised node IDs
       probedNodes: new Set(),
       breachedCritical: [],
-      attackTimer: 0,
       buffs: new Set(),
       exploitBonus: 0,
       intel: new Map(),
+      pentesters: [],          // array of pentester objects (initialized below)
+      stuckTimer: 0,           // time all pentesters have been idle with no targets
     },
+    pendingAlerts: [],
     log: [],
   };
+
+  // Initialize pentesters based on threat level
+  const ptCount = threatLevel <= 1 ? 1 : threatLevel <= 3 ? 2 : 3;
+  const ptSpeedMult = threatLevel >= 6 ? 0.7 : 1.0;
+  for (let i = 0; i < ptCount; i++) {
+    R.redTeam.pentesters.push({
+      id: i,
+      state: 'idle',       // idle, scanning, exploiting, persisting, pivoting, traveling, cooldown
+      targetNode: null,     // node ID being worked on
+      sourceNode: null,     // for pivots: the foothold being pivoted from
+      progress: 0,
+      totalTime: 0,
+      cooldown: 0,          // wait time between actions
+      onsite: false,        // true if pentester is physically onsite (coffee shop)
+      doubledWith: null,    // ID of pentester being assisted
+      speedMult: ptSpeedMult,
+    });
+  }
 
   // Generate vulns for all pre-discovered nodes (hidden until scanned/passive reveal)
   for (const node of net.nodes) {
@@ -2137,6 +2286,15 @@ function startRun() {
       node.vulns = generateVulns(node, threatLevel, net.mods);
       R.totalVulns += node.vulns.length;
     }
+  }
+
+  // Handle insider threat modifier: register pre-compromised node in red team state
+  if (net.insiderNode) {
+    const ins = net.insiderNode;
+    ins.compromiseConfirmed = true;
+    ins.compromisedAt = 0;
+    R.redTeam.compromised.add(ins.id);
+    R.redTeam.footholds.push(ins.id);
   }
 
   showScreen('run-screen');
@@ -2153,7 +2311,7 @@ function startRun() {
   addLog('=== PumaSecure Run Started ===', 'info');
   addLog(`Template: ${net.template.name} | Threat Level: ${threatLevel}`, 'info');
   net.mods.forEach(m => addLog(`Modifier: ${m.name} — ${m.desc}`, 'warn'));
-  addLog(`Resources: ${fmtMoney(budget)} budget, ${teamSlots} team slot${teamSlots > 1 ? 's' : ''}`, 'ok');
+  addLog(`Resources: ${fmtMoney(budget)} budget, ${teamSlots} analyst${teamSlots > 1 ? 's' : ''}`, 'ok');
 
   updateResourceDisplay();
   renderAssetList();
@@ -2173,15 +2331,26 @@ function gameLoop() {
     if (R && !R.paused) {
       R.elapsed += dt * R.clockSpeed;
 
-      // Update phase
+      // Update phase — hybrid: min time floor + event trigger OR max time ceiling
       const oldPhase = R.phase;
-      for (const p of PHASE_BOUNDARIES) {
-        if (R.elapsed >= p.start && R.elapsed < p.end) {
-          R.phase = p.name;
-          break;
+      const curIdx = PHASE_SEQUENCE.findIndex(p => p.name === R.phase);
+      if (curIdx >= 0 && curIdx < PHASE_SEQUENCE.length - 1) {
+        const next = PHASE_SEQUENCE[curIdx + 1];
+        // Advance if: past max time, OR past min time AND trigger met
+        if (R.elapsed >= next.max || (R.elapsed >= next.min && next.trigger())) {
+          R.phase = next.name;
         }
       }
       if (R.elapsed >= RUN_DURATION) R.phase = 'COMPLETE';
+
+      // Early win: no compromises, no footholds, all pentesters idle, all discovered scanned, 5+ min elapsed
+      if (R.elapsed >= 300 && curIdx >= 2 && R.redTeam.compromised.size === 0 &&
+          R.redTeam.footholds.length === 0 && R.redTeam.pentesters.length > 0 &&
+          R.redTeam.pentesters.every(p => p.state === 'idle') &&
+          R.net.nodes.every(n => !n.discovered || n.scanned)) {
+        addLog('✓ RED TEAM: Engagement concluded — no viable attack paths', 'ok');
+        R.phase = 'COMPLETE';
+      }
 
       // Phase transition announcements
       if (R.phase !== oldPhase) {
@@ -2206,6 +2375,7 @@ function gameLoop() {
       // Process scans and fixes
       processScans(dt * R.clockSpeed);
       processFixes(dt * R.clockSpeed);
+      processRebuilds(dt * R.clockSpeed);
 
       // Passive intel — slowly reveal detectable vulns on unscanned nodes
       processPassiveIntel(dt * R.clockSpeed);
@@ -2219,6 +2389,27 @@ function gameLoop() {
       updateClockDisplay();
       updateResourceDisplay();
 
+      // Update asset list bars (left panel) — all nodes
+      for (const nd of R.net.nodes) {
+        if (nd.scanning) {
+          const asb = document.getElementById(`ab-${nd.id}-s`);
+          if (asb) asb.style.width = Math.min(100, (nd.scanProgress / nd.scanTotalTime) * 100) + '%';
+        }
+        if (nd.deepScanning) {
+          const adb = document.getElementById(`ab-${nd.id}-d`);
+          if (adb) adb.style.width = Math.min(100, (nd.deepScanProgress / nd.deepScanTotalTime) * 100) + '%';
+        }
+        if (nd.investigating) {
+          const aib = document.getElementById(`ab-${nd.id}-i`);
+          if (aib) aib.style.width = Math.min(100, (nd.irProgress / nd.irTotalTime) * 100) + '%';
+        }
+        nd.vulns.forEach((v, vi) => {
+          if (!v.fixing) return;
+          const afb = document.getElementById(`ab-${nd.id}-f${vi}`);
+          if (afb) afb.style.width = Math.min(100, (v.fixProgress / v.fixTotalTime) * 100) + '%';
+        });
+      }
+
       // Update detail panel elements without rebuilding DOM
       if (R.selectedNode !== null) {
         const node = R.net.nodes[R.selectedNode];
@@ -2229,7 +2420,7 @@ function gameLoop() {
               if (bar) bar.style.width = Math.min(100, (v.fixProgress / v.fixTotalTime) * 100) + '%';
             }
           });
-          // Update scan progress bar
+          // Update detail panel scan progress bar
           if (node.scanning) {
             const scanBar = document.getElementById('scan-progress-bar');
             if (scanBar) scanBar.style.width = Math.min(100, (node.scanProgress / node.scanTotalTime) * 100) + '%';
@@ -2357,6 +2548,12 @@ function processScans(dt) {
         const sev = critCount > 0 ? 'crit' : node.vulns.length > 0 ? 'warn' : 'ok';
         addLog(`Scan complete: ${node.name} — ${node.vulns.length} vuln${node.vulns.length !== 1 ? 's' : ''} found${critCount ? ` (${critCount} CRITICAL)` : ''}`, sev);
         node.scanCompleteAt = R.elapsed;
+        // Detect existing silent compromise (Tier 3 → Tier 2 upgrade reveals anomaly)
+        if (R.redTeam.compromised.has(node.id) && !node.compromiseConfirmed && !node.anomaly) {
+          node.anomaly = true;
+          addLog(`⚠ ANOMALY: Scan of ${node.name} detected indicators of compromise!`, 'crit');
+          sfxBreach();
+        }
         updateResourceDisplay();
         renderAssetList();
         flashAssetItem(node.id, 'scan-complete-flash');
@@ -2370,7 +2567,7 @@ function processScans(dt) {
         node.deepScanning = false;
         node.deepScanned = true;
         for (const v of node.vulns) {
-          v.exploitability = clamp(v.exploitability * randf(0.80, 0.85), 0.01, 0.95);
+          v.exploitability = clamp(v.exploitability * randf(0.60, 0.75), 0.01, 0.95);
         }
         for (const [a, b] of R.net.edges) {
           const neighborId = a === node.id ? b : b === node.id ? a : null;
@@ -2388,6 +2585,14 @@ function processScans(dt) {
           }
         }
         addLog(`Deep analysis complete on ${node.name} — threat surface reduced`, 'ok');
+        // Deep scan auto-confirms any existing compromise (Tier 1 detection)
+        if (R.redTeam.compromised.has(node.id) && !node.compromiseConfirmed) {
+          node.anomaly = false;
+          node.compromiseConfirmed = true;
+          addLog(`🔴 CONFIRMED: Deep scan of ${node.name} found active backdoor — system compromised!`, 'crit');
+          sfxBreach();
+          screenShake();
+        }
         updateResourceDisplay();
         renderAssetList();
         if (R.selectedNode === node.id) renderDetail();
@@ -2402,18 +2607,75 @@ function processFixes(dt) {
     if (!node.investigating) continue;
     node.irProgress += dt;
     if (node.irProgress >= node.irTotalTime) {
-      node.investigating = false;
-      node.compromised = false;
-      node.reclaimedAt = R.elapsed;
-      node.hardened = true;
-      node.hardenedUntil = R.elapsed + 120;
-      R.redTeam.compromised.delete(node.id);
-      R.redTeam.footholds = R.redTeam.footholds.filter(id => id !== node.id);
-      const flavor = pick(IR_FLAVOR);
-      addLog(`✓ RECLAIMED: ${node.name} — ${flavor}`, 'ok');
-      sfxFixOk();
-      if (R.selectedNode === node.id) renderDetail();
-      renderAssetList();
+      if (node.irType === 'anomaly') {
+        // Anomaly investigation complete
+        node.investigating = false;
+        node.anomaly = false;
+        if (R.redTeam.compromised.has(node.id)) {
+          // Confirmed compromise
+          node.compromiseConfirmed = true;
+          addLog(`⚠ CONFIRMED: ${node.name} is compromised — initiate IR`, 'crit');
+          sfxBreach();
+        } else {
+          // False positive
+          addLog(`✓ ${node.name} — anomaly dismissed, no compromise found`, 'ok');
+          sfxFixOk();
+        }
+        if (R.selectedNode === node.id) renderDetail();
+        renderAssetList();
+      } else if (node.irType === 'ir') {
+        // Full IR complete
+        node.investigating = false;
+        node.compromised = false;
+        node.compromiseConfirmed = false;
+        node.anomaly = false;
+        node.reclaimedAt = R.elapsed;
+        node.hardened = true;
+        node.hardenedUntil = R.elapsed + 240;
+        R.redTeam.compromised.delete(node.id);
+
+        // Remove from footholds ONLY if no persistence
+        if (!node.persistence) {
+          R.redTeam.footholds = R.redTeam.footholds.filter(id => id !== node.id);
+        }
+
+        // Kick any pentester working this node
+        for (const pt of R.redTeam.pentesters) {
+          if (pt.targetNode === node.id || pt.sourceNode === node.id) {
+            ptReset(pt, randf(2, 4));
+          }
+        }
+
+        const flavor = pick(IR_FLAVOR);
+        addLog(`✓ RECLAIMED: ${node.name} — ${flavor}`, 'ok');
+        if (node.persistence) {
+          addLog(`⚠ WARNING: Persistence detected on ${node.name} — consider Burn & Rebuild`, 'warn');
+        }
+        sfxFixOk();
+        if (R.selectedNode === node.id) renderDetail();
+        // Pulse the investigation bar before re-rendering
+        const investBar = document.getElementById(`ab-${node.id}-i`);
+        if (investBar) {
+          investBar.classList.add('reclaimed');
+          setTimeout(() => renderAssetList(), 1000);
+        } else {
+          renderAssetList();
+        }
+      } else {
+        // Legacy fallback: no irType set (shouldn't happen)
+        node.investigating = false;
+        node.compromised = false;
+        node.reclaimedAt = R.elapsed;
+        node.hardened = true;
+        node.hardenedUntil = R.elapsed + 240;
+        R.redTeam.compromised.delete(node.id);
+        R.redTeam.footholds = R.redTeam.footholds.filter(id => id !== node.id);
+        const flavor = pick(IR_FLAVOR);
+        addLog(`✓ RECLAIMED: ${node.name} — ${flavor}`, 'ok');
+        sfxFixOk();
+        if (R.selectedNode === node.id) renderDetail();
+        renderAssetList();
+      }
     }
   }
   // Decay hardened status
@@ -2479,7 +2741,7 @@ function deepScan(nodeId) {
   const node = R.net.nodes[nodeId];
   if (!node || !node.scanned || node.deepScanned || node.deepScanning) return;
   if (getActiveWorkCount() >= R.teamSlots) {
-    addLog('All team slots busy', 'warn'); return;
+    addLog('All analysts busy', 'warn'); return;
   }
   node.deepScanning = true;
   node.deepScanProgress = 0;
@@ -2487,20 +2749,38 @@ function deepScan(nodeId) {
   addLog(`Deep scanning ${node.name}... ETA ${node.deepScanTotalTime}s`, 'info');
   updateResourceDisplay();
   renderDetail();
+  renderAssetList();
 }
 
 function startInvestigation(nodeId) {
   if (!R || R.paused || R.phase === 'COMPLETE') return;
   const node = R.net.nodes[nodeId];
-  if (!node || !node.compromised || node.investigating) return;
+  if (!node || node.investigating) return;
+
   // Check team slots
   const activeFixCount = getActiveWorkCount();
-  if (activeFixCount >= R.teamSlots) { addLog('All team slots busy — wait or hire contractor', 'warn'); return; }
-  node.investigating = true;
-  node.irProgress = 0;
-  node.irTotalTime = rand(10, 20);
-  addLog(`Investigation started on ${node.name} — ETA ${node.irTotalTime}s`, 'info');
+  if (activeFixCount >= R.teamSlots) { addLog('All analysts busy — wait or hire contractor', 'warn'); return; }
+
+  if (node.anomaly && !node.compromiseConfirmed) {
+    // Anomaly investigation: confirm or dismiss
+    node.investigating = true;
+    node.irProgress = 0;
+    node.irTotalTime = rand(5, 10);
+    node.irType = 'anomaly';
+    addLog(`Investigating anomaly on ${node.name}...`, 'info');
+  } else if (node.compromised && (node.compromiseConfirmed || getDetectionTier(node) === 1)) {
+    // Full incident response
+    node.investigating = true;
+    node.irProgress = 0;
+    node.irTotalTime = rand(10, 20);
+    node.irType = 'ir';
+    addLog(`Incident response started on ${node.name} — ETA ${node.irTotalTime}s`, 'info');
+  } else {
+    return; // nothing to investigate
+  }
+
   renderDetail();
+  renderAssetList();
 }
 
 const IR_FLAVOR = [
@@ -2513,6 +2793,81 @@ const IR_FLAVOR = [
   'Attacker evicted — they were mining crypto on the side',
   'Forensics complete — turns out the attacker had better documentation than we do',
 ];
+
+function burnAndRebuild(nodeId) {
+  if (!R || R.paused || R.phase === 'COMPLETE') return;
+  const node = R.net.nodes[nodeId];
+  if (!node || !node.persistence || node.compromised || node.rebuilding) return;
+  const cost = REBUILD_COSTS[node.zone] || 12000;
+  if (R.budget < cost) { addLog('Insufficient budget for Burn & Rebuild', 'warn'); return; }
+  if (getActiveWorkCount() >= R.teamSlots) { addLog('All analysts busy', 'warn'); return; }
+  R.budget -= cost;
+  R.budgetSpent += cost;
+  node.rebuilding = true;
+  node.rebuildProgress = 0;
+  const range = REBUILD_TIMES[node.zone] || [25, 35];
+  node.rebuildTotalTime = rand(range[0], range[1]);
+  addLog(`🔥 Burn & Rebuild initiated on ${node.name} — system going offline ($${(cost/1000).toFixed(0)}K)`, 'crit');
+  updateResourceDisplay();
+  renderDetail();
+  renderAssetList();
+}
+
+function processRebuilds(dt) {
+  for (const node of R.net.nodes) {
+    if (!node.rebuilding) continue;
+    node.rebuildProgress += dt;
+    if (node.rebuildProgress >= node.rebuildTotalTime) {
+      node.rebuilding = false;
+      node.persistence = false;
+      R.redTeam.persistedNodes.delete(node.id);
+      R.redTeam.footholds = R.redTeam.footholds.filter(id => id !== node.id);
+      // Re-roll the node: clear all vulns (clean system)
+      node.vulns = [];
+      node.scanned = false;
+      node.deepScanned = false;
+      node.scanning = false;
+      node.deepScanning = false;
+      node.scanProgress = 0;
+      node.deepScanProgress = 0;
+      node.hardened = true;
+      node.hardenedUntil = R.elapsed + 300; // 5 min hardening on fresh system
+      node.compromised = false;
+      node.compromiseConfirmed = false;
+      node.anomaly = false;
+      node.passiveReveals = 0;
+      node.passiveTimer = 0;
+      // Cascade: sever downstream footholds that depended on this node
+      const neighbors = rtGetNeighbors(node.id);
+      for (const nId of neighbors) {
+        if (R.redTeam.compromised.has(nId) && !R.redTeam.persistedNodes.has(nId)) {
+          // Check if this neighbor has any OTHER path to a persisted node
+          const otherPaths = R.redTeam.footholds.some(fId => fId !== node.id && rtGetNeighbors(fId).includes(nId));
+          if (!otherPaths) {
+            const neighbor = R.net.nodes[nId];
+            if (neighbor) {
+              neighbor.compromised = false;
+              neighbor.compromiseConfirmed = false;
+              neighbor.anomaly = false;
+              R.redTeam.compromised.delete(nId);
+              R.redTeam.footholds = R.redTeam.footholds.filter(id => id !== nId);
+              // Kick pentesters on severed nodes
+              for (const pt of R.redTeam.pentesters) {
+                if (pt.targetNode === nId || pt.sourceNode === nId) ptReset(pt, randf(3, 5));
+              }
+              addLog(`✓ ${neighbor.name} access severed — no persistence, no path`, 'ok');
+            }
+          }
+        }
+      }
+      addLog(`✓ REBUILT: ${node.name} — clean system online, persistence eliminated`, 'ok');
+      sfxFixOk();
+      updateResourceDisplay();
+      renderAssetList();
+      if (R.selectedNode === node.id) renderDetail();
+    }
+  }
+}
 
 function processPassiveIntel(dt) {
   if (!R) return;
@@ -2563,15 +2918,23 @@ function processBudgetDrip(dt) {
     addLog(`Budget allocation: +$${(R.budgetDripAmount/1000).toFixed(0)},000`, 'ok');
     updateResourceDisplay();
     if (R.selectedNode !== null) updateDetailButtons();
+    // Pulse the budget display
+    const budgetEl = document.getElementById('hdr-budget');
+    if (budgetEl) {
+      budgetEl.classList.remove('pulse');
+      void budgetEl.offsetWidth;
+      budgetEl.classList.add('pulse');
+      setTimeout(() => budgetEl.classList.remove('pulse'), 600);
+    }
   }
-  // Update budget drip timer display
-  const dripFill = document.getElementById('res-drip-fill');
+  // Update header drip bar and text
+  const dripFill = document.getElementById('hdr-drip-fill');
   if (dripFill) {
     const pct = 1 - (R.budgetDripTimer / R.budgetDripInterval);
     dripFill.style.width = (pct * 100) + '%';
   }
-  const dripText = document.getElementById('res-drip-text');
-  if (dripText) dripText.textContent = `+$${(R.budgetDripAmount/1000).toFixed(0)}K in ${Math.ceil(R.budgetDripTimer)}s`;
+  const dripText = document.getElementById('hdr-drip-text');
+  if (dripText) dripText.textContent = `+$${(R.budgetDripAmount/1000).toFixed(0)}K`;
 }
 
 
@@ -2647,10 +3010,10 @@ function resetRestartBtn() {
 // Red team attack intervals per phase (seconds between attempts, scaled by threat level)
 const RT_INTERVALS = {
   'RECONNAISSANCE': [10, 15],
-  'INITIAL ACCESS': [5, 8],
-  'LATERAL MOVEMENT': [4, 6],
-  'PRIV ESCALATION': [3, 5],
-  'EXFILTRATION': [2, 4],
+  'INITIAL ACCESS': [6, 10],
+  'LATERAL MOVEMENT': [5, 8],
+  'PRIV ESCALATION': [4, 6],
+  'EXFILTRATION': [3, 5],
 };
 
 const RT_PROBE_MSGS = [
@@ -2663,6 +3026,74 @@ function rtGetInterval() {
   const range = RT_INTERVALS[R.phase] || [8, 12];
   const threatScale = 1 - (R.threatLevel - 1) * 0.08; // higher threat = faster
   return randf(range[0], range[1]) * Math.max(0.4, threatScale);
+}
+
+// Detection tier: 1 = deep-scanned (instant, specific), 2 = scanned (delayed, vague), 3 = unmonitored (silent)
+function getDetectionTier(node) {
+  if (!node) return 3;
+  // Missing Monitoring vuln downgrades detection regardless of scan state
+  const hasMissingMonitoring = node.vulns.some(v =>
+    v.category.id === 'missing_monitoring' && !v.fixed && !v.mitigated
+  );
+  if (hasMissingMonitoring) return 3;
+  if (node.deepScanned) return 1;
+  if (node.scanned) return 2;
+  return 3;
+}
+
+// Queue a detection alert with tier-appropriate delay and specificity
+function queueDetectionAlert(node, eventType, pentesterId) {
+  const tier = getDetectionTier(node);
+  if (tier === 3) return; // silent - no detection
+
+  const zoneName = ZONE_NAMES[node.zone] || 'Unknown';
+  let msg, level, delay;
+
+  if (tier === 1) {
+    // Specific, immediate
+    delay = 0;
+    if (eventType === 'scanning') {
+      msg = `⚠ Scanning activity detected on ${node.name}`;
+      level = 'warn';
+    } else if (eventType === 'exploiting') {
+      msg = `⚠ Exploitation attempt detected on ${node.name}!`;
+      level = 'crit';
+    } else if (eventType === 'compromised') {
+      msg = `🔴 BREACH DETECTED: ${node.name} compromised!`;
+      level = 'crit';
+    }
+  } else {
+    // Vague, delayed
+    delay = randf(5, 10);
+    if (eventType === 'scanning') {
+      msg = `⚠ Unusual traffic detected in ${zoneName} zone`;
+      level = 'warn';
+    } else if (eventType === 'exploiting') {
+      msg = `⚠ Suspicious activity in ${zoneName} zone`;
+      level = 'warn';
+    } else if (eventType === 'compromised') {
+      msg = `⚠ Anomalous behavior detected in ${zoneName} zone`;
+      level = 'crit';
+    }
+  }
+
+  if (!msg) return;
+
+  if (delay === 0) {
+    addLog(msg, level);
+    if (eventType === 'compromised') {
+      // Tier 1: immediate confirmed compromise
+      node.compromiseConfirmed = true;
+      sfxBreach();
+      renderAssetList();
+    }
+  } else {
+    // Delayed alert - store and process in game loop
+    if (!R.pendingAlerts) R.pendingAlerts = [];
+    R.pendingAlerts.push({
+      fireAt: R.elapsed + delay, msg, level, nodeId: node.id, eventType
+    });
+  }
 }
 
 function rtTryExploit(node) {
@@ -2714,34 +3145,75 @@ function rtTryExploit(node) {
 
     // Strategic buff bonuses
     if (rt.buffs.has('bypass_perimeter') && node.zone <= 1) chance *= 1.3;
-    if (rt.buffs.has('tunnel_access') && node.zone >= 3) chance *= 1.2;
+    if (rt.buffs.has('tunnel_access') && node.zone >= 3) chance *= 1.1;
 
     // Phase-based multiplier
-    if (R.phase === 'PRIV ESCALATION') chance *= 1.3;
-    else if (R.phase === 'EXFILTRATION') chance *= 1.5;
+    if (R.phase === 'PRIV ESCALATION') chance *= 1.15;
+    else if (R.phase === 'EXFILTRATION') chance *= 1.25;
     // Hardened nodes are much harder to re-compromise
     if (node.hardened) chance *= 0.2;
     // Deep-scanned nodes have reduced exploitability
-    if (node.deepScanned) chance *= 0.8;
+    if (node.deepScanned) chance *= 0.5;
 
     if (Math.random() < chance) {
       return vuln;
     }
   }
-  // Brute force chance at higher threat levels
+  // Brute force chance — respects node defenses
   const unfixed = node.vulns.filter(v => !v.fixed);
-  if (unfixed.length && Math.random() < 0.1 * R.threatLevel / 5) {
-    return { name: 'brute-force', bruteForce: true };
+  if (unfixed.length) {
+    let bruteChance = 0.05 * R.threatLevel / 5;
+    if (node.hardened) bruteChance *= 0.1;
+    if (node.deepScanned) bruteChance *= 0.5;
+    const mitigatedRatio = node.vulns.filter(v => v.mitigated).length / Math.max(1, unfixed.length);
+    bruteChance *= (1 - mitigatedRatio * 0.6);
+    if (Math.random() < bruteChance) {
+      return { name: 'brute-force', bruteForce: true };
+    }
   }
   return null;
 }
 
-function rtCompromiseNode(node, vulnUsed) {
-  if (R.redTeam.compromised.has(node.id)) return;
-  node.compromised = true;
+// ── Pentester helper functions ──
+
+function ptReset(pt, cooldownTime) {
+  pt.state = cooldownTime ? 'cooldown' : 'idle';
+  pt.cooldown = cooldownTime || 0;
+  pt.targetNode = null;
+  pt.sourceNode = null;
+  pt.progress = 0;
+  pt.totalTime = 0;
+  pt.doubledWith = null;
+}
+
+function ptCompromiseNode(pt, node, vulnUsed) {
+  const rt = R.redTeam;
+  if (rt.compromised.has(node.id)) { ptReset(pt, 1); return; }
+
+  // Mark as compromised
   node.compromisedAt = R.elapsed;
-  R.redTeam.compromised.add(node.id);
-  R.redTeam.footholds.push(node.id);
+  rt.compromised.add(node.id);
+
+  // Detection determines what the player sees
+  const tier = getDetectionTier(node);
+  if (tier === 1) {
+    // Instant confirmed compromise
+    node.compromised = true;
+    node.compromiseConfirmed = true;
+    const msg = vulnUsed.bruteForce
+      ? `🔴 RED TEAM: Brute-forced into ${node.name}`
+      : `🔴 RED TEAM: Exploited "${vulnUsed.name}" on ${node.name}`;
+    addLog(msg, 'crit');
+    sfxBreach();
+  } else if (tier === 2) {
+    // Delayed anomaly detection
+    node.compromised = true; // internally compromised but player doesn't know yet
+    queueDetectionAlert(node, 'compromised', pt.id);
+  } else {
+    // Tier 3: silent compromise - player won't know until pivot triggers detection
+    node.compromised = true;
+  }
+
   // Reveal if undiscovered
   if (!node.discovered) {
     node.discovered = true;
@@ -2752,71 +3224,128 @@ function rtCompromiseNode(node, vulnUsed) {
     node.passiveTimer = 0;
     R.totalDiscovered++;
   }
-  // Reveal the exploited vuln (even if node isn't scanned)
-  if (!vulnUsed.bruteForce) {
-    vulnUsed.revealed = true;
-  }
+
+  // Reveal exploited vuln
+  if (!vulnUsed.bruteForce) vulnUsed.revealed = true;
+
   renderAssetList();
   flashAssetItem(node.id, 'fix-fail-flash');
   if (R.selectedNode === node.id) {
     const pr = document.getElementById('panel-right');
-    pr.classList.remove('breach-flash');
-    void pr.offsetWidth;
-    pr.classList.add('breach-flash');
-    pr.addEventListener('animationend', () => pr.classList.remove('breach-flash'), { once: true });
-  }
-  const msg = vulnUsed.bruteForce
-    ? `🔴 RED TEAM: Brute-forced into ${node.name}`
-    : `🔴 RED TEAM: Exploited "${vulnUsed.name}" on ${node.name}`;
-  addLog(msg, 'crit');
-  sfxBreach();
-  // Check if critical asset
-  if (node.zone === 4 && !R.redTeam.breachedCritical.includes(node.id)) {
-    R.redTeam.breachedCritical.push(node.id);
-    addLog(`🔴 CRITICAL BREACH: ${node.name} compromised — data at risk!`, 'crit');
-    screenShake();
-  }
-
-  // Apply strategic buff from node type
-  const strat = NODE_STRATEGY[node.type];
-  if (strat && strat.strategicBuff) {
-    R.redTeam.buffs.add(strat.strategicBuff);
-    switch (strat.strategicBuff) {
-      case 'domain_admin':
-        R.redTeam.exploitBonus += 0.15;
-        break;
-      case 'credential_harvest':
-        R.redTeam.exploitBonus += 0.03;
-        break;
-      case 'dns_hijack':
-        R.redTeam.exploitBonus += 0.05;
-        break;
-      case 'supply_chain':
-        R.redTeam.exploitBonus += 0.08;
-        break;
-      case 'reveal_backends': {
-        const hidden = R.net.nodes.filter(n => !n.discovered && n.zone >= 1 && n.zone <= 2);
-        const toReveal = hidden.slice(0, rand(1, 2));
-        for (const h of toReveal) {
-          h.discovered = true;
-          if (h.vulns.length === 0) {
-            h.vulns = generateVulns(h, R.threatLevel, R.net.mods);
-            R.totalVulns += h.vulns.length;
-          }
-          h.passiveTimer = 0;
-          R.totalDiscovered++;
-        }
-        if (toReveal.length) renderAssetList();
-        break;
-      }
-      // tunnel_access, bypass_perimeter, physical_proximity, data_target: flag-only, used elsewhere
+    if (pr) {
+      pr.classList.remove('breach-flash');
+      void pr.offsetWidth;
+      pr.classList.add('breach-flash');
+      pr.addEventListener('animationend', () => pr.classList.remove('breach-flash'), { once: true });
     }
   }
 
-  // Post-exploitation recon: learn vuln categories on neighbors
+  // Critical breach check
+  if (node.zone === 4 && !rt.breachedCritical.includes(node.id)) {
+    rt.breachedCritical.push(node.id);
+    if (tier <= 2) addLog(`🔴 CRITICAL BREACH: ${node.name} compromised — data at risk!`, 'crit');
+    screenShake();
+  }
+
+  // Choose: persist or pivot
+  const strat = NODE_STRATEGY[node.type];
+  const isHighValue = node.zone >= 3 || (strat && strat.strategicBuff);
+
+  if (isHighValue) {
+    // Establish persistence on high-value targets
+    pt.state = 'persisting';
+    pt.progress = 0;
+    pt.totalTime = randf(15, 30) * pt.speedMult;
+    // Temporary foothold during persistence attempt
+    if (!rt.footholds.includes(node.id)) rt.footholds.push(node.id);
+  } else {
+    // Quick pivot on low-value targets
+    pt.state = 'pivoting';
+    pt.sourceNode = node.id;
+    pt.progress = 0;
+    pt.totalTime = randf(3, 8) * pt.speedMult;
+    // Temporary foothold
+    if (!rt.footholds.includes(node.id)) rt.footholds.push(node.id);
+
+    // Pick pivot target (neighbor)
+    const neighbors = rtGetNeighbors(node.id).filter(id => !rt.compromised.has(id));
+    if (neighbors.length) {
+      pt.targetNode = rtWeightedPick(neighbors, id => {
+        const n = R.net.nodes[id]; const s = n ? NODE_STRATEGY[n.type] : null;
+        let w = (s ? s.pivotValue : 0.3) + 0.1;
+        if (n && n.hardened) w *= 0.15;
+        if (n && n.deepScanned) w *= 0.5;
+        const fixRatio = n ? n.vulns.filter(v => v.fixed).length / Math.max(1, n.vulns.length) : 0;
+        w *= (1 - fixRatio * 0.7);
+        return w;
+      });
+      // Trigger detection on source node when pivoting (lateral movement is noisy)
+      const sourceDetectTier = getDetectionTier(node);
+      if (sourceDetectTier === 3) {
+        // Even unmonitored nodes show signs during pivot
+        // Check if any NEIGHBOR of this node has monitoring
+        const monitoredNeighbor = rtGetNeighbors(node.id).some(nId => {
+          const nn = R.net.nodes[nId];
+          return nn && getDetectionTier(nn) <= 2;
+        });
+        if (monitoredNeighbor) {
+          queueDetectionAlert(node, 'compromised', pt.id);
+        }
+      }
+    } else {
+      // No neighbors to pivot to — just hold position
+      ptReset(pt, randf(2, 4));
+      // Apply buffs even without pivoting
+      rtApplyStrategicBuff(node);
+      rtPostExploitRecon(node);
+    }
+  }
+}
+
+// Extract strategic buff application from old rtCompromiseNode
+function rtApplyStrategicBuff(node) {
+  const strat = NODE_STRATEGY[node.type];
+  if (!strat || !strat.strategicBuff) return;
+  const rt = R.redTeam;
+  rt.buffs.add(strat.strategicBuff);
+  switch (strat.strategicBuff) {
+    case 'domain_admin':
+      rt.exploitBonus = Math.min(rt.exploitBonus + 0.15, 0.20);
+      break;
+    case 'credential_harvest':
+      rt.exploitBonus = Math.min(rt.exploitBonus + 0.03, 0.20);
+      break;
+    case 'dns_hijack':
+      rt.exploitBonus = Math.min(rt.exploitBonus + 0.05, 0.20);
+      break;
+    case 'supply_chain':
+      rt.exploitBonus = Math.min(rt.exploitBonus + 0.08, 0.20);
+      break;
+    case 'reveal_backends': {
+      const hidden = R.net.nodes.filter(n => !n.discovered && n.zone >= 1 && n.zone <= 2);
+      const toReveal = hidden.slice(0, rand(1, 2));
+      for (const h of toReveal) {
+        h.discovered = true;
+        if (h.vulns.length === 0) {
+          h.vulns = generateVulns(h, R.threatLevel, R.net.mods);
+          R.totalVulns += h.vulns.length;
+        }
+        h.passiveTimer = 0;
+        R.totalDiscovered++;
+      }
+      if (toReveal.length) renderAssetList();
+      break;
+    }
+    // tunnel_access, bypass_perimeter, physical_proximity, data_target: flag-only, used elsewhere
+  }
+}
+
+// Extract post-exploit recon from old rtCompromiseNode
+function rtPostExploitRecon(node) {
+  const rt = R.redTeam;
   const neighbors = rtGetNeighbors(node.id);
   for (const nId of neighbors) {
-    if (!R.redTeam.intel.has(nId)) R.redTeam.intel.set(nId, new Set());
+    if (!rt.intel.has(nId)) rt.intel.set(nId, new Set());
     const neighbor = R.net.nodes[nId];
     if (!neighbor) continue;
     if (neighbor.vulns.length === 0) {
@@ -2824,9 +3353,450 @@ function rtCompromiseNode(node, vulnUsed) {
       R.totalVulns += neighbor.vulns.length;
     }
     for (const v of neighbor.vulns) {
-      if (!v.fixed) R.redTeam.intel.get(nId).add(v.category.id);
+      if (!v.fixed) rt.intel.get(nId).add(v.category.id);
     }
   }
+}
+
+// ── Target selection for pentester ──
+
+function ptPickPhysicalTarget(pt) {
+  const rt = R.redTeam;
+  // Onsite pentester can attack Wi-Fi APs, wireless workstations, and IoT
+  // Low-risk: wifiap, workstation, iot (no incarceration risk)
+  // High-risk: zone >= 3 nodes with physical vulns (incarceration risk)
+  const physicalTargets = R.net.nodes.filter(n => {
+    if (rt.compromised.has(n.id) || n.rebuilding) return false;
+    // Wi-Fi APs and IoT are always physically accessible from onsite
+    if (n.type === 'wifiap' || n.type === 'iot') return true;
+    // Workstations in zones 0-2 are accessible (lobby, offices)
+    if (n.type === 'workstation' && n.zone <= 2) return true;
+    // High-value targets with physical security vulns
+    if (n.zone >= 3 && n.vulns.some(v => v.category.id === 'physical_security' && !v.fixed)) return true;
+    return false;
+  });
+  if (!physicalTargets.length) return null;
+  // Prefer low-risk targets first, then high-risk
+  const lowRisk = physicalTargets.filter(n => n.zone < 3);
+  const pool = lowRisk.length ? lowRisk : physicalTargets;
+  return pick(pool);
+}
+
+function ptPickTarget(pt) {
+  const rt = R.redTeam;
+  const phase = R.phase;
+
+  // Don't target nodes being rebuilt
+  const isViable = n => n && !rt.compromised.has(n.id) && !n.rebuilding;
+
+  if (phase === 'RECONNAISSANCE') {
+    // Probe perimeter for intel
+    const perimeterNodes = R.net.nodes.filter(n => n.zone <= 1 && n.discovered);
+    if (!perimeterNodes.length) return null;
+    return rtWeightedPick(perimeterNodes, n => {
+      const s = NODE_STRATEGY[n.type]; return (s ? s.targetPriority : 0.3) + 0.1;
+    });
+  }
+
+  if (phase === 'INITIAL ACCESS') {
+    const perimeter = R.net.nodes.filter(n => n.zone <= 1 && isViable(n));
+    if (!perimeter.length) return null;
+    const probed = perimeter.filter(n => rt.probedNodes.has(n.id));
+    const pool = (probed.length && Math.random() > 0.3) ? probed : perimeter;
+    const target = rtWeightedPick(pool, n => {
+      const s = NODE_STRATEGY[n.type]; return (s ? s.targetPriority : 0.3) + 0.1;
+    });
+    if (target && !target.discovered) {
+      target.discovered = true;
+      R.totalDiscovered++;
+      queueDetectionAlert(target, 'scanning', pt.id);
+      renderAssetList();
+    }
+    return target;
+  }
+
+  // LATERAL MOVEMENT, PRIV ESCALATION, EXFILTRATION: use footholds
+  if (!rt.footholds.length) {
+    // Fallback: keep trying perimeter
+    const perimeter = R.net.nodes.filter(n => n.zone <= 1 && isViable(n));
+    if (!perimeter.length) return null;
+    return pick(perimeter);
+  }
+
+  if (phase === 'LATERAL MOVEMENT') {
+    const foothold = pick(rt.footholds);
+    let neighbors = rtGetNeighbors(foothold).filter(id => isViable(R.net.nodes[id]));
+    if (!neighbors.length && rt.buffs.has('tunnel_access') && Math.random() < 0.5) {
+      const deep = R.net.nodes.filter(n => n.zone >= 3 && isViable(n));
+      if (deep.length) neighbors = deep.map(n => n.id);
+    }
+    if (!neighbors.length) return null;
+    const targetId = rtWeightedPick(neighbors, id => {
+      const n = R.net.nodes[id]; const s = n ? NODE_STRATEGY[n.type] : null;
+      let w = (s ? s.pivotValue : 0.3) + 0.1;
+      if (n && n.hardened) w *= 0.15;
+      if (n && n.deepScanned) w *= 0.5;
+      const fixRatio = n ? n.vulns.filter(v => v.fixed).length / Math.max(1, n.vulns.length) : 0;
+      w *= (1 - fixRatio * 0.7);
+      return w;
+    });
+    const target = targetId != null ? R.net.nodes[targetId] : null;
+    if (target && !target.discovered) {
+      target.discovered = true;
+      R.totalDiscovered++;
+      queueDetectionAlert(target, 'scanning', pt.id);
+      renderAssetList();
+    }
+    return target;
+  }
+
+  if (phase === 'PRIV ESCALATION') {
+    const foothold = pick(rt.footholds);
+    const neighbors = rtGetNeighbors(foothold).filter(id => {
+      const n = R.net.nodes[id]; return n && isViable(n);
+    });
+    const inner = neighbors.filter(id => R.net.nodes[id].zone >= 3);
+    const pool = inner.length ? inner : neighbors;
+    if (!pool.length) return null;
+    const targetId = rtWeightedPick(pool, id => {
+      const n = R.net.nodes[id]; const s = n ? NODE_STRATEGY[n.type] : null;
+      let w = (s ? s.targetPriority : 0.3) + 0.1;
+      if (n && n.hardened) w *= 0.15;
+      if (n && n.deepScanned) w *= 0.5;
+      const fixRatio = n ? n.vulns.filter(v => v.fixed).length / Math.max(1, n.vulns.length) : 0;
+      w *= (1 - fixRatio * 0.7);
+      return w;
+    });
+    const target = targetId != null ? R.net.nodes[targetId] : null;
+    if (target && !target.discovered) {
+      target.discovered = true;
+      R.totalDiscovered++;
+      queueDetectionAlert(target, 'scanning', pt.id);
+      renderAssetList();
+    }
+    return target;
+  }
+
+  if (phase === 'EXFILTRATION') {
+    // Prioritize critical assets
+    const criticalTargets = R.net.nodes.filter(n => n.zone === 4 && isViable(n));
+    if (criticalTargets.length) {
+      const reachable = criticalTargets.filter(t =>
+        rt.footholds.some(fId => rtGetNeighbors(fId).includes(t.id))
+      );
+      if (reachable.length) {
+        const target = rtWeightedPick(reachable, n => {
+          const s = NODE_STRATEGY[n.type]; return (s ? s.targetPriority : 0.3) + 0.1;
+        });
+        if (target && !target.discovered) {
+          target.discovered = true;
+          R.totalDiscovered++;
+          renderAssetList();
+        }
+        return target;
+      }
+    }
+    // Fallback: expand toward critical assets
+    const foothold = pick(rt.footholds);
+    const neighbors = rtGetNeighbors(foothold).filter(id => {
+      const n = R.net.nodes[id]; return n && isViable(n);
+    });
+    if (!neighbors.length) return null;
+    const targetId = pick(neighbors);
+    return R.net.nodes[targetId] || null;
+  }
+
+  return null;
+}
+
+// ── Pentester state machine ──
+
+function updatePentester(pt, dt) {
+  const rt = R.redTeam;
+
+  // Handle cooldown
+  if (pt.state === 'cooldown') {
+    pt.cooldown -= dt;
+    if (pt.cooldown <= 0) {
+      pt.state = 'idle';
+      pt.targetNode = null;
+    }
+    return;
+  }
+
+  // TRAVELING: pentester heading to physical location
+  if (pt.state === 'traveling') {
+    pt.progress += dt;
+    if (pt.progress >= pt.totalTime) {
+      pt.onsite = true;
+      pt.state = 'idle';
+      pt.progress = 0;
+      addLog(`⚠ RED TEAM: Operator is now onsite (coffee shop)`, 'warn');
+      // Detect if perimeter has monitoring
+      const perimeterMonitored = R.net.nodes.some(n => n.zone <= 1 && getDetectionTier(n) <= 2);
+      if (perimeterMonitored) {
+        addLog(`⚠ Unknown wireless client detected in proximity`, 'warn');
+      }
+    }
+    return;
+  }
+
+  // PHYSICAL: attempting physical penetration on a secured target
+  if (pt.state === 'physical') {
+    pt.progress += dt;
+    if (pt.progress >= pt.totalTime) {
+      const target = R.net.nodes[pt.targetNode];
+      if (!target) { ptReset(pt, 3); return; }
+
+      // Physical security vulns on target affect success
+      const physVulns = target.vulns.filter(v => v.category.id === 'physical_security' && !v.fixed);
+      const physVulnBonus = physVulns.length * 0.15;
+      const isHighRisk = target.zone >= 3; // server rooms, data centers
+      const baseChance = isHighRisk ? 0.40 : 0.65;
+      const chance = Math.min(0.85, baseChance + physVulnBonus);
+
+      if (Math.random() < chance) {
+        // SUCCESS: total control, instant persistence
+        addLog(`🔴 PHYSICAL BREACH: ${target.name} — operator gained direct access!`, 'crit');
+        screenShake();
+        const fakeVuln = { name: 'physical access (USB/console)', bruteForce: false, revealed: true, category: { id: 'physical_security' }, severity: 10, exploitability: 1 };
+        target.vulns.push(fakeVuln);
+        ptCompromiseNode(pt, target, fakeVuln);
+        // Force persistence immediately for physical access
+        if (pt.state === 'persisting' || pt.state === 'pivoting') {
+          target.persistence = true;
+          R.redTeam.persistedNodes.add(target.id);
+          pt.state = 'idle'; // done, move on
+        }
+      } else {
+        // FAILED
+        if (isHighRisk) {
+          // Roll for incarceration
+          const physSecFixed = target.vulns.some(v => v.category.id === 'physical_security' && v.fixed);
+          const catchChance = physSecFixed ? 0.75 : 0.60;
+          if (Math.random() < catchChance) {
+            // CAUGHT — pentester permanently removed
+            addLog(`✓ Physical intrusion attempt on ${target.name} FAILED — suspect detained by security!`, 'ok');
+            sfxFixOk();
+            // Remove pentester permanently
+            const idx = R.redTeam.pentesters.indexOf(pt);
+            if (idx >= 0) R.redTeam.pentesters.splice(idx, 1);
+            addLog(`RED TEAM lost an operator (${R.redTeam.pentesters.length} remaining)`, 'info');
+            return;
+          } else {
+            // Escaped — retreat to coffee shop
+            addLog(`⚠ Physical intrusion attempt on ${target.name} failed — operator retreated`, 'warn');
+            ptReset(pt, randf(8, 15));
+            pt.onsite = true; // still onsite
+          }
+        } else {
+          // Low-risk target: no penalty, try again later
+          addLog(`⚠ Physical access attempt on ${target.name} unsuccessful`, 'warn');
+          ptReset(pt, randf(5, 10));
+          pt.onsite = true;
+        }
+      }
+    }
+    return;
+  }
+
+  // IDLE: pick a target
+  if (pt.state === 'idle') {
+    // Onsite pentester: try physical targets first
+    if (pt.onsite) {
+      const target = ptPickPhysicalTarget(pt);
+      if (target) {
+        pt.targetNode = target.id;
+        pt.state = 'physical';
+        pt.progress = 0;
+        pt.totalTime = randf(8, 15) * pt.speedMult;
+        addLog(`⚠ RED TEAM: Operator attempting physical access to ${target.name}...`, 'warn');
+        return;
+      }
+      // No physical targets — fall through to normal targeting (can still do remote from onsite)
+    }
+    const target = ptPickTarget(pt);
+    if (!target) return; // no viable targets
+    pt.targetNode = target.id;
+    pt.state = 'scanning';
+    pt.progress = 0;
+    pt.totalTime = randf(5, 12) * pt.speedMult;
+
+    // Detection: scanning alert (not during RECON — that's passive probing)
+    if (R.phase !== 'RECONNAISSANCE') {
+      queueDetectionAlert(target, 'scanning', pt.id);
+    }
+    return;
+  }
+
+  // SCANNING: probe the target
+  if (pt.state === 'scanning') {
+    pt.progress += dt;
+    if (pt.progress >= pt.totalTime) {
+      const target = R.net.nodes[pt.targetNode];
+      if (!target || target.rebuilding) { ptReset(pt); return; }
+
+      // Build intel on the target (same as current RECON logic)
+      if (target.vulns.length === 0) {
+        target.vulns = generateVulns(target, R.threatLevel, R.net.mods);
+        R.totalVulns += target.vulns.length;
+      }
+      rt.probedNodes.add(target.id);
+      if (!rt.intel.has(target.id)) rt.intel.set(target.id, new Set());
+      const intelSet = rt.intel.get(target.id);
+      const unknownCats = target.vulns
+        .filter(v => !v.fixed && !intelSet.has(v.category.id))
+        .map(v => v.category.id);
+      const learnCount = Math.min(unknownCats.length, rand(1, 3));
+      for (let i = 0; i < learnCount; i++) intelSet.add(unknownCats[i]);
+
+      // During RECON phase, just gather intel — don't exploit
+      if (R.phase === 'RECONNAISSANCE') {
+        const msg = pick(RT_PROBE_MSGS);
+        const tier = getDetectionTier(target);
+        if (tier === 1) addLog(`⚠ ${msg} ${target.name}`, 'warn');
+        else if (tier === 2) addLog(`⚠ Unusual traffic detected in ${ZONE_NAMES[target.zone] || 'Unknown'} zone`, 'warn');
+        ptReset(pt, randf(2, 5));
+        return;
+      }
+
+      // Move to exploitation
+      pt.state = 'exploiting';
+      pt.progress = 0;
+      pt.totalTime = randf(4, 10) * pt.speedMult;
+
+      // Detection: exploitation alert
+      queueDetectionAlert(target, 'exploiting', pt.id);
+    }
+    return;
+  }
+
+  // EXPLOITING: attempt to exploit
+  if (pt.state === 'exploiting') {
+    pt.progress += dt;
+    if (pt.progress >= pt.totalTime) {
+      const target = R.net.nodes[pt.targetNode];
+      if (!target || target.rebuilding) { ptReset(pt); return; }
+
+      // If node was reclaimed during our exploit attempt, abort
+      if (target.hardened) {
+        sfxBlocked();
+        const tier = getDetectionTier(target);
+        if (tier <= 2) addLog(`✓ Attack on ${target.name} blocked — system hardened`, 'ok');
+        ptReset(pt, randf(3, 5));
+        return;
+      }
+
+      // Attempt exploit using existing logic
+      const vuln = rtTryExploit(target);
+      if (vuln) {
+        // SUCCESS - compromise the node
+        ptCompromiseNode(pt, target, vuln);
+      } else {
+        // FAILED
+        const tier = getDetectionTier(target);
+        if (tier === 1) {
+          const reason = target.vulns.every(v => v.fixed) ? 'all vulns patched' : 'exploit failed';
+          addLog(`✓ Attack on ${target.name} blocked — ${reason}`, 'ok');
+        } else if (tier === 2) {
+          addLog(`✓ Suspicious activity in ${ZONE_NAMES[target.zone] || 'Unknown'} zone subsided`, 'ok');
+        }
+        sfxBlocked();
+        ptReset(pt, randf(3, 5));
+      }
+    }
+    return;
+  }
+
+  // PERSISTING: establishing persistence on compromised node
+  if (pt.state === 'persisting') {
+    pt.progress += dt;
+    const target = R.net.nodes[pt.targetNode];
+    // If IR completed and kicked us out during persistence
+    if (!target || !rt.compromised.has(pt.targetNode)) {
+      ptReset(pt, randf(2, 4));
+      return;
+    }
+    if (pt.progress >= pt.totalTime) {
+      // Persistence established!
+      target.persistence = true;
+      rt.persistedNodes.add(target.id);
+      if (!rt.footholds.includes(target.id)) rt.footholds.push(target.id);
+
+      const tier = getDetectionTier(target);
+      if (tier === 1) addLog(`🔴 Persistence established on ${target.name}!`, 'crit');
+
+      // Post-exploitation recon: learn vulns on neighbors
+      rtPostExploitRecon(target);
+
+      // Apply strategic buff
+      rtApplyStrategicBuff(target);
+
+      ptReset(pt, randf(1, 3));
+    }
+    return;
+  }
+
+  // PIVOTING: quick lateral move
+  if (pt.state === 'pivoting') {
+    pt.progress += dt;
+    const source = R.net.nodes[pt.sourceNode];
+    // If source was reclaimed during pivot, pivot fails
+    if (!source || !rt.compromised.has(pt.sourceNode)) {
+      const tier = source ? getDetectionTier(source) : 3;
+      if (tier <= 2) addLog(`✓ Lateral movement from ${source ? source.name : 'unknown'} interrupted`, 'ok');
+      ptReset(pt, randf(2, 4));
+      return;
+    }
+    if (pt.progress >= pt.totalTime) {
+      const target = R.net.nodes[pt.targetNode];
+      if (!target || target.rebuilding) { ptReset(pt); return; }
+
+      // Pivot complete — attempt exploit on the target
+      const vuln = rtTryExploit(target);
+      if (vuln) {
+        ptCompromiseNode(pt, target, vuln);
+      } else {
+        sfxBlocked();
+        const tier = getDetectionTier(target);
+        if (tier === 1) addLog(`✓ Lateral movement to ${target.name} blocked`, 'ok');
+        else if (tier === 2) addLog(`✓ Suspicious lateral traffic in ${ZONE_NAMES[target.zone] || 'Unknown'} subsided`, 'ok');
+        ptReset(pt, randf(3, 5));
+      }
+    }
+    return;
+  }
+}
+
+// ── Doubling up ──
+
+function maybeDoubleUp() {
+  const rt = R.redTeam;
+  const idle = rt.pentesters.filter(p => p.state === 'idle');
+  if (!idle.length) return;
+
+  // Find a pentester working a high-value target
+  const busy = rt.pentesters.filter(p =>
+    (p.state === 'persisting' || p.state === 'exploiting') &&
+    p.targetNode !== null &&
+    R.net.nodes[p.targetNode] && R.net.nodes[p.targetNode].zone >= 3 &&
+    !rt.pentesters.some(q => q.doubledWith === p.id)
+  );
+
+  if (!busy.length) return;
+
+  const helper = idle[0];
+  const target = busy[0];
+  helper.state = target.state;
+  helper.targetNode = target.targetNode;
+  helper.sourceNode = target.sourceNode;
+  helper.doubledWith = target.id;
+  helper.progress = target.progress; // sync progress
+  helper.totalTime = target.totalTime;
+
+  // Speed up: halve remaining time for the primary pentester
+  const remaining = target.totalTime - target.progress;
+  target.totalTime = target.progress + remaining * 0.5;
 }
 
 function rtWeightedPick(candidates, weightFn) {
@@ -2854,199 +3824,56 @@ function rtGetNeighbors(nodeId) {
 function processRedTeam(dt) {
   if (!R || R.phase === 'COMPLETE') return;
   const rt = R.redTeam;
-  rt.attackTimer -= dt;
-  if (rt.attackTimer > 0) return;
-  rt.attackTimer = rtGetInterval();
 
-  const phase = R.phase;
+  // Strategic buff decay
+  rt.exploitBonus = Math.max(0, rt.exploitBonus - 0.002 * dt);
 
-  if (phase === 'RECONNAISSANCE') {
-    // Passive probing — build intel on perimeter targets
-    const perimeterNodes = R.net.nodes.filter(n => n.zone <= 1 && n.discovered);
-    if (perimeterNodes.length) {
-      const target = rtWeightedPick(perimeterNodes, n => {
-        const s = NODE_STRATEGY[n.type]; return (s ? s.targetPriority : 0.3) + 0.1;
-      });
-      rt.probedNodes.add(target.id);
-      // Build intel: learn 1-2 vuln categories on this node
-      if (target.vulns.length === 0) {
-        target.vulns = generateVulns(target, R.threatLevel, R.net.mods);
-        R.totalVulns += target.vulns.length;
-      }
-      if (!rt.intel.has(target.id)) rt.intel.set(target.id, new Set());
-      const intelSet = rt.intel.get(target.id);
-      const unknownCats = target.vulns
-        .filter(v => !v.fixed && !intelSet.has(v.category.id))
-        .map(v => v.category.id);
-      const learnCount = Math.min(unknownCats.length, rand(1, 2));
-      for (let i = 0; i < learnCount; i++) intelSet.add(unknownCats[i]);
-      const msg = pick(RT_PROBE_MSGS);
-      addLog(`⚠ ${msg} ${target.name}`, 'warn');
-    }
-
-  } else if (phase === 'INITIAL ACCESS') {
-    // Try to exploit perimeter nodes (prefer probed ones)
-    const perimeter = R.net.nodes.filter(n => n.zone <= 1 && !rt.compromised.has(n.id));
-    if (!perimeter.length) return;
-    // Prefer probed nodes, but 30% chance to try a new target
-    const probed = perimeter.filter(n => rt.probedNodes.has(n.id));
-    const pool = (probed.length && Math.random() > 0.3) ? probed : perimeter;
-    const target = rtWeightedPick(pool, n => {
-      const s = NODE_STRATEGY[n.type]; return (s ? s.targetPriority : 0.3) + 0.1;
-    });
-    // Any attack attempt reveals the node to the player
-    if (!target.discovered) {
-      target.discovered = true;
-      R.totalDiscovered++;
-      addLog(`⚠ Attack activity detected on unknown asset: ${target.name}`, 'crit');
-      renderAssetList();
-    }
-    addLog(`⚠ RED TEAM: Attempting exploitation of ${target.name}...`, 'warn');
-    const vuln = rtTryExploit(target);
-    if (vuln) {
-      rtCompromiseNode(target, vuln);
-    } else {
-      const reason = target.vulns.every(v => v.fixed) ? 'all vulns patched' : 'exploit failed';
-      sfxBlocked();
-      addLog(`✓ Attack on ${target.name} blocked — ${reason}`, 'ok');
-    }
-
-  } else if (phase === 'LATERAL MOVEMENT') {
-    // Spread from footholds to adjacent nodes
-    if (!rt.footholds.length) {
-      // No footholds yet — still try initial access on perimeter
-      const perimeter = R.net.nodes.filter(n => n.zone <= 1 && !rt.compromised.has(n.id));
-      if (perimeter.length) {
-        const target = pick(perimeter);
-        if (!target.discovered) {
-          target.discovered = true;
-          R.totalDiscovered++;
-          addLog(`⚠ Attack activity detected on unknown asset: ${target.name}`, 'crit');
+  // Process pending detection alerts
+  if (R.pendingAlerts) {
+    R.pendingAlerts = R.pendingAlerts.filter(a => {
+      if (R.elapsed >= a.fireAt) {
+        addLog(a.msg, a.level);
+        const node = R.net.nodes[a.nodeId];
+        if (node && a.eventType === 'compromised' && !node.compromiseConfirmed) {
+          node.anomaly = true; // Tier 2: anomaly, not confirmed
           renderAssetList();
+          if (R.selectedNode === a.nodeId) renderDetail();
         }
-        addLog(`⚠ RED TEAM: Still probing perimeter — targeting ${target.name}...`, 'warn');
-        const vuln = rtTryExploit(target);
-        if (vuln) rtCompromiseNode(target, vuln);
-        else { sfxBlocked(); addLog(`✓ Perimeter held at ${target.name}`, 'ok'); }
+        return false;
       }
-      return;
-    }
-    const foothold = pick(rt.footholds);
-    let neighbors = rtGetNeighbors(foothold).filter(id => !rt.compromised.has(id));
-    // VPN tunnel: can reach deep zones if no direct neighbors available
-    if (!neighbors.length && rt.buffs.has('tunnel_access')) {
-      const deepTargets = R.net.nodes.filter(n => n.zone >= 3 && !rt.compromised.has(n.id));
-      if (deepTargets.length) neighbors = deepTargets.map(n => n.id);
-    }
-    if (!neighbors.length) return;
-    const targetId = rtWeightedPick(neighbors, id => {
-      const n = R.net.nodes[id]; const s = n ? NODE_STRATEGY[n.type] : null; return (s ? s.pivotValue : 0.3) + 0.1;
+      return true;
     });
-    if (targetId == null) return;
-    const target = R.net.nodes[targetId];
-    if (!target) return;
-    // Reveal if undiscovered
-    if (!target.discovered) {
-      target.discovered = true;
-      R.totalDiscovered++;
-      addLog(`⚠ RED TEAM discovered hidden asset: ${target.name}`, 'crit');
-      renderAssetList();
-    }
-    addLog(`⚠ RED TEAM: Pivoting from ${R.net.nodes[foothold].name} to ${target.name}...`, 'warn');
-    const vuln = rtTryExploit(target);
-    if (vuln) {
-      rtCompromiseNode(target, vuln);
-    } else {
-      sfxBlocked();
-      addLog(`✓ Lateral movement to ${target.name} blocked`, 'ok');
-    }
+  }
 
-  } else if (phase === 'PRIV ESCALATION') {
-    // Target inner zones from footholds, prioritize high-severity vulns
-    if (!rt.footholds.length) return;
-    const foothold = pick(rt.footholds);
-    const neighbors = rtGetNeighbors(foothold).filter(id => !rt.compromised.has(id));
-    // Prefer deeper zones
-    const inner = neighbors.filter(id => R.net.nodes[id] && R.net.nodes[id].zone >= 3);
-    const pool = inner.length ? inner : neighbors;
-    if (!pool.length) return;
-    const targetId = rtWeightedPick(pool, id => {
-      const n = R.net.nodes[id]; const s = n ? NODE_STRATEGY[n.type] : null; return (s ? s.targetPriority : 0.3) + 0.1;
-    });
-    if (targetId == null) return;
-    const target = R.net.nodes[targetId];
-    if (!target) return;
-    if (!target.discovered) {
-      target.discovered = true;
-      R.totalDiscovered++;
-      addLog(`⚠ RED TEAM discovered: ${target.name}`, 'crit');
-      renderAssetList();
-    }
-    addLog(`⚠ RED TEAM: Escalating privileges via ${target.name}...`, 'warn');
-    const vuln = rtTryExploit(target);
-    if (vuln) {
-      rtCompromiseNode(target, vuln);
-    } else {
-      sfxBlocked();
-      addLog(`✓ Privilege escalation blocked at ${target.name}`, 'ok');
-    }
+  // Process each pentester independently
+  let allIdle = true;
+  for (const pt of rt.pentesters) {
+    if (pt.state !== 'idle') allIdle = false;
+    updatePentester(pt, dt);
+  }
 
-  } else if (phase === 'EXFILTRATION') {
-    // Aggressively target critical assets (zone 4)
-    if (!rt.footholds.length) return;
-    const criticalTargets = R.net.nodes.filter(n => n.zone === 4 && !rt.compromised.has(n.id));
-    if (!criticalTargets.length) {
-      // All critical assets already compromised or none reachable — try any uncompromised neighbor
-      const foothold = pick(rt.footholds);
-      const neighbors = rtGetNeighbors(foothold).filter(id => !rt.compromised.has(id));
-      if (!neighbors.length) return;
-      const targetId = pick(neighbors);
-      const target = R.net.nodes[targetId];
-      if (!target) return;
-      addLog(`⚠ RED TEAM: Expanding foothold to ${target.name}...`, 'warn');
-      const vuln = rtTryExploit(target);
-      if (vuln) rtCompromiseNode(target, vuln);
-      else { sfxBlocked(); addLog(`✓ Expansion blocked at ${target.name}`, 'ok'); }
-      return;
-    }
-    // Try to reach a critical asset from nearest foothold
-    const target = rtWeightedPick(criticalTargets, n => {
-      const s = n ? NODE_STRATEGY[n.type] : null; return (s ? s.targetPriority : 0.3) + 0.1;
-    });
-    if (!target) return;
-    // Check if any foothold has a path to it
-    const reachable = rt.footholds.some(fId => {
-      const neighbors = rtGetNeighbors(fId);
-      return neighbors.includes(target.id);
-    });
-    if (reachable) {
-      if (!target.discovered) {
-        target.discovered = true;
-        R.totalDiscovered++;
-        addLog(`⚠ RED TEAM discovered critical asset: ${target.name}`, 'crit');
-        renderAssetList();
-      }
-      addLog(`🔴 RED TEAM: Attempting exfiltration via ${target.name}!`, 'crit');
-      const vuln = rtTryExploit(target);
-      if (vuln) {
-        rtCompromiseNode(target, vuln);
-      } else {
-        sfxBlocked();
-        addLog(`✓ Exfiltration attempt blocked at ${target.name}`, 'ok');
-      }
-    } else {
-      // Spread toward critical targets
-      const foothold = pick(rt.footholds);
-      const neighbors = rtGetNeighbors(foothold).filter(id => !rt.compromised.has(id));
-      if (neighbors.length) {
-        const targetId = pick(neighbors);
-        const target2 = R.net.nodes[targetId];
-        if (!target2) return;
-        addLog(`⚠ RED TEAM: Expanding toward critical assets via ${target2.name}...`, 'warn');
-        const vuln = rtTryExploit(target2);
-        if (vuln) rtCompromiseNode(target2, vuln);
-        else { sfxBlocked(); addLog(`✓ Blocked at ${target2.name}`, 'ok'); }
-      }
+  // Check for doubling up
+  maybeDoubleUp();
+
+  // Track stuck time: no footholds + no successful exploits = stuck
+  const hasFootholds = rt.footholds.length > 0;
+  const anyOnsite = rt.pentesters.some(p => p.onsite);
+  if (!hasFootholds && !anyOnsite) {
+    rt.stuckTimer += dt;
+  } else {
+    rt.stuckTimer = Math.max(0, rt.stuckTimer - dt * 0.5); // slowly decay
+  }
+
+  // Physical intrusion: send a pentester onsite when stuck long enough
+  if (rt.stuckTimer > 45 && R.phase !== 'RECONNAISSANCE') {
+    const idlePt = rt.pentesters.find(p => (p.state === 'idle' || p.state === 'cooldown') && !p.onsite);
+    if (idlePt) {
+      idlePt.state = 'traveling';
+      idlePt.progress = 0;
+      idlePt.totalTime = randf(10, 15);
+      idlePt.targetNode = null;
+      addLog(`⚠ RED TEAM: Operator dispatched to physical location`, 'warn');
+      rt.stuckTimer = 0;
     }
   }
 }
@@ -3118,10 +3945,10 @@ function endRun() {
   let response = 100;
   if (compromisedNodes.length > 0) {
     const avgResponse = compromisedNodes.reduce((s, n) => {
-      const responded = n.reclaimedAt || RUN_DURATION;
+      const responded = n.reclaimedAt || R.elapsed;
       return s + (responded - n.compromisedAt);
     }, 0) / compromisedNodes.length;
-    response = clamp(100 - (avgResponse / RUN_DURATION) * 100, 0, 100);
+    response = clamp(100 - (avgResponse / R.elapsed) * 100, 0, 100);
   }
 
   // ── EFFICIENCY (15%) — risk reduced per dollar spent ──
@@ -3328,26 +4155,17 @@ function updateClockDisplay() {
   else if (elapsed >= 180) clockEl.style.color = 'var(--amber)';
   else clockEl.style.color = 'var(--green)';
 
-  // Update timer bar in dashboard — grows left to right as time elapses
-  const fill = document.getElementById('res-timer-fill');
-  if (fill) {
-    fill.style.width = (pct * 100) + '%';
-    fill.classList.toggle('crit', elapsed >= 600);
-    fill.classList.toggle('warn', elapsed >= 180 && elapsed < 600);
-  }
-  const timerText = document.getElementById('res-timer-text');
-  if (timerText) timerText.textContent = fmtTime(elapsed);
 }
 
 // Cache DOM refs for resource display — avoids getElementById on every frame
 let _resDom = null;
 function _getResDom() {
   if (!_resDom) _resDom = {
-    budget: document.getElementById('res-budget'),
-    team: document.getElementById('res-team'),
+    hdrBudget: document.getElementById('hdr-budget'),
+    hdrAnalysts: document.getElementById('hdr-analysts'),
+    btnHire: document.getElementById('btn-hire'),
+    hireCost: document.getElementById('hdr-hire-cost'),
     assetCount: document.getElementById('asset-count'),
-    dashBudget: document.getElementById('res-dash-budget'),
-    dashTeam: document.getElementById('res-dash-team'),
   };
   return _resDom;
 }
@@ -3363,17 +4181,33 @@ function updateResourceDisplay() {
   _lastResState.disc = R.totalDiscovered;
 
   const d = _getResDom();
-  d.budget.textContent = budgetRound.toLocaleString();
-  d.team.textContent = `${activeFixCount}/${R.teamSlots}`;
   d.assetCount.textContent = `(${R.totalDiscovered}/${R.net.nodes.length})`;
 
-  if (d.dashBudget) {
-    d.dashBudget.textContent = '$' + budgetRound.toLocaleString();
-    d.dashBudget.className = 'res-block-value' + (R.budget <= 0 ? ' empty' : R.budget < 10000 ? ' low' : '');
+  if (d.hdrBudget) {
+    d.hdrBudget.textContent = '$' + budgetRound.toLocaleString();
+    if (R.budget <= 0) d.hdrBudget.style.color = 'var(--red)';
+    else if (R.budget < 10000) d.hdrBudget.style.color = 'var(--amber)';
+    else d.hdrBudget.style.color = '';
   }
-  if (d.dashTeam) {
-    d.dashTeam.textContent = `${activeFixCount} / ${R.teamSlots}`;
-    d.dashTeam.className = 'res-block-value' + (activeFixCount >= R.teamSlots ? ' low' : '');
+  if (d.hdrAnalysts) {
+    d.hdrAnalysts.textContent = `${activeFixCount} / ${R.teamSlots}`;
+    d.hdrAnalysts.className = 'hdr-analysts-value' + (activeFixCount >= R.teamSlots ? ' busy' : '');
+    // Pulse brighter when analyst freed, dimmer when assigned
+    if (_lastResState.prevWork !== undefined && _lastResState.prevWork !== activeFixCount) {
+      const cls = activeFixCount < _lastResState.prevWork ? 'analyst-free' : 'analyst-busy';
+      d.hdrAnalysts.classList.add(cls);
+      setTimeout(() => d.hdrAnalysts.classList.remove(cls), 500);
+    }
+    _lastResState.prevWork = activeFixCount;
+  }
+  // Hire button: hidden if already hired, dimmed if insufficient budget
+  if (d.btnHire) {
+    if (R.contractorHired) d.btnHire.className = 'btn-hire hidden';
+    else if (R.budget < 10000) d.btnHire.className = 'btn-hire dimmed';
+    else d.btnHire.className = 'btn-hire';
+  }
+  if (d.hireCost) {
+    d.hireCost.className = R.contractorHired ? 'hdr-hire-cost hidden' : 'hdr-hire-cost';
   }
 }
 
@@ -3410,10 +4244,22 @@ function _renderAssetListNow() {
 
       let badge = '';
       const revealedVulns = n.vulns.filter(v => v.revealed && !v.fixed);
-      if (n.scanning) {
+      if (n.scanning && revealedVulns.length > 0) {
+        const maxSev = Math.max(...revealedVulns.map(v => v.severity));
+        const sl = sevLabel(maxSev);
+        badge = `<span class="asset-badge badge-${sl}">${revealedVulns.length}?</span>`;
+      } else if (n.scanning) {
         badge = '<span class="asset-badge badge-unknown" style="animation:pulse 1s infinite">⟳</span>';
       } else if (n.deepScanning) {
-        badge = '<span class="asset-badge badge-unknown" style="color:#00e5ff;border-color:#00e5ff;animation:pulse 1s infinite">⟳</span>';
+        // During deep scan, show vuln count (node is already scanned)
+        const unfixed = n.vulns.filter(v => !v.fixed);
+        if (unfixed.length === 0) {
+          badge = '<span class="asset-badge badge-clean">OK</span>';
+        } else {
+          const maxSev = Math.max(...unfixed.map(v => v.severity));
+          const sl = sevLabel(maxSev);
+          badge = `<span class="asset-badge badge-${sl}">${unfixed.length}</span>`;
+        }
       } else if (!n.scanned && revealedVulns.length > 0) {
         const maxSev = Math.max(...revealedVulns.map(v => v.severity));
         const sl = sevLabel(maxSev);
@@ -3428,8 +4274,48 @@ function _renderAssetListNow() {
         badge = `<span class="asset-badge badge-${sl}">${n.vulns.filter(v => !v.fixed).length}</span>`;
       }
 
-      const compIcon = n.compromised ? '<span style="color:var(--red);margin-left:auto;font-size:10px">☠</span>' : '';
-      item.innerHTML = `<span class="asset-icon">${n.typeInfo.icon}</span><span class="asset-name">${n.name}</span>${compIcon}${badge}`;
+      const compIcon = '';
+
+      // Build two-bar system: scan bar + risk bar (always rendered for consistent height)
+      const bi = n.id;
+      // Scan bar: layered passive < scan < deep
+      let scanLayers = '';
+      const passivePct = !n.scanned ? Math.min(100, (n.passiveReveals || 0) / (n.vulns.length || 3) * 100) : 0;
+      if (!n.scanned) scanLayers += `<div class="asset-bar-fill ab-passive" id="ab-${bi}-p" style="width:${passivePct}%"></div>`;
+      const scanPct = n.scanning ? Math.min(100, (n.scanProgress / n.scanTotalTime) * 100) : n.scanned ? 100 : 0;
+      if (n.scanning || n.scanned) scanLayers += `<div class="asset-bar-fill ab-scan${n.scanned && !n.scanning ? ' done' : ''}" id="ab-${bi}-s" style="width:${scanPct}%"></div>`;
+      const deepPct = n.deepScanning ? Math.min(100, (n.deepScanProgress / n.deepScanTotalTime) * 100) : n.deepScanned ? 100 : 0;
+      if (n.deepScanning || n.deepScanned) scanLayers += `<div class="asset-bar-fill ab-deep${n.deepScanned && !n.deepScanning ? ' done' : ''}" id="ab-${bi}-d" style="width:${deepPct}%"></div>`;
+
+      // Risk bar: layered risk < compromise < investigation
+      let riskLayers = '';
+      const totalSev = n.vulns.reduce((s, v) => s + (v.fixed ? 0 : v.severity), 0);
+      const maxPossibleSev = n.vulns.length * 10 || 1;
+      const riskPct = n.scanned ? Math.min(100, totalSev / maxPossibleSev * 100) : 0;
+      if (riskPct > 0) riskLayers += `<div class="asset-bar-fill ab-risk" id="ab-${bi}-r" style="width:${riskPct}%"></div>`;
+      if (n.anomaly && !n.compromiseConfirmed) {
+        riskLayers += `<div class="asset-bar-fill" id="ab-${bi}-a" style="width:100%;background:var(--amber);animation:pulse 1.5s infinite;z-index:2"></div>`;
+      } else if (n.compromised && (n.compromiseConfirmed || getDetectionTier(n) === 1)) {
+        riskLayers += `<div class="asset-bar-fill ab-comp" id="ab-${bi}-c" style="width:100%"></div>`;
+      }
+      if (n.investigating) {
+        const irPct = Math.min(100, (n.irProgress / n.irTotalTime) * 100);
+        const irBarStyle = n.irType === 'anomaly' ? 'background:var(--amber);z-index:3' : '';
+        riskLayers += `<div class="asset-bar-fill ab-invest" id="ab-${bi}-i" style="width:${irPct}%${irBarStyle ? ';' + irBarStyle : ''}"></div>`;
+      }
+
+      // Fix bar: individual layers per active fix, alternating colors
+      let fixLayers = '';
+      let fixIdx = 0;
+      n.vulns.forEach((v, vi) => {
+        if (!v.fixing) return;
+        const pct = Math.min(100, (v.fixProgress / v.fixTotalTime) * 100);
+        const cls = fixIdx % 2 === 0 ? 'ab-fix' : 'ab-fix-alt';
+        fixLayers += `<div class="asset-bar-fill ${cls}" id="ab-${bi}-f${vi}" style="width:${pct}%;z-index:${fixIdx + 1}"></div>`;
+        fixIdx++;
+      });
+
+      item.innerHTML = `<div style="display:flex;align-items:center;gap:8px;width:100%"><span class="asset-icon">${n.typeInfo.icon}</span><span class="asset-name">${n.name}</span>${compIcon}${badge}</div><div class="asset-bars"><div class="asset-bar-track">${scanLayers}</div><div class="asset-bar-track">${riskLayers}</div><div class="asset-bar-track">${fixLayers}</div></div>`;
       list.appendChild(item);
     }
   }
@@ -3445,9 +4331,9 @@ function renderDetail() {
     const unscanned = R.net.nodes.filter(n => n.discovered && !n.scanned && !n.scanning).length;
     let hint = '';
     if (unscanned > 0 && activeWork < R.teamSlots) {
-      hint = `<div class="empty-hint">${unscanned} asset${unscanned > 1 ? 's' : ''} awaiting scan · ${R.teamSlots - activeWork} team slot${R.teamSlots - activeWork > 1 ? 's' : ''} idle</div>`;
+      hint = `<div class="empty-hint">${unscanned} asset${unscanned > 1 ? 's' : ''} awaiting scan · ${R.teamSlots - activeWork} analyst${R.teamSlots - activeWork > 1 ? 's' : ''} idle</div>`;
     } else if (activeWork >= R.teamSlots) {
-      hint = '<div class="empty-hint">All team slots busy — wait for a task to finish</div>';
+      hint = '<div class="empty-hint">All analysts busy — wait for a task to finish</div>';
     }
     el.innerHTML = `<div class="detail-empty"><div class="empty-icon">⬡</div>Select an asset on the map or asset list${hint}</div>`;
     return;
@@ -3460,13 +4346,15 @@ function renderDetail() {
       <div class="detail-row"><span class="detail-label">Type</span><span class="detail-value">${node.typeInfo.label}</span></div>
       <div class="detail-row"><span class="detail-label">Zone</span><span class="detail-value">${ZONE_NAMES[node.zone]}</span></div>
       <div class="detail-row"><span class="detail-label">Criticality</span><span class="detail-value">${'★'.repeat(node.criticality)}${'☆'.repeat(5 - node.criticality)}</span></div>
-      ${node.compromised ? '<div style="color:var(--red);padding:4px 0;font-weight:bold">☠ COMPROMISED — Red team has access</div>' : ''}
+      ${node.compromised && node.compromiseConfirmed ? '<div style="color:var(--red);padding:4px 0;font-weight:bold">☠ COMPROMISED — Red team has access</div>' : ''}
+      ${node.anomaly && !node.compromiseConfirmed ? '<div style="color:var(--amber);padding:4px 0;font-weight:bold;animation:pulse 1.5s infinite">⚠ ANOMALY DETECTED — Investigation required</div>' : ''}
+      ${node.persistence ? '<div style="color:var(--red);padding:4px 0;font-size:11px">⚠ Persistence established — Burn & Rebuild required</div>' : ''}
     </div>`;
 
   // Scan button for unscanned nodes
   if (!node.scanned && !node.scanning) {
     html += `<button id="btn-scan" onclick="scanAsset(${node.id})" style="width:100%;margin-bottom:8px">
-      <span class="fix-label">Scan Asset (1 team slot)</span><span class="fix-reason"></span>
+      <span class="fix-label">Scan Asset (1 analyst)</span><span class="fix-reason"></span>
     </button>`;
   } else if (node.scanning) {
     const pct = Math.min(100, (node.scanProgress / node.scanTotalTime) * 100);
@@ -3480,7 +4368,7 @@ function renderDetail() {
   // Deep scan button for already-scanned nodes
   if (node.scanned && !node.deepScanned && !node.deepScanning) {
     html += `<button id="btn-deep-scan" onclick="deepScan(${node.id})" style="width:100%;margin-bottom:8px;font-size:12px">
-      <span class="fix-label">Deep Scan (1 team slot)</span><span class="fix-reason"></span>
+      <span class="fix-label">Deep Scan (1 analyst)</span><span class="fix-reason"></span>
     </button>`;
   } else if (node.deepScanning) {
     const pct = Math.min(100, (node.deepScanProgress / node.deepScanTotalTime) * 100);
@@ -3499,16 +4387,16 @@ function renderDetail() {
     html += '<div style="color:var(--green);padding:8px;text-align:center">✓ No vulnerabilities found</div>';
   } else if (visibleVulns.length > 0) {
     const header = node.scanned ? 'Vulnerabilities' : `Passive Intel (${visibleVulns.length} detected)`;
+    const fixedCount = node.vulns.filter(v => v.fixed).length;
     html += `<div class="detail-section"><h4>${header}</h4>`;
     node.vulns.forEach((v, i) => {
+      if (v.fixed) return; // Fixed vulns removed from list
       if (!node.scanned && !v.revealed) return;
       const sl = sevLabel(v.severity);
-      const statusText = v.fixed ? ' ✓ FIXED' : v.mitigated ? ' ◐ MITIGATED' : v.fixing ? ' ⏳ FIXING...' : v.lastFixFailed ? ' <span style="color:var(--red)">✗ FIX FAILED</span>' : v.configured && !v.fixed ? ' <span style="color:var(--amber)">▼ REDUCED</span>' : '';
-      const fixedClass = v.fixed ? ' vuln-fixed' : v.lastFixFailed ? ' vuln-failed' : v.configured && !v.fixed ? ' vuln-configured' : '';
+      const statusText = v.mitigated ? ' ◐ MITIGATED' : v.fixing ? ' ⏳ FIXING...' : v.lastFixFailed ? ' <span style="color:var(--red)">✗ FIX FAILED</span>' : v.configured ? ' <span style="color:var(--amber)">▼ REDUCED</span>' : '';
+      const fixedClass = v.lastFixFailed ? ' vuln-failed' : v.configured ? ' vuln-configured' : '';
       let sevDisplay;
-      if (v.fixed) {
-        sevDisplay = `<span class="vuln-sev sev-fixed">${v.severity.toFixed(1)}</span>`;
-      } else if (v.configured && v.originalSeverity) {
+      if (v.configured && v.originalSeverity) {
         const oldSl = sevLabel(v.originalSeverity);
         sevDisplay = `<span class="vuln-sev sev-old sev-${oldSl}">${v.originalSeverity.toFixed(1)}</span><span class="vuln-sev sev-${sl}">${v.severity.toFixed(1)}</span>`;
       } else {
@@ -3536,42 +4424,79 @@ function renderDetail() {
         }
         html += `<div class="fix-buttons">`;
 
-        // Show available fix types (skip mitigate if already mitigated)
-        for (const ft of v.category.fixTypes) {
+        // Fixed order: mitigate > configure > patch > replace (least to most effective)
+        const fixOrder = ['mitigate', 'configure', 'patch', 'replace'];
+        const isPartiallyFixed = v.mitigated || v.configured;
+        // Available: category's fix types + patch/replace if partially fixed
+        const available = new Set(v.category.fixTypes);
+        if (isPartiallyFixed) { available.add('patch'); available.add('replace'); }
+        for (const ft of fixOrder) {
+          if (!available.has(ft)) continue;
           if (ft === 'mitigate' && v.mitigated) continue;
+          if (ft === 'configure' && v.configured) continue;
           const ftInfo = FIX_TYPES[ft];
-          const costStr = ftInfo.costRange[0] === ftInfo.costRange[1]
-            ? `$${(ftInfo.costRange[0]/1000).toFixed(0)}K`
-            : `$${(ftInfo.costRange[0]/1000).toFixed(0)}-${(ftInfo.costRange[1]/1000).toFixed(0)}K`;
-          html += `<button class="fix-btn btn-sm" data-fix-type="${ft}" data-min-cost="${ftInfo.costRange[0]}"
+          const costMult = isPartiallyFixed && ftInfo.effect === 'full' ? 1.5 : 1;
+          const minCost = Math.round(ftInfo.costRange[0] * costMult);
+          const maxCost = Math.round(ftInfo.costRange[1] * costMult);
+          const costStr = minCost === maxCost
+            ? `$${(minCost/1000).toFixed(0)}K`
+            : `$${(minCost/1000).toFixed(0)}-${(maxCost/1000).toFixed(0)}K`;
+          const isRework = v.lastFixFailed && v.fixTypeApplied === ft;
+          const label = isRework ? `Rework ${ftInfo.label}` : ftInfo.label;
+          html += `<button class="fix-btn btn-sm" data-fix-type="${ft}" data-min-cost="${minCost}"
             onclick="event.stopPropagation();startFix(${node.id},${i},'${ft}')">
-            <span class="fix-label">${ftInfo.label}</span><span class="fix-cost">${costStr}</span><span class="fix-reason"></span>
+            <span class="fix-label">${label}</span><span class="fix-cost">${costStr}</span><span class="fix-reason"></span>
           </button>`;
         }
         html += `</div></div>`;
       }
       html += '</div>';
     });
+    if (fixedCount > 0) {
+      html += `<div style="color:var(--green-dim);font-size:11px;padding:4px 0;text-align:center">${fixedCount} vulnerabilit${fixedCount === 1 ? 'y' : 'ies'} resolved</div>`;
+    }
     html += '</div>';
   } else if (!node.scanned) {
     html += '<div style="color:var(--green-dim);padding:8px;text-align:center;font-size:12px">Passive sensors monitoring...</div>';
   }
 
-  // Investigate button for compromised nodes
-  if (node.compromised && !node.investigating) {
+  // Investigate/IR buttons for anomaly and compromised nodes
+  if (node.anomaly && !node.compromiseConfirmed && !node.investigating) {
+    // Anomaly: needs investigation to confirm
+    html += `<button class="btn-sm btn-amber" onclick="startInvestigation(${node.id})" style="width:100%;margin-top:8px">
+      Investigate Anomaly (1 analyst)</button>`;
+  } else if (node.compromised && node.compromiseConfirmed && !node.investigating) {
+    // Confirmed compromise: full IR
     html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-top:8px">
-      Investigate (1 team slot)</button>`;
+      Incident Response (1 analyst)</button>`;
+  } else if (node.compromised && !node.compromiseConfirmed && getDetectionTier(node) === 1 && !node.investigating) {
+    // Tier 1 auto-confirmed: full IR
+    html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-top:8px">
+      Incident Response (1 analyst)</button>`;
   } else if (node.investigating) {
     const pct = Math.min(100, (node.irProgress / node.irTotalTime) * 100);
-    html += `<div style="margin-top:8px"><div style="font-size:11px;color:var(--cyan)">Investigating... ${Math.round(pct)}%</div>
-      <div class="fix-progress"><div class="fix-progress-bar" style="width:${pct}%;background:var(--cyan)"></div></div></div>`;
+    const irLabel = node.irType === 'anomaly' ? 'Investigating anomaly' : 'Incident response';
+    const barColor = node.irType === 'anomaly' ? 'var(--amber)' : 'var(--cyan)';
+    html += `<div style="margin-top:8px"><div style="font-size:11px;color:${barColor}">${irLabel}... ${Math.round(pct)}%</div>
+      <div class="fix-progress"><div class="fix-progress-bar" style="width:${pct}%;background:${barColor}"></div></div></div>`;
   }
 
-  // Hire contractor button
-  if (!R.contractorHired && R.phase !== 'COMPLETE') {
-    html += `<button class="btn-sm btn-amber" onclick="hireContractor()" style="width:100%;margin-top:8px"
-      ${R.budget < 10000 ? 'disabled' : ''}>Hire Contractor ($10K, +1 slot)</button>`;
+  // Burn & Rebuild: available when node has persistence and is NOT actively compromised
+  if (node.persistence && !node.compromised && !node.rebuilding) {
+    const rebuildCost = REBUILD_COSTS[node.zone] || 12000;
+    const canAfford = R.budget >= rebuildCost;
+    const hasSlot = getActiveWorkCount() < R.teamSlots;
+    html += `<button class="btn-sm" onclick="burnAndRebuild(${node.id})" style="width:100%;margin-top:8px;border-color:var(--red);color:var(--red);opacity:${canAfford && hasSlot ? 1 : 0.4}" ${canAfford && hasSlot ? '' : 'disabled'}>
+      🔥 Burn & Rebuild — $${(rebuildCost/1000).toFixed(0)}K (1 analyst)</button>`;
+    if (!canAfford) html += '<div style="font-size:10px;color:var(--red-dim);text-align:center">Insufficient budget</div>';
+    else if (!hasSlot) html += '<div style="font-size:10px;color:var(--amber);text-align:center">All analysts busy</div>';
+  } else if (node.rebuilding) {
+    const pct = Math.min(100, (node.rebuildProgress / node.rebuildTotalTime) * 100);
+    html += `<div style="margin-top:8px"><div style="font-size:11px;color:var(--red)">🔥 Rebuilding system... ${Math.round(pct)}%</div>
+      <div class="fix-progress"><div class="fix-progress-bar" style="width:${pct}%;background:var(--red)"></div></div></div>`;
   }
+
+  // Hire contractor button moved to header bar
 
   el.innerHTML = html;
 }
@@ -3597,7 +4522,7 @@ function updateDetailButtons() {
     const noMoney = R.budget < minCost;
     const blocked = noMoney || teamFull;
     let reason = '';
-    if (teamFull) reason = 'NO TEAM SLOTS';
+    if (teamFull) reason = 'NO ANALYSTS';
     else if (noMoney) reason = `NEED $${(minCost/1000).toFixed(0)}K+`;
 
     btn.disabled = blocked;
@@ -3612,7 +4537,7 @@ function updateDetailButtons() {
     scanBtn.disabled = teamFull;
     scanBtn.classList.toggle('fix-blocked', teamFull);
     const reasonEl = scanBtn.querySelector('.fix-reason');
-    if (reasonEl) reasonEl.textContent = teamFull ? 'NO TEAM SLOTS' : '';
+    if (reasonEl) reasonEl.textContent = teamFull ? 'NO ANALYSTS' : '';
   }
 
   // Update deep scan button
@@ -3621,7 +4546,7 @@ function updateDetailButtons() {
     deepScanBtn.disabled = teamFull;
     deepScanBtn.classList.toggle('fix-blocked', teamFull);
     const reasonEl = deepScanBtn.querySelector('.fix-reason');
-    if (reasonEl) reasonEl.textContent = teamFull ? 'NO TEAM SLOTS' : '';
+    if (reasonEl) reasonEl.textContent = teamFull ? 'NO ANALYSTS' : '';
   }
 
   // Update hire contractor button
@@ -3632,7 +4557,7 @@ function updateDetailButtons() {
   const investBtn = document.querySelector('[onclick^="startInvestigation"]');
   if (investBtn) {
     investBtn.disabled = teamFull;
-    if (teamFull) investBtn.textContent = 'Investigate (NO SLOTS)';
+    if (teamFull) investBtn.textContent = 'Investigate (NO ANALYSTS)';
   }
 }
 
@@ -3968,6 +4893,19 @@ console.log(
     const node = R.net.nodes.find(n => n.id === nodeId);
     if (node) selectNode(node);
   });
+  assetList.addEventListener('dblclick', e => {
+    const item = e.target.closest('.asset-item');
+    if (!item || !R || R.paused) return;
+    const nodeId = Number(item.dataset.nodeId);
+    const node = R.net.nodes.find(n => n.id === nodeId);
+    if (!node) return;
+    if ((node.anomaly && !node.compromiseConfirmed && !node.investigating) ||
+        (node.compromised && node.compromiseConfirmed && !node.investigating) ||
+        (node.compromised && !node.compromiseConfirmed && getDetectionTier(node) === 1 && !node.investigating)) {
+      startInvestigation(nodeId);
+    } else if (!node.scanned && !node.scanning) scanAsset(nodeId);
+    else if (node.scanned && !node.deepScanned && !node.deepScanning) deepScan(nodeId);
+  });
 
   // Asset list keyboard navigation
   assetList.addEventListener('keydown', e => {
@@ -4004,6 +4942,21 @@ console.log(
     if (e.key === ' ' && !e.target.closest('button, input, select, [role="button"]')) { e.preventDefault(); togglePause(); }
     if (e.key === 's' && R.selectedNode !== null && !e.target.closest('input, select')) scanAsset(R.selectedNode);
     if (e.key === '?') showModal('run-help-modal');
+    // Konami code: ↑↑↓↓←→←→BA
+    const _k = window._konami || (window._konami = { seq: [], code: ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'] });
+    _k.seq.push(e.key);
+    if (_k.seq.length > 10) _k.seq.shift();
+    if (_k.seq.length === 10 && _k.seq.every((k, i) => k === _k.code[i])) {
+      _k.seq = [];
+      if (R) {
+        R.budget += 50000;
+        R.teamSlots++;
+        updateResourceDisplay();
+        addLog('☆ CHEAT ACTIVATED: +$50,000 + 1 analyst ☆', 'ok');
+        const el = document.getElementById('hdr-budget');
+        if (el) { el.classList.add('pulse'); setTimeout(() => el.classList.remove('pulse'), 600); }
+      }
+    }
   });
 })();
 </script>
