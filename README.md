@@ -88,3 +88,39 @@ Use the detail panel on the right to scan, fix, and investigate.
 ## Tech
 
 Single HTML file. Vanilla JS. HTML5 Canvas. No frameworks, no build tools, no external assets. CRT terminal aesthetic.
+
+---
+
+## Game Theory & Design Depth
+
+PumaSecure is built on **information asymmetry** — the defender doesn't know what they don't know. The most important resource isn't money or headcount, it's information, and every action is a bet on what matters most right now.
+
+### The Red Team as a Second Player
+
+The red team isn't a timer or a random event generator. It's 1-3 independent **pentester agents**, each with their own target, state machine, and decision-making. They follow multi-step attack chains — scanning a target, exploiting vulnerabilities, then choosing between **persistence** (durable but slow) or **pivoting** (fast but fragile). Compromising key nodes grants lasting strategic buffs: a VPN gateway tunnels past defenses, a domain controller grants credential access network-wide, a CI/CD server enables supply chain attacks.
+
+### Three-Tier Detection
+
+You can only defend what you can see. Detection quality depends on the node's security posture:
+
+- **Deep-scanned nodes**: Instant, specific alerts. Compromises immediately visible.
+- **Scanned nodes**: Delayed, vague zone-level alerts. Compromises appear as amber **anomalies** that must be investigated to confirm.
+- **Unscanned / no monitoring**: Completely silent. The red team owns the node and you have no idea.
+
+Scanning a silently-compromised node reveals the breach. The "Missing Monitoring" vulnerability becomes gameplay-critical — fix it or be blind.
+
+### Incident Response Racing
+
+IR isn't a guaranteed win. When you investigate a compromise, your analyst races against the pentester's current activity. If persistence completes before your IR finishes, the red team gets a durable foothold that survives eviction. Your only option then: **Burn & Rebuild** — an expensive, slow, scorched-earth system replacement that eliminates persistence but takes the node offline.
+
+### Physical Intrusion
+
+When the red team is locked out remotely, they go onsite. From a coffee shop they attack Wi-Fi APs and wireless workstations (low risk). They can also attempt **physical penetration** of secured server rooms — high reward (instant persistence via USB-jack), but failed attempts on high-security nodes risk **permanent loss of the pentester** to incarceration.
+
+### Every Mechanic Maps to Reality
+
+Scanning = vulnerability assessment. Fixing = patch management. Detection tiers = SIEM coverage gaps. Anomaly investigation = alert triage. Persistence vs pivot = APT tradecraft. Burn & Rebuild = BCP/DR. Analyst slots = the staffing shortage every security team faces. Budget = security competing with every other business priority.
+
+The game teaches by forcing the trade-off that defines real security leadership: **you will never have enough time, people, or money to fix everything. The question is what you fix first, and what risk you accept.**
+
+> For the full game theory document with detailed mechanics, see [GAME_THEORY.md](GAME_THEORY.md).
