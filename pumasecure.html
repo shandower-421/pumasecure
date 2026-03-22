@@ -127,6 +127,11 @@ button:focus-visible,.btn:focus-visible{
   font-size:20px;letter-spacing:2px;min-width:80px;
   text-shadow:var(--glow-text);
 }
+.hdr-clock.paused-blink{
+  animation:pause-blink 1s step-end infinite;
+  color:var(--amber)!important;
+}
+@keyframes pause-blink{0%,100%{opacity:1}50%{opacity:0.3}}
 .hdr-phase{
   font-size:13px;color:var(--green-dim);text-transform:uppercase;
   letter-spacing:2px;
@@ -1590,6 +1595,12 @@ function renderCanvas() {
   ctx.translate(cam.x, cam.y);
   ctx.scale(cam.zoom, cam.zoom);
 
+  // Palette: swap green → amber when paused
+  const P = R.paused;
+  const G = P ? '#ffb000' : '#00ff41';
+  const Gdim = P ? '#aa7500' : '#00aa2b';
+  const Grgba = (a) => P ? `rgba(255,176,0,${a})` : `rgba(0,255,65,${a})`;
+
   // Draw zone rings (faint) — precompute zone discovery without allocating arrays
   const cx = 500, cy = 400;
   const zoneRadii = [270, 225, 180, 135, 85, 40];
@@ -1599,7 +1610,7 @@ function renderCanvas() {
     const anyDiscovered = zoneDiscovered[z] || R.net.zoneOutlines;
     ctx.beginPath();
     ctx.arc(cx, cy, zoneRadii[z], 0, Math.PI * 2);
-    ctx.strokeStyle = anyDiscovered ? 'rgba(0,255,65,0.08)' : 'rgba(0,255,65,0.03)';
+    ctx.strokeStyle = anyDiscovered ? Grgba(0.08) : Grgba(0.03);
     ctx.lineWidth = 1;
     ctx.stroke();
   }
@@ -1635,19 +1646,19 @@ function renderCanvas() {
     const isSelectedEdge = selNeighbors && (aId === sel || bId === sel);
     if (selNeighbors) {
       if (isSelectedEdge) {
-        ctx.strokeStyle = 'rgba(0,255,65,0.8)';
+        ctx.strokeStyle = Grgba(0.8);
         ctx.lineWidth = 2;
       } else {
-        ctx.strokeStyle = 'rgba(0,255,65,0.08)';
+        ctx.strokeStyle = Grgba(0.08);
         ctx.lineWidth = 1;
       }
       ctx.setLineDash([]);
     } else if (a.scanned && b.scanned) {
-      ctx.strokeStyle = 'rgba(0,255,65,0.4)';
+      ctx.strokeStyle = Grgba(0.4);
       ctx.lineWidth = 1;
       ctx.setLineDash([]);
     } else {
-      ctx.strokeStyle = 'rgba(0,255,65,0.2)';
+      ctx.strokeStyle = Grgba(0.2);
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 4]);
     }
@@ -1685,7 +1696,7 @@ function renderCanvas() {
     if (!n.discovered) {
       // Show faint ? for undiscovered nodes in outlined zones
       if (R.net.zoneOutlines) {
-        ctx.fillStyle = 'rgba(0,255,65,0.06)';
+        ctx.fillStyle = Grgba(0.06);
         ctx.font = '14px "Share Tech Mono"';
         ctx.fillText('?', n.x, n.y + 5);
       }
@@ -1699,14 +1710,14 @@ function renderCanvas() {
     }
 
     // Node circle
-    let color = '#446644'; // discovered, unscanned
+    let color = P ? '#665533' : '#446644'; // discovered, unscanned
     if (n.compromised) color = '#ff3333';
-    else if (n.scanned && n.vulns.length === 0) color = '#00ff41';
-    else if (n.scanned && n.vulns.every(v => v.fixed)) color = '#00ff41';
+    else if (n.scanned && n.vulns.length === 0) color = G;
+    else if (n.scanned && n.vulns.every(v => v.fixed)) color = G;
     else if (n.scanned && n.vulns.some(v => v.severity >= 9 && !v.fixed && !v.mitigated)) color = '#ff3333';
     else if (n.scanned && n.vulns.some(v => v.severity >= 7 && !v.fixed && !v.mitigated)) color = '#ff6633';
     else if (n.scanned && n.vulns.some(v => !v.fixed && !v.mitigated)) color = '#ffb000';
-    else if (n.scanned) color = '#88cc88'; // all mitigated
+    else if (n.scanned) color = P ? '#ccaa66' : '#88cc88'; // all mitigated
 
     const isSelected = R.selectedNode === n.id;
 
@@ -1714,9 +1725,9 @@ function renderCanvas() {
     if (isSelected) {
       ctx.beginPath();
       ctx.arc(n.x, n.y, 18, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,255,65,0.1)';
+      ctx.fillStyle = Grgba(0.1);
       ctx.fill();
-      ctx.strokeStyle = '#00ff41';
+      ctx.strokeStyle = G;
       ctx.lineWidth = 2;
       ctx.stroke();
       // Crosshair ticks at top, right, bottom, left
@@ -1726,7 +1737,7 @@ function renderCanvas() {
       ctx.moveTo(n.x + tickInner, n.y); ctx.lineTo(n.x + tickOuter, n.y); // right
       ctx.moveTo(n.x, n.y + tickInner); ctx.lineTo(n.x, n.y + tickOuter); // bottom
       ctx.moveTo(n.x - tickInner, n.y); ctx.lineTo(n.x - tickOuter, n.y); // left
-      ctx.strokeStyle = '#00ff41';
+      ctx.strokeStyle = G;
       ctx.lineWidth = 1.5;
       ctx.stroke();
     }
@@ -1747,31 +1758,32 @@ function renderCanvas() {
 
     // Radar sweep on unscanned nodes (passive monitoring indicator)
     // Keeps spinning until a full scan is performed, even after passive detections exhaust
-    if (!n.scanned && !n.scanning && !n.compromised) {
+    // Stops when paused
+    if (!P && !n.scanned && !n.scanning && !n.compromised) {
       const hasPassiveLeft = n.vulns.some(v => !v.revealed && PASSIVE_VULN_CATS.has(v.category.id));
       const sweepPeriod = Math.min(PASSIVE_INTERVALS[Math.min(n.passiveReveals || 0, PASSIVE_INTERVALS.length - 1)], 30);
       const sweepAngle = (n.radarPhase || 0) + ((R.elapsed % sweepPeriod) / sweepPeriod) * Math.PI * 2;
       const arcLen = Math.PI / 3;
       ctx.beginPath();
       ctx.arc(n.x, n.y, 16, sweepAngle, sweepAngle + arcLen);
-      ctx.strokeStyle = hasPassiveLeft ? 'rgba(0,255,65,0.3)' : 'rgba(0,255,65,0.15)';
+      ctx.strokeStyle = hasPassiveLeft ? Grgba(0.3) : Grgba(0.15);
       ctx.lineWidth = 2;
       ctx.stroke();
     }
 
-    // Scan progress ring (green)
+    // Scan progress ring (green/amber)
     if (n.scanning) {
       const pct = clamp(n.scanProgress / n.scanTotalTime, 0, 1);
       const startAngle = -Math.PI / 2;
       const endAngle = startAngle + pct * Math.PI * 2;
       ctx.beginPath();
       ctx.arc(n.x, n.y, 16, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(0,255,65,0.15)';
+      ctx.strokeStyle = Grgba(0.15);
       ctx.lineWidth = 3;
       ctx.stroke();
       ctx.beginPath();
       ctx.arc(n.x, n.y, 16, startAngle, endAngle);
-      ctx.strokeStyle = '#00ff41';
+      ctx.strokeStyle = G;
       ctx.lineWidth = 3;
       ctx.lineCap = 'round';
       ctx.stroke();
@@ -1813,7 +1825,7 @@ function renderCanvas() {
 
     // Fix progress rings (one per active fix, stacked outward)
     const activeVulns = n.vulns.filter(v => v.fixing);
-    const ringColors = ['#00ff41', '#00e5ff', '#ffb000', '#ff6633'];
+    const ringColors = [G, '#00e5ff', '#ffb000', '#ff6633'];
     for (let ri = 0; ri < activeVulns.length; ri++) {
       const av = activeVulns[ri];
       const pct = clamp(av.fixProgress / av.fixTotalTime, 0, 1);
@@ -1826,7 +1838,7 @@ function renderCanvas() {
       ctx.arc(n.x, n.y, ringR, 0, Math.PI * 2);
       ctx.strokeStyle = rc.replace(')', ',0.12)').replace('rgb', 'rgba').replace('#', '');
       // Use hex alpha for track
-      ctx.strokeStyle = ri === 0 ? 'rgba(0,255,65,0.1)' : ri === 1 ? 'rgba(0,229,255,0.1)' : ri === 2 ? 'rgba(255,176,0,0.1)' : 'rgba(255,102,51,0.1)';
+      ctx.strokeStyle = ri === 0 ? Grgba(0.1) : ri === 1 ? 'rgba(0,229,255,0.1)' : ri === 2 ? 'rgba(255,176,0,0.1)' : 'rgba(255,102,51,0.1)';
       ctx.lineWidth = 2.5;
       ctx.stroke();
       // Progress arc
@@ -1849,7 +1861,7 @@ function renderCanvas() {
         const ringR = 16 + age * 6;
         ctx.beginPath();
         ctx.arc(n.x, n.y, ringR, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(0,255,65,${alpha * 0.7})`;
+        ctx.strokeStyle = Grgba(alpha * 0.7);
         ctx.lineWidth = 2;
         ctx.stroke();
       } else {
@@ -1857,19 +1869,31 @@ function renderCanvas() {
       }
     }
 
-    // Compromised node — persistent red glow and skull indicator
+    // Compromised node — pulsing red glow, expanding ring, and skull indicator
     if (n.compromised) {
-      const pulse = (Math.sin(R.elapsed * 2) + 1) / 2;
+      const pulse = (Math.sin(R.elapsed * 3) + 1) / 2;
+      // Outer pulsing glow fill
       ctx.beginPath();
-      ctx.arc(n.x, n.y, 18, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(255,51,51,${0.3 + pulse * 0.3})`;
-      ctx.lineWidth = 3;
+      ctx.arc(n.x, n.y, 22 + pulse * 6, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,51,51,${0.06 + pulse * 0.08})`;
+      ctx.fill();
+      // Inner red ring
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 16 + pulse * 4, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(255,51,51,${0.4 + pulse * 0.5})`;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      // Outer red ring
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 22 + pulse * 6, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(255,51,51,${0.15 + pulse * 0.25})`;
+      ctx.lineWidth = 1.5;
       ctx.stroke();
       // Skull icon at top-left
-      ctx.font = '10px serif';
+      ctx.font = '11px serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = `rgba(255,51,51,${0.7 + pulse * 0.3})`;
-      ctx.fillText('☠', n.x - 12, n.y - 12);
+      ctx.fillText('☠', n.x - 14, n.y - 14);
     }
 
     // Investigation progress ring (cyan)
@@ -1934,24 +1958,7 @@ function renderCanvas() {
 
   ctx.restore();
 
-  // Pause overlay on canvas
-  if (R.paused) {
-    ctx.fillStyle = 'rgba(2,12,3,0.6)';
-    ctx.fillRect(0, 0, w, h);
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font = '20px "Share Tech Mono"';
-    ctx.fillStyle = '#00ff41';
-    ctx.shadowColor = 'rgba(0,255,65,0.5)';
-    ctx.shadowBlur = 12;
-    ctx.fillText('❚❚ PAUSED', w / 2, h / 2 - 14);
-    ctx.shadowBlur = 0;
-    ctx.font = '11px "Share Tech Mono"';
-    ctx.fillStyle = '#00aa2b';
-    if (!R._pauseMsg) R._pauseMsg = PAUSE_MESSAGES[Math.floor(Math.random() * PAUSE_MESSAGES.length)];
-    ctx.fillText(R._pauseMsg, w / 2, h / 2 + 12);
-    ctx.textAlign = 'start';
-  }
+  // Pause: no overlay — the green→amber color shift indicates pause state
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -2566,6 +2573,18 @@ function setSpeed(speed) {
   R.clockSpeed = speed || 1;
   if (!R.paused) { lastTick = performance.now(); R._pauseMsg = null; }
   updateSpeedButtons();
+  // Show/hide pause indicator in header
+  const clockEl = document.getElementById('hdr-clock');
+  const phaseEl = document.getElementById('hdr-phase');
+  if (R.paused) {
+    clockEl.classList.add('paused-blink');
+    phaseEl.textContent = 'PAUSED';
+    phaseEl.style.color = 'var(--amber)';
+  } else {
+    clockEl.classList.remove('paused-blink');
+    phaseEl.style.color = '';
+    updateClockDisplay();
+  }
 }
 
 function togglePause() {
