@@ -2169,89 +2169,97 @@ function gameLoop() {
   const dt = Math.min((now - lastTick) / 1000, 0.1); // cap at 100ms to prevent tab-switch time jumps
   lastTick = now;
 
-  if (R && !R.paused) {
-    R.elapsed += dt * R.clockSpeed;
+  try {
+    if (R && !R.paused) {
+      R.elapsed += dt * R.clockSpeed;
 
-    // Update phase
-    const oldPhase = R.phase;
-    for (const p of PHASE_BOUNDARIES) {
-      if (R.elapsed >= p.start && R.elapsed < p.end) {
-        R.phase = p.name;
-        break;
-      }
-    }
-    if (R.elapsed >= RUN_DURATION) R.phase = 'COMPLETE';
-
-    // Phase transition announcements
-    if (R.phase !== oldPhase) {
-      if (R.phase === 'COMPLETE') {
-        endRun();
-        return;
-      }
-      const phaseAlerts = {
-        'INITIAL ACCESS': ['=== RED TEAM: Moving to active exploitation ===', 'crit'],
-        'LATERAL MOVEMENT': ['=== ALERT: Lateral movement detected ===', 'crit'],
-        'PRIV ESCALATION': ['=== CRITICAL: Privilege escalation in progress ===', 'crit'],
-        'EXFILTRATION': ['=== CRITICAL: Exfiltration attempts detected ===', 'crit'],
-      };
-      const alert = phaseAlerts[R.phase];
-      if (alert) { addLog(alert[0], alert[1]); screenShake(); }
-      else addLog(`— Phase: ${R.phase} —`, 'info');
-    }
-
-    // Process red team (runs continuously from the start)
-    processRedTeam(dt * R.clockSpeed);
-
-    // Process scans and fixes
-    processScans(dt * R.clockSpeed);
-    processFixes(dt * R.clockSpeed);
-
-    // Passive intel — slowly reveal detectable vulns on unscanned nodes
-    processPassiveIntel(dt * R.clockSpeed);
-
-    // Budget drip
-    processBudgetDrip(dt * R.clockSpeed);
-
-    // Strategic hints
-
-    // Update displays
-    updateClockDisplay();
-    updateResourceDisplay();
-
-    // Update detail panel elements without rebuilding DOM
-    if (R.selectedNode !== null) {
-      const node = R.net.nodes[R.selectedNode];
-      node.vulns.forEach((v, i) => {
-        if (v.fixing) {
-          const bar = document.querySelector(`#vuln-${node.id}-${i} .fix-progress-bar`);
-          if (bar) bar.style.width = Math.min(100, (v.fixProgress / v.fixTotalTime) * 100) + '%';
-        }
-      });
-      // Update scan progress bar
-      if (node.scanning) {
-        const scanBar = document.getElementById('scan-progress-bar');
-        if (scanBar) scanBar.style.width = Math.min(100, (node.scanProgress / node.scanTotalTime) * 100) + '%';
-        const scanContainer = document.getElementById('scan-progress-container');
-        if (scanContainer) {
-          const remaining = Math.ceil(node.scanTotalTime - node.scanProgress);
-          scanContainer.querySelector('div').textContent = `Scanning... ${remaining}s remaining`;
+      // Update phase
+      const oldPhase = R.phase;
+      for (const p of PHASE_BOUNDARIES) {
+        if (R.elapsed >= p.start && R.elapsed < p.end) {
+          R.phase = p.name;
+          break;
         }
       }
-      // Update deep scan progress bar
-      if (node.deepScanning) {
-        const dsBar = document.getElementById('deep-scan-progress-bar');
-        if (dsBar) dsBar.style.width = Math.min(100, (node.deepScanProgress / node.deepScanTotalTime) * 100) + '%';
-        const dsContainer = document.getElementById('deep-scan-progress-container');
-        if (dsContainer) {
-          const remaining = Math.ceil(node.deepScanTotalTime - node.deepScanProgress);
-          dsContainer.querySelector('div').textContent = `Deep scanning... ${remaining}s remaining`;
+      if (R.elapsed >= RUN_DURATION) R.phase = 'COMPLETE';
+
+      // Phase transition announcements
+      if (R.phase !== oldPhase) {
+        if (R.phase === 'COMPLETE') {
+          endRun();
+          return;
+        }
+        const phaseAlerts = {
+          'INITIAL ACCESS': ['=== RED TEAM: Moving to active exploitation ===', 'crit'],
+          'LATERAL MOVEMENT': ['=== ALERT: Lateral movement detected ===', 'crit'],
+          'PRIV ESCALATION': ['=== CRITICAL: Privilege escalation in progress ===', 'crit'],
+          'EXFILTRATION': ['=== CRITICAL: Exfiltration attempts detected ===', 'crit'],
+        };
+        const alert = phaseAlerts[R.phase];
+        if (alert) { addLog(alert[0], alert[1]); screenShake(); }
+        else addLog(`— Phase: ${R.phase} —`, 'info');
+      }
+
+      // Process red team (runs continuously from the start)
+      processRedTeam(dt * R.clockSpeed);
+
+      // Process scans and fixes
+      processScans(dt * R.clockSpeed);
+      processFixes(dt * R.clockSpeed);
+
+      // Passive intel — slowly reveal detectable vulns on unscanned nodes
+      processPassiveIntel(dt * R.clockSpeed);
+
+      // Budget drip
+      processBudgetDrip(dt * R.clockSpeed);
+
+      // Strategic hints
+
+      // Update displays
+      updateClockDisplay();
+      updateResourceDisplay();
+
+      // Update detail panel elements without rebuilding DOM
+      if (R.selectedNode !== null) {
+        const node = R.net.nodes[R.selectedNode];
+        if (node) {
+          node.vulns.forEach((v, i) => {
+            if (v.fixing) {
+              const bar = document.querySelector(`#vuln-${node.id}-${i} .fix-progress-bar`);
+              if (bar) bar.style.width = Math.min(100, (v.fixProgress / v.fixTotalTime) * 100) + '%';
+            }
+          });
+          // Update scan progress bar
+          if (node.scanning) {
+            const scanBar = document.getElementById('scan-progress-bar');
+            if (scanBar) scanBar.style.width = Math.min(100, (node.scanProgress / node.scanTotalTime) * 100) + '%';
+            const scanContainer = document.getElementById('scan-progress-container');
+            if (scanContainer) {
+              const remaining = Math.ceil(node.scanTotalTime - node.scanProgress);
+              const div = scanContainer.querySelector('div');
+              if (div) div.textContent = `Scanning... ${remaining}s remaining`;
+            }
+          }
+          // Update deep scan progress bar
+          if (node.deepScanning) {
+            const dsBar = document.getElementById('deep-scan-progress-bar');
+            if (dsBar) dsBar.style.width = Math.min(100, (node.deepScanProgress / node.deepScanTotalTime) * 100) + '%';
+            const dsContainer = document.getElementById('deep-scan-progress-container');
+            if (dsContainer) {
+              const remaining = Math.ceil(node.deepScanTotalTime - node.deepScanProgress);
+              const div = dsContainer.querySelector('div');
+              if (div) div.textContent = `Deep scanning... ${remaining}s remaining`;
+            }
+          }
+          updateDetailButtons();
         }
       }
-      updateDetailButtons();
     }
+
+    renderCanvas();
+  } catch (e) {
+    console.error('[PumaSecure] Game loop error:', e);
   }
-
-  renderCanvas();
   animFrame = requestAnimationFrame(gameLoop);
 }
 
@@ -2772,19 +2780,19 @@ function rtCompromiseNode(node, vulnUsed) {
   // Apply strategic buff from node type
   const strat = NODE_STRATEGY[node.type];
   if (strat && strat.strategicBuff) {
-    rt.buffs.add(strat.strategicBuff);
+    R.redTeam.buffs.add(strat.strategicBuff);
     switch (strat.strategicBuff) {
       case 'domain_admin':
-        rt.exploitBonus += 0.15;
+        R.redTeam.exploitBonus += 0.15;
         break;
       case 'credential_harvest':
-        rt.exploitBonus += 0.03;
+        R.redTeam.exploitBonus += 0.03;
         break;
       case 'dns_hijack':
-        rt.exploitBonus += 0.05;
+        R.redTeam.exploitBonus += 0.05;
         break;
       case 'supply_chain':
-        rt.exploitBonus += 0.08;
+        R.redTeam.exploitBonus += 0.08;
         break;
       case 'reveal_backends': {
         const hidden = R.net.nodes.filter(n => !n.discovered && n.zone >= 1 && n.zone <= 2);
@@ -2808,14 +2816,15 @@ function rtCompromiseNode(node, vulnUsed) {
   // Post-exploitation recon: learn vuln categories on neighbors
   const neighbors = rtGetNeighbors(node.id);
   for (const nId of neighbors) {
-    if (!rt.intel.has(nId)) rt.intel.set(nId, new Set());
+    if (!R.redTeam.intel.has(nId)) R.redTeam.intel.set(nId, new Set());
     const neighbor = R.net.nodes[nId];
+    if (!neighbor) continue;
     if (neighbor.vulns.length === 0) {
       neighbor.vulns = generateVulns(neighbor, R.threatLevel, R.net.mods);
       R.totalVulns += neighbor.vulns.length;
     }
     for (const v of neighbor.vulns) {
-      if (!v.fixed) rt.intel.get(nId).add(v.category.id);
+      if (!v.fixed) R.redTeam.intel.get(nId).add(v.category.id);
     }
   }
 }
@@ -2931,9 +2940,11 @@ function processRedTeam(dt) {
     }
     if (!neighbors.length) return;
     const targetId = rtWeightedPick(neighbors, id => {
-      const s = NODE_STRATEGY[R.net.nodes[id].type]; return (s ? s.pivotValue : 0.3) + 0.1;
+      const n = R.net.nodes[id]; const s = n ? NODE_STRATEGY[n.type] : null; return (s ? s.pivotValue : 0.3) + 0.1;
     });
+    if (targetId == null) return;
     const target = R.net.nodes[targetId];
+    if (!target) return;
     // Reveal if undiscovered
     if (!target.discovered) {
       target.discovered = true;
@@ -2956,14 +2967,15 @@ function processRedTeam(dt) {
     const foothold = pick(rt.footholds);
     const neighbors = rtGetNeighbors(foothold).filter(id => !rt.compromised.has(id));
     // Prefer deeper zones
-    const inner = neighbors.filter(id => R.net.nodes[id].zone >= 3);
+    const inner = neighbors.filter(id => R.net.nodes[id] && R.net.nodes[id].zone >= 3);
     const pool = inner.length ? inner : neighbors;
     if (!pool.length) return;
     const targetId = rtWeightedPick(pool, id => {
-      const s = NODE_STRATEGY[R.net.nodes[id].type]; return (s ? s.targetPriority : 0.3) + 0.1;
+      const n = R.net.nodes[id]; const s = n ? NODE_STRATEGY[n.type] : null; return (s ? s.targetPriority : 0.3) + 0.1;
     });
-    if (!targetId) return;
+    if (targetId == null) return;
     const target = R.net.nodes[targetId];
+    if (!target) return;
     if (!target.discovered) {
       target.discovered = true;
       R.totalDiscovered++;
@@ -2990,6 +3002,7 @@ function processRedTeam(dt) {
       if (!neighbors.length) return;
       const targetId = pick(neighbors);
       const target = R.net.nodes[targetId];
+      if (!target) return;
       addLog(`⚠ RED TEAM: Expanding foothold to ${target.name}...`, 'warn');
       const vuln = rtTryExploit(target);
       if (vuln) rtCompromiseNode(target, vuln);
@@ -2998,8 +3011,9 @@ function processRedTeam(dt) {
     }
     // Try to reach a critical asset from nearest foothold
     const target = rtWeightedPick(criticalTargets, n => {
-      const s = NODE_STRATEGY[n.type]; return (s ? s.targetPriority : 0.3) + 0.1;
+      const s = n ? NODE_STRATEGY[n.type] : null; return (s ? s.targetPriority : 0.3) + 0.1;
     });
+    if (!target) return;
     // Check if any foothold has a path to it
     const reachable = rt.footholds.some(fId => {
       const neighbors = rtGetNeighbors(fId);
@@ -3027,6 +3041,7 @@ function processRedTeam(dt) {
       if (neighbors.length) {
         const targetId = pick(neighbors);
         const target2 = R.net.nodes[targetId];
+        if (!target2) return;
         addLog(`⚠ RED TEAM: Expanding toward critical assets via ${target2.name}...`, 'warn');
         const vuln = rtTryExploit(target2);
         if (vuln) rtCompromiseNode(target2, vuln);
