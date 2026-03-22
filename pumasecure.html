@@ -446,6 +446,8 @@ button:focus-visible,.btn:focus-visible{
 .skill-node.locked{opacity:0.4;cursor:not-allowed}
 .skill-cost{font-size:10px;color:var(--amber-dim);margin-top:2px}
 @keyframes pulse-border{0%,100%{border-color:var(--amber-dim)}50%{border-color:var(--amber)}}
+.pulse-amber{animation:pulse-amber-glow 1.5s ease-in-out infinite;border-color:var(--amber) !important;color:var(--amber) !important}
+@keyframes pulse-amber-glow{0%,100%{box-shadow:0 0 4px rgba(255,176,0,0.2)}50%{box-shadow:0 0 14px rgba(255,176,0,0.6)}}
 @keyframes fade-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 @keyframes scan-complete{0%{box-shadow:0 0 0 rgba(0,255,65,0)}50%{box-shadow:0 0 16px rgba(0,255,65,0.4)}100%{box-shadow:0 0 0 rgba(0,255,65,0)}}
@@ -631,7 +633,7 @@ button:focus-visible,.btn:focus-visible{
     </div>
     <div id="hq-first-run-box"></div>
     <div class="hq-nav">
-      <button onclick="showModal('skill-modal')">Skill Tree</button>
+      <button id="btn-skill-tree" onclick="showModal('skill-modal')">Skill Tree</button>
       <button onclick="showModal('ach-modal')">Achievements</button>
       <button onclick="showModal('settings-modal')">Settings</button>
     </div>
@@ -1169,7 +1171,7 @@ const ACHIEVEMENTS = [
   { id: 'clean_sweep',   name: 'Clean Sweep',        desc: 'Discover 100% of assets in a run', check: null },
   { id: 'zero_breach',   name: 'Zero Breach',        desc: 'Survive audit with no breaches', check: null },
   { id: 'penny_pincher', name: 'Penny Pincher',      desc: 'Complete a run spending <50% budget', check: null },
-  { id: 'speed_run',     name: 'Speed Run',          desc: 'Complete a run in under 5 min (fast)', check: null },
+  { id: 'speed_run',     name: 'Speed Run',          desc: 'Trigger an early win (under 8 min)', check: null },
   { id: 'no_stone',      name: 'No Stone Unturned',  desc: 'Find all hidden assets in a run', check: null },
   { id: 'crit_cond',     name: 'Critical Condition', desc: 'Fix all Critical vulns in a run', check: null },
   { id: 'budget_hero',   name: 'Budget Hero',        desc: 'Grade A with $10K+ unspent', check: null },
@@ -1329,6 +1331,13 @@ function renderHQ() {
   } else {
     frBox.innerHTML = '';
   }
+
+  // Pulse Skill Tree button if player can afford an upgrade
+  const btnST = document.getElementById('btn-skill-tree');
+  const canBuy = Object.values(SKILL_TREE).some(branch =>
+    branch.some((skill, i) => !hasUpgrade(skill.id) && (i === 0 || hasUpgrade(branch[i - 1].id)) && save.intel >= skill.cost)
+  );
+  btnST.classList.toggle('pulse-amber', canBuy);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -4161,9 +4170,16 @@ function checkAchievements(data) {
   if (save.stats.totalRuns >= 10) unlock('ten_runs');
   if (data.coverage >= 100) unlock('clean_sweep');
   if (data.breaches === 0) unlock('zero_breach');
-  if (data.budgetRemaining > data.budgetRemaining + (R.budgetSpent) * 0.5) unlock('penny_pincher');
-  if (R.budget > R.startBudget * 0.5) unlock('penny_pincher');
+  // Penny Pincher: spent less than 50% of total budget received (remaining > spent)
+  if (R.budgetSpent > 0 && R.budget > R.budgetSpent) unlock('penny_pincher');
   if (gradeRank(data.grade) >= gradeRank('A') && R.budget >= 10000) unlock('budget_hero');
+  // Speed Run: early win (under 8 min)
+  if (data.elapsed < 480 && data.grade !== 'F') unlock('speed_run');
+  // No Stone Unturned: all assets discovered
+  if (R.net.nodes.every(n => n.discovered)) unlock('no_stone');
+  // Critical Condition: all critical-severity vulns (9-10) fixed
+  const critVulns = R.net.nodes.flatMap(n => n.vulns.filter(v => v.severity >= 9 && v.revealed));
+  if (critVulns.length > 0 && critVulns.every(v => v.fixed)) unlock('crit_cond');
   if (data.threatLevel >= 8 && data.grade !== 'F') unlock('odds');
   if (save.unlockedTemplates.length >= NETWORK_TEMPLATES.length) unlock('completionist');
 }
@@ -4907,56 +4923,146 @@ startFix = function(nid, vi, ft) { initAudio(); sfxFix(); _origStartFix(nid, vi,
    BOOT SEQUENCE
    ═══════════════════════════════════════════════════════════════ */
 function showBoot() {
-  // Skip boot sequence for returning players
-  if (save.stats.totalRuns > 0) return;
-
   const overlay = document.createElement('div');
   overlay.id = 'boot-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:9500;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px;font-size:12px;color:var(--green-dim);cursor:pointer;';
   document.body.appendChild(overlay);
 
-  const skipHint = document.createElement('div');
-  skipHint.style.cssText = 'position:absolute;bottom:24px;font-size:10px;color:var(--green-dim);opacity:0.5;';
-  skipHint.textContent = 'Click or press any key to skip';
-  overlay.appendChild(skipHint);
+  const content = document.createElement('div');
+  content.style.cssText = 'max-width:520px;width:100%;';
+  overlay.appendChild(content);
 
-  const lines = [
-    'PUMASECURE SECURITY PLATFORM v1.0',
-    'Initializing threat detection engine...',
-    'Loading vulnerability database... 15,247 signatures',
-    'Calibrating network scanner modules...',
-    'Connecting to intelligence feeds... OK',
-    'Red team simulation engine... ARMED',
-    '',
-    '> SYSTEM READY',
+  const asciiArt = [
+    ' ____  _   _ __  __    _    ____  _____ ____ _   _ ____  _____',
+    '|  _ \\| | | |  \\/  |  / \\  / ___|| ____/ ___| | | |  _ \\| ____|',
+    '| |_) | | | | |\\/| | / _ \\ \\___ \\|  _|| |   | | | | |_) |  _|',
+    '|  __/| |_| | |  | |/ ___ \\ ___) | |__| |___| |_| |  _ <| |___',
+    '|_|    \\___/|_|  |_/_/   \\_\\____/|_____\\____|\\___/|_| \\_\\_____|',
   ];
 
-  let i = 0, done = false;
+  const bootLines = [
+    { left: 'BIOS POST', right: '[ OK ]', delay: 120 },
+    { left: 'Memory check: 65536K', right: '[ OK ]', delay: 80 },
+    { text: '', delay: 60 },
+    { ascii: asciiArt, delay: 200 },
+    { text: 'VULNERABILITY MANAGEMENT PLATFORM v3.1.4', delay: 100, style: 'color:var(--green-dim);font-size:9px;letter-spacing:3px;margin-top:2px' },
+    { text: 'greykit.com // Threat Operations Division', delay: 80, style: 'color:var(--amber-dim);font-size:9px;letter-spacing:1px' },
+    { text: '', delay: 120 },
+    { text: 'Initializing kernel modules...', delay: 100, style: 'color:var(--green-dim)' },
+    { left: '  net_scanner.ko', right: '[ OK ]', delay: 60 },
+    { left: '  vuln_db.ko — 15,247 signatures', right: '[ OK ]', delay: 80 },
+    { left: '  siem_collector.ko', right: '[ OK ]', delay: 60 },
+    { left: '  threat_intel_feed.ko', right: '[ OK ]', delay: 70 },
+    { left: '  red_team_sim.ko', right: '[ ARMED ]', rightStyle: 'color:var(--amber)', delay: 90 },
+    { text: '', delay: 80 },
+    { left: 'Enumerating network assets', right: '[ OK ]', delay: 120 },
+    { left: 'Passive listener', right: '[ ONLINE ]', delay: 80 },
+    { left: 'Detection engine', right: '[ OK ]', delay: 80 },
+    { text: '', delay: 60 },
+    { text: '> SYSTEM READY', delay: 150, style: 'color:var(--green);font-size:13px;margin-top:4px' },
+  ];
+
+  let i = 0, phase = 'boot', done = false;
+
+  // During boot phase, any key/click skips to the prompt
+  function skipBoot() {
+    if (done) return;
+    if (phase === 'boot') {
+      // Skip remaining boot lines, show them all instantly
+      clearTimeout(bootTimer);
+      while (i < bootLines.length) {
+        appendLine(bootLines[i]);
+        i++;
+      }
+      showPrompt();
+    } else if (phase === 'prompt') {
+      dismissBoot();
+    }
+  }
+
   function dismissBoot() {
     if (done) return; done = true;
-    clearInterval(interval);
     overlay.style.transition = 'opacity 0.4s';
     overlay.style.opacity = '0';
     setTimeout(() => overlay.remove(), 400);
   }
-  overlay.addEventListener('click', dismissBoot);
-  const skipKey = (e) => { dismissBoot(); document.removeEventListener('keydown', skipKey); };
-  document.addEventListener('keydown', skipKey);
 
-  const interval = setInterval(() => {
-    if (done) return;
-    if (i < lines.length) {
-      const line = document.createElement('div');
-      line.textContent = lines[i];
-      line.style.cssText = 'opacity:0;animation:fade-in 0.3s forwards;max-width:500px;width:100%;';
-      if (i === lines.length - 1) line.style.color = 'var(--green)';
-      overlay.appendChild(line);
-      i++;
-    } else {
-      clearInterval(interval);
-      setTimeout(dismissBoot, 600);
+  overlay.addEventListener('click', skipBoot);
+  const handleKey = (e) => {
+    // Ignore bare modifier keys (Shift, Ctrl, Alt, Meta)
+    if (['Shift','Control','Alt','Meta'].includes(e.key)) return;
+    if (phase === 'prompt' && e.key === '?') {
+      e.preventDefault();
+      dismissBoot();
+      setTimeout(() => showModal('run-help-modal'), 450);
+      document.removeEventListener('keydown', handleKey);
+      return;
     }
-  }, 250);
+    if (phase === 'boot') {
+      skipBoot();
+    } else if (phase === 'prompt') {
+      dismissBoot();
+      document.removeEventListener('keydown', handleKey);
+    }
+  };
+  document.addEventListener('keydown', handleKey);
+
+  function appendLine(spec) {
+    if (spec.ascii) {
+      const pre = document.createElement('pre');
+      pre.textContent = spec.ascii.join('\n');
+      pre.style.cssText = 'opacity:0;animation:fade-in 0.4s forwards;color:var(--green);font-size:10px;line-height:1.2;margin:8px 0 2px 0;white-space:pre;';
+      content.appendChild(pre);
+      return;
+    }
+    if (spec.left !== undefined) {
+      const line = document.createElement('div');
+      line.style.cssText = 'display:flex;justify-content:space-between;margin:2px 0;opacity:0;animation:fade-in 0.15s forwards;';
+      const lbl = document.createElement('span');
+      lbl.textContent = spec.left;
+      lbl.style.color = 'var(--green-dim)';
+      const status = document.createElement('span');
+      status.textContent = spec.right;
+      status.style.cssText = 'color:var(--green);' + (spec.rightStyle || '');
+      line.appendChild(lbl);
+      line.appendChild(status);
+      content.appendChild(line);
+      return;
+    }
+    const line = document.createElement('div');
+    line.textContent = spec.text;
+    line.style.cssText = 'opacity:0;animation:fade-in 0.25s forwards;' + (spec.style || '');
+    content.appendChild(line);
+  }
+
+  let bootTimer;
+  function nextLine() {
+    if (done || i >= bootLines.length) {
+      if (!done) showPrompt();
+      return;
+    }
+    appendLine(bootLines[i]);
+    const delay = bootLines[i].delay || 100;
+    i++;
+    bootTimer = setTimeout(nextLine, delay);
+  }
+
+  function showPrompt() {
+    phase = 'prompt';
+    const prompt = document.createElement('div');
+    prompt.style.cssText = 'margin-top:24px;text-align:center;';
+    prompt.innerHTML = `
+      <div style="color:var(--amber);font-size:11px;animation:pulse 1.8s ease-in-out infinite;letter-spacing:1px">
+        Press <span style="color:var(--green);font-weight:bold">?</span> for instructions
+      </div>
+      <div style="color:var(--green-dim);font-size:10px;margin-top:8px;opacity:0.6">
+        Press any key to continue
+      </div>
+    `;
+    content.appendChild(prompt);
+  }
+
+  nextLine();
 }
 
 // Patch startRun to init audio
