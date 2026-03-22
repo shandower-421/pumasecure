@@ -652,7 +652,7 @@ button:focus-visible,.btn:focus-visible{
       <div class="hdr-analysts-wrap">
         <div class="hdr-analysts-row">
           <span class="hdr-analysts-value" id="hdr-analysts">0 / 2</span>
-          <button class="btn-hire" id="btn-hire" onclick="hireContractor()" title="Hire Contractor">+1</button>
+          <button class="btn-hire" id="btn-hire" onclick="hireContractor()" title="Hire an additional analyst for $10K. Adds one analyst slot for the rest of this run. Can only be used once per engagement.">+1</button>
         </div>
         <div class="hdr-analysts-labels">
           <span class="hdr-analysts-label">ANALYSTS</span>
@@ -766,93 +766,207 @@ button:focus-visible,.btn:focus-visible{
     </div>
   </div>
   <div class="modal-overlay" id="run-help-modal">
-    <div class="modal">
+    <div class="modal" style="max-width:640px">
       <button class="modal-close" onclick="hideModal('run-help-modal')" aria-label="Close">&times;</button>
       <div class="help-tabs">
-        <button class="help-tab active" onclick="switchHelpTab('how-to-play',this)">How to Play</button>
+        <button class="help-tab active" onclick="switchHelpTab('basics',this)">Basics</button>
+        <button class="help-tab" onclick="switchHelpTab('assets',this)">Assets</button>
+        <button class="help-tab" onclick="switchHelpTab('vulns',this)">Vulns</button>
+        <button class="help-tab" onclick="switchHelpTab('redteam',this)">Red Team</button>
         <button class="help-tab" onclick="switchHelpTab('about',this)">About</button>
       </div>
-      <div class="help-tab-content active" id="help-tab-how-to-play">
+
+      <!-- ═══ BASICS ═══ -->
+      <div class="help-tab-content active" id="help-tab-basics">
       <div style="font-size:12px;line-height:1.7;color:var(--green-dim);max-height:60vh;overflow-y:auto">
-        <p style="color:var(--green);margin-bottom:8px">You're a security consultant. Your job: discover a client's network, find vulnerabilities, fix what you can, and survive a red team audit. You have 15 minutes.</p>
+        <p style="color:var(--green);margin-bottom:8px">You've been hired to secure a network that has never been properly maintained. You have limited time, limited headcount, and a tight budget. Discover assets, find vulnerabilities, fix what you can, and defend against an AI red team before they reach your critical infrastructure.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">THE GOAL</p>
-        <p>Discover as much of the network as possible, scan assets for vulnerabilities, fix or mitigate the worst ones, and hope the red team can't break through what's left. You're scored on how well you did across five areas: discovery, assessment, remediation, efficiency, and audit survival.</p>
+        <p>Discover the network, scan assets, remediate vulnerabilities, and detect and respond to compromises. You're scored on containment, security posture, assessment coverage, incident response speed, and budget efficiency. Any critical asset breached = <strong style="color:var(--red)">automatic F</strong>.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">RESOURCES</p>
-        <p><strong style="color:var(--green)">Analysts</strong> — Your most precious resource. Each analyst can do one thing at a time: scan an asset, fix a vulnerability, deep scan, or investigate a compromised node. You start with 1-2 analysts depending on upgrades. Hire a contractor mid-run for +1 analyst ($10K), or unlock permanent extra analysts in the Skill Tree. The display shows "active/total" — e.g., "1/2" means 1 task running, 2 analysts available.</p>
-        <p style="margin-top:6px"><strong style="color:var(--green)">Scanning</strong> — Assign an analyst to scan an asset. Scans take 15-25 seconds and occupy one analyst. While scanning, that analyst can't be used for fixes. Scan results reveal all vulnerabilities and discover connected nodes. You can scan any discovered asset at any time — but every scan is time your team isn't fixing things.</p>
-        <p style="margin-top:6px"><strong style="color:var(--green)">Budget ($)</strong> — Money to pay for fixes. Each fix action (Patch, Configure, Replace, Mitigate) has a dollar cost. Budget replenishes slowly over time. You can also spend $10K to hire a contractor for an extra analyst.</p>
-        <p style="margin-top:6px"><strong style="color:var(--green)">Time</strong> — The clock counts up to 15:00. The red team escalates through ATT&CK phases as time progresses. You can scan and fix at any point — but threats increase over time.</p>
-
-        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">RED TEAM PHASES</p>
-        <p>The red team operates alongside you, escalating through MITRE ATT&CK-inspired phases. You can act at any time — but the threats get worse.</p>
-        <p style="margin-top:4px"><strong style="color:var(--green)">RECONNAISSANCE (0:00–3:00)</strong> — The red team is passively scanning your perimeter. You'll see recon alerts in the SIEM feed. This is your safest window to scan assets and start fixing. Use it wisely.</p>
-        <p style="margin-top:4px"><strong style="color:var(--amber)">INITIAL ACCESS (3:00–6:00)</strong> — The red team starts actively exploiting perimeter nodes. If they find an unfixed vulnerability, they establish a foothold. Fix perimeter vulns first to delay their entry.</p>
-        <p style="margin-top:4px"><strong style="color:var(--amber)">LATERAL MOVEMENT (6:00–10:00)</strong> — From any footholds, the red team pivots inward through network connections. Compromised nodes glow red with a ☠ marker. Each compromised node becomes a new launch point.</p>
-        <p style="margin-top:4px"><strong style="color:var(--red)">PRIV ESCALATION (10:00–13:00)</strong> — The red team targets deeper zones and high-severity vulnerabilities with increased success rates. They're pushing toward your critical assets.</p>
-        <p style="margin-top:4px"><strong style="color:var(--red)">EXFILTRATION (13:00–15:00)</strong> — Final push. The red team aggressively targets critical assets (zone 4). Any breached critical asset counts heavily against your score.</p>
-
-        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">FIX TYPES</p>
-        <p><strong style="color:var(--green)">Patch</strong> — Fully removes the vulnerability. Moderate cost, takes time, 70–95% success rate. May cause downtime on the asset.</p>
-        <p style="margin-top:4px"><strong style="color:var(--green)">Configure</strong> — Reduces severity by 3–5 points (e.g., Critical becomes Medium). Cheap and fast, 85–100% success rate. No downtime.</p>
-        <p style="margin-top:4px"><strong style="color:var(--green)">Replace</strong> — Fully removes the vuln by replacing the entire component. Expensive and slow, but 95–100% success rate. Required for end-of-life systems.</p>
-        <p style="margin-top:4px"><strong style="color:var(--green)">Mitigate</strong> — Doesn't fix the vuln, but reduces the chance the red team can exploit it by 50–75%. Always succeeds. Use this when you can't afford a full fix or when there's no patch available (zero days).</p>
-
-        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">THE MAP</p>
-        <p>The network is organized in concentric zones, from the outside (Perimeter) to the inside (Critical Data). Drag to pan, scroll to zoom. Nodes are color-coded:</p>
-        <p style="margin-top:4px;padding-left:12px">
-          <span style="color:#446644">Gray</span> = discovered but not scanned<br>
-          <span style="color:var(--green)">Green</span> = scanned, all vulns fixed<br>
-          <span style="color:var(--amber)">Amber</span> = has unfixed medium-severity vulns<br>
-          <span style="color:#ff6633">Orange</span> = has unfixed high-severity vulns<br>
-          <span style="color:var(--red)">Red</span> = has critical vulns or was compromised
-        </p>
+        <p><strong style="color:var(--green)">Analysts</strong> — Your most precious resource. Each analyst can do one thing at a time: scan, fix, deep scan, investigate, respond to incidents, or rebuild systems. You start with 2. Hire a contractor mid-run (+1 analyst, $10K) using the yellow button next to the analyst count, or unlock permanent analysts in the Skill Tree.</p>
+        <p style="margin-top:6px"><strong style="color:var(--green)">Budget ($)</strong> — Money for fixes, rebuilds, and hiring. Budget replenishes every 60 seconds. The progress bar under the amount shows when the next allocation arrives and how much you'll receive.</p>
+        <p style="margin-top:6px"><strong style="color:var(--green)">Time</strong> — The clock counts up to 15:00. The red team escalates as conditions are met, not by the clock alone. If you secure everything and eliminate all threats after 5 minutes, the engagement ends early.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">SCORING</p>
-        <p>Any critical asset (zone 4) breached is an <strong style="color:var(--red)">automatic F</strong>. Protect your core at all costs.</p>
-        <p style="margin-top:4px">For non-breach runs, you're graded on five axes (each 0-100):</p>
-        <p style="margin-top:4px;padding-left:12px">
-          <strong style="color:var(--green)">Containment</strong> (30%) — How much of the network stayed clean? Nodes reclaimed count as contained.<br>
-          <strong style="color:var(--green)">Posture</strong> (25%) — How much known risk did you eliminate? Severity-weighted fixes and mitigations.<br>
-          <strong style="color:var(--green)">Assessment</strong> (15%) — What % of total vulnerabilities did you identify?<br>
-          <strong style="color:var(--green)">Response</strong> (15%) — How fast did you respond to compromises? Perfect if none occurred.<br>
-          <strong style="color:var(--green)">Efficiency</strong> (15%) — How much risk did you reduce per dollar spent?
-        </p>
-        <p style="margin-top:4px">Grades: S (95+, Threat 5+ only) / A (85+) / B (70+) / C (55+) / D (40+) / F</p>
-
-        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">BETWEEN RUNS</p>
-        <p>You earn <strong style="color:var(--amber)">Intel</strong> based on your score and threat level. Spend Intel in the Skill Tree to unlock permanent upgrades like faster scanning, extra analysts, or budget boosts. Unlock new network templates by hitting milestones. Grade F earns zero Intel.</p>
-
-        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">KEYBOARD SHORTCUTS</p>
         <p style="padding-left:12px">
+          <strong style="color:var(--green)">Containment</strong> (30%) — % of nodes never compromised or successfully reclaimed.<br>
+          <strong style="color:var(--green)">Posture</strong> (25%) — Severity-weighted % of known risk addressed.<br>
+          <strong style="color:var(--green)">Assessment</strong> (15%) — % of total vulnerabilities discovered.<br>
+          <strong style="color:var(--green)">Response</strong> (15%) — Speed of incident detection and remediation.<br>
+          <strong style="color:var(--green)">Efficiency</strong> (15%) — Risk reduced per dollar spent.
+        </p>
+        <p style="margin-top:4px">Grades: S (95+, TL5+) / A (85+) / B (70+) / C (55+) / D (40+) / F</p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">CONTROLS</p>
+        <p style="padding-left:12px">
+          <strong style="color:var(--green)">Click</strong> — Select a node (left panel or map)<br>
+          <strong style="color:var(--green)">Double-click</strong> — Quick action: Investigate > IR > Scan > Deep Scan<br>
+          <strong style="color:var(--green)">Drag</strong> — Pan the map<br>
+          <strong style="color:var(--green)">Scroll</strong> — Zoom<br>
           <strong style="color:var(--green)">Space / Esc</strong> — Pause / Resume<br>
-          <strong style="color:var(--green)">S</strong> — Scan selected asset<br>
           <strong style="color:var(--green)">?</strong> — This help screen
         </p>
 
-        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">TIPS</p>
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">STRATEGY TIPS</p>
         <p style="padding-left:12px">
-          &bull; Scan discovered assets early — you can't fix what you haven't found.<br>
-          &bull; Scan high-criticality assets (more stars = more important) first.<br>
-          &bull; The red team follows network paths — fixing perimeter assets blocks more chains.<br>
+          &bull; Scan perimeter nodes first — they're the red team's entry point.<br>
+          &bull; Fix "Missing Monitoring" vulns early — without them, you're blind to attacks.<br>
+          &bull; Deep scan critical assets — Tier 1 detection catches compromises instantly.<br>
           &bull; Mitigate is your friend when budget runs low — it always works.<br>
-          &bull; A cheap Configure can downgrade a Critical to a Medium, making it much less exploitable.<br>
-          &bull; Watch for run modifiers — they change the rules each run.
+          &bull; A cheap Configure can downgrade a Critical to Medium, making it far less exploitable.<br>
+          &bull; Watch the SIEM feed — vague zone alerts mean a scanned node is under attack.<br>
+          &bull; If you see no alerts at all on unscanned nodes, you might already be compromised.
         </p>
       </div>
       </div>
+
+      <!-- ═══ ASSETS ═══ -->
+      <div class="help-tab-content" id="help-tab-assets">
+      <div style="font-size:12px;line-height:1.7;color:var(--green-dim);max-height:60vh;overflow-y:auto">
+        <p style="color:var(--green);margin-bottom:8px">Assets are the network nodes you're defending. Each represents a real system — firewalls, servers, databases, IoT devices, workstations, and more.</p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">NETWORK ZONES</p>
+        <p>The network is arranged in concentric security zones, from outside to inside:</p>
+        <p style="margin-top:4px;padding-left:12px">
+          <strong style="color:var(--green)">Perimeter (Zone 0-1)</strong> — Internet-facing systems. The red team's entry point. Firewalls, VPNs, web servers, Wi-Fi access points.<br>
+          <strong style="color:var(--amber)">Internal (Zone 2)</strong> — Corporate infrastructure. Workstations, printers, internal servers.<br>
+          <strong style="color:var(--red)">Secure (Zone 3)</strong> — Protected systems. Application servers, monitoring, domain controllers.<br>
+          <strong style="color:var(--red)">Critical (Zone 4)</strong> — Crown jewels. Databases, SCADA systems, data stores. A breach here is an automatic F.
+        </p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">ASSET DISCOVERY</p>
+        <p>You start knowing only some assets. New assets are discovered by:</p>
+        <p style="margin-top:4px;padding-left:12px">
+          &bull; <strong style="color:var(--green)">Scanning</strong> a node reveals its direct neighbors.<br>
+          &bull; <strong style="color:var(--cyan)">Deep scanning</strong> may reveal hidden shadow IT assets.<br>
+          &bull; The <strong style="color:var(--red)">red team</strong> attacking an undiscovered node will also reveal it to you.
+        </p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">MAP COLORS</p>
+        <p style="padding-left:12px">
+          <span style="color:#446644">Dark green</span> = discovered but not scanned<br>
+          <span style="color:var(--green)">Green</span> = scanned, all vulns fixed<br>
+          <span style="color:var(--amber)">Amber pulsing</span> = anomaly detected (needs investigation)<br>
+          <span style="color:#ff6633">Orange</span> = has unfixed high-severity vulns<br>
+          <span style="color:var(--red)">Red pulsing</span> = confirmed compromise
+        </p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">SCANNING</p>
+        <p><strong style="color:var(--green)">Passive Scanning</strong> — Runs automatically on all discovered nodes. Slow, detects only 6 common vulnerability types (exposed services, weak crypto, default creds, misconfigurations, cloud misconfig, end-of-life). The pulsing green bar in the left panel shows passive scan progress.</p>
+        <p style="margin-top:6px"><strong style="color:var(--green)">Active Scan</strong> (15-25s, 1 analyst) — A vulnerability scan. Reveals all vulnerabilities on the node, discovers neighboring assets, and upgrades the node to Tier 2 detection. Double-click an unscanned node to start.</p>
+        <p style="margin-top:6px"><strong style="color:var(--cyan)">Deep Scan</strong> (20-30s, 1 analyst) — A full threat analysis. Reduces exploitability of all vulns on the node, may discover shadow IT, and upgrades to Tier 1 detection (instant alerts). Also auto-confirms any existing compromise. Double-click a scanned node to start.</p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">LEFT PANEL BARS</p>
+        <p>Each asset in the left panel shows status bars:</p>
+        <p style="margin-top:4px;padding-left:12px">
+          <strong style="color:var(--green)">Scan bar</strong> — Pulsing green (passive), bright green (active scan), cyan (deep scan).<br>
+          <strong style="color:var(--amber)">Risk bar</strong> — Yellow shows known risk. Pulsing red when compromised. Cyan overlay shows investigation progress.<br>
+          <strong style="color:var(--amber)">Fix bar</strong> — Amber segments show active remediation progress on that node's vulnerabilities.
+        </p>
+      </div>
+      </div>
+
+      <!-- ═══ VULNS ═══ -->
+      <div class="help-tab-content" id="help-tab-vulns">
+      <div style="font-size:12px;line-height:1.7;color:var(--green-dim);max-height:60vh;overflow-y:auto">
+        <p style="color:var(--green);margin-bottom:8px">Vulnerabilities are the attack surface the red team exploits. Each vuln has a severity (1-10), an attack vector (Network, Local, Physical), and a category that determines how it's discovered and what fixes are available.</p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">SEVERITY</p>
+        <p>Severity ranges from 1 (informational) to 10 (critical). Higher severity means the red team is more likely to exploit it and gets bigger bonuses when they do. Severity colors:</p>
+        <p style="margin-top:4px;padding-left:12px">
+          <span style="color:var(--green)">1-3</span> = Low &nbsp; <span style="color:var(--amber)">4-6</span> = Medium &nbsp; <span style="color:#ff6633">7-8</span> = High &nbsp; <span style="color:var(--red)">9-10</span> = Critical
+        </p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">ATTACK VECTORS</p>
+        <p style="padding-left:12px">
+          <strong style="color:var(--red)">Network</strong> — Exploitable remotely. The most dangerous vector.<br>
+          <strong style="color:var(--amber)">Local</strong> — Requires local access. Exploitable after compromise or from same-zone foothold.<br>
+          <strong style="color:var(--green)">Physical</strong> — Requires physical presence. Only exploitable by an onsite pentester.
+        </p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">REMEDIATION OPTIONS</p>
+        <p>Listed from least to most effective. Hover over buttons in-game for details.</p>
+        <p style="margin-top:6px"><strong style="color:var(--amber)">Mitigate</strong> — Applies a workaround that reduces exploitability by 50-75%. Cheap, fast, and <strong>always succeeds</strong>. Doesn't fix the root cause — the vuln remains, just harder to exploit. Use this when budget is tight, for zero-days, or as a stopgap until you can apply a real fix.</p>
+        <p style="margin-top:6px"><strong style="color:var(--green)">Configure</strong> — A configuration change that reduces severity by 3-5 points. Cheap and fast with 85-100% success rate. May fail because operations reverts the config change. Good for quickly downgrading Critical vulns to manageable levels.</p>
+        <p style="margin-top:6px"><strong style="color:var(--green)">Patch</strong> — Applies a vendor patch for a full fix. Moderate cost and time, 70-95% success rate. May fail due to change window denials, dependency conflicts, or incompatible systems. The workhorse fix for most vulns.</p>
+        <p style="margin-top:6px"><strong style="color:var(--cyan)">Replace</strong> — Full component replacement. Expensive and slow, but 95-100% success rate. Required for end-of-life systems that can't be patched. The most thorough fix available.</p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">FAILED REMEDIATIONS</p>
+        <p>When a fix fails, the button changes to <strong style="color:var(--amber)">Rework [type]</strong>. Reworking costs 1.5x the original price but uses the same success rate. You can also choose a different remediation strategy — for example, if a patch fails, try replacing the component instead.</p>
+        <p style="margin-top:4px">A mitigated vulnerability can still be properly fixed later. If you mitigate something early to reduce immediate risk, come back and patch or replace it when resources free up.</p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">VULNERABILITY CATEGORIES</p>
+        <p>Categories affect which vulns passive scanning can find, and which fixes are most appropriate:</p>
+        <p style="margin-top:4px;padding-left:12px">
+          <strong>Passively detectable:</strong> Exposed services, weak crypto, default credentials, misconfigurations, cloud misconfig, end-of-life software.<br>
+          <strong>Scan required:</strong> Unpatched software, injection flaws, access control issues, API vulnerabilities, supply chain risks, insecure protocols.<br>
+          <strong>Deep scan required:</strong> Missing monitoring, insider threat indicators, physical security gaps, zero-days.
+        </p>
+      </div>
+      </div>
+
+      <!-- ═══ RED TEAM ═══ -->
+      <div class="help-tab-content" id="help-tab-redteam">
+      <div style="font-size:12px;line-height:1.7;color:var(--green-dim);max-height:60vh;overflow-y:auto">
+        <p style="color:var(--green);margin-bottom:8px">The red team is an AI-controlled adversary with 1-3 independent pentester agents. They operate like a second player — limited resources, strategic decisions, and real-time operations.</p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">PENTESTER AGENTS</p>
+        <p>Each pentester independently selects targets, scans, exploits, and establishes footholds. More pentesters at higher threat levels:</p>
+        <p style="margin-top:4px;padding-left:12px">
+          TL 1: 1 pentester &nbsp;&nbsp; TL 2-3: 2 pentesters &nbsp;&nbsp; TL 4+: 3 pentesters (faster at TL 6+)
+        </p>
+        <p style="margin-top:4px">A pentester's attack chain: <strong>Scan target</strong> (5-12s) &rarr; <strong>Exploit vuln</strong> (4-10s) &rarr; <strong>Compromise</strong> &rarr; <strong>Persist or Pivot</strong>. Each step takes real time, giving you windows to detect and respond.</p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">ATTACK PHASES</p>
+        <p>Phases advance when conditions are met, not just by the clock:</p>
+        <p style="margin-top:4px;padding-left:12px">
+          <strong style="color:var(--green)">RECONNAISSANCE</strong> — Passive probing. Your safest window to scan and fix.<br>
+          <strong style="color:var(--amber)">INITIAL ACCESS</strong> (after 2:00) — Active exploitation of perimeter nodes.<br>
+          <strong style="color:var(--amber)">LATERAL MOVEMENT</strong> (after 4:00) — Triggered by the first foothold. Pivoting inward.<br>
+          <strong style="color:var(--red)">PRIV ESCALATION</strong> (after 6:00) — Targeting deeper zones. Falls back to perimeter if no footholds.<br>
+          <strong style="color:var(--red)">EXFILTRATION</strong> (after 8:00) — Aggressive push toward critical assets.
+        </p>
+        <p style="margin-top:4px">The red team <strong>never gives up</strong>. Even in late phases with no footholds, they regroup and re-target the perimeter.</p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">PERSISTENCE vs PIVOT</p>
+        <p><strong style="color:var(--red)">Persistence</strong> (15-30s) — Establishes a durable foothold on high-value nodes. Survives your incident response. Even after you kick the attacker out, the persistence marker remains — the red team can re-enter in just 5 seconds. Use <strong>Burn & Rebuild</strong> to fully eliminate it.</p>
+        <p style="margin-top:4px"><strong style="color:var(--amber)">Pivot</strong> (3-8s) — Quick lateral move through low-value nodes (IoT, printers). Fragile — if you reclaim the source node via IR, the pivot fails and the downstream foothold is lost.</p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">PHYSICAL INTRUSION</p>
+        <p>When the red team is locked out remotely (no viable targets for 30+ seconds), a pentester may go onsite:</p>
+        <p style="margin-top:4px"><strong style="color:var(--amber)">Coffee Shop</strong> — Pentester arrives onsite (10-15s). Can attack Wi-Fi access points and wireless workstations with no penalty for failure. Low risk for the attacker.</p>
+        <p style="margin-top:4px"><strong style="color:var(--red)">Physical Penetration</strong> — Optional high-stakes move. The pentester attempts to physically access secured areas (server rooms, data centers). Success gives instant persistence via USB-jack. Failure risks <strong>permanent removal</strong> — the pentester is caught and detained by security. Fixing physical security vulns makes this harder and more likely to result in capture.</p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">DETECTION TIERS</p>
+        <p>Your ability to see attacks depends on your monitoring posture:</p>
+        <p style="margin-top:4px;padding-left:12px">
+          <strong style="color:var(--cyan)">Tier 1 (deep-scanned)</strong> — Instant, specific alerts. Compromises immediately confirmed.<br>
+          <strong style="color:var(--green)">Tier 2 (scanned)</strong> — Delayed, vague zone-level alerts. Compromises appear as amber <strong>anomalies</strong> — must be investigated to confirm.<br>
+          <strong style="color:var(--red)">Tier 3 (unscanned / missing monitoring)</strong> — Completely silent. You won't know you're compromised until the red team pivots to a monitored node.
+        </p>
+        <p style="margin-top:4px">The <strong>"Missing Monitoring"</strong> vulnerability forces Tier 3 even on scanned nodes — fix it or stay blind.</p>
+
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">INCIDENT RESPONSE</p>
+        <p><strong style="color:var(--amber)">Anomaly Investigation</strong> (5-10s, 1 analyst) — Confirms whether an anomaly is a real compromise or false positive. Required for Tier 2 detections. Tier 1 nodes skip this step — compromise is auto-confirmed.</p>
+        <p style="margin-top:4px"><strong style="color:var(--red)">Incident Response</strong> (10-20s, 1 analyst) — Evicts the attacker and hardens the node for 4 minutes. This is a <strong>race</strong> — if the pentester completes persistence before your IR finishes, the foothold survives even after the attacker is kicked out.</p>
+        <p style="margin-top:4px"><strong style="color:var(--red)">Burn & Rebuild</strong> ($8-20K, 25-45s, 1 analyst) — Scorched-earth system replacement. The only way to fully eliminate persistence. Takes the node offline during rebuild, severs downstream red team access. The node comes back clean with zero vulnerabilities. Cannot be done during active compromise — complete IR first.</p>
+      </div>
+      </div>
+
+      <!-- ═══ ABOUT ═══ -->
       <div class="help-tab-content" id="help-tab-about">
         <div style="font-size:12px;line-height:1.7;color:var(--green-dim);max-height:60vh;overflow-y:auto;padding:20px 0">
-          <p style="color:var(--green);font-size:14px">PumaSecure v1.0</p>
-          <p style="margin-top:8px">An infosec roguelike where you play the defender.</p>
-          <p style="margin-top:12px">You've been dropped into a poorly managed network. Scan assets, find vulnerabilities, fix what you can, and survive a red team audit — all within 15 minutes. Every run generates a different network with different threats. Spend earned Intel on permanent upgrades to take on harder challenges.</p>
-          <p style="margin-top:12px;color:var(--amber)">Design Philosophy</p>
-          <p style="margin-top:4px">PumaSecure models real defender trade-offs: limited people, limited budget, limited time. You can't fix everything. Triage is the game.</p>
-          <p style="margin-top:12px;color:var(--amber)">Tech</p>
-          <p style="margin-top:4px">Single-file HTML5 — no dependencies, no server, no tracking. Runs entirely in your browser. Save data is stored in localStorage.</p>
-          <p style="margin-top:12px;color:var(--amber)">Red Team Simulation</p>
-          <p style="margin-top:4px">The AI red team follows MITRE ATT&CK-inspired phases, escalating from passive recon to active exploitation. Their behavior adapts to your threat level and which vulnerabilities remain unfixed.</p>
+          <p style="color:var(--green);font-size:16px">Thanks for playing!</p>
+          <p style="margin-top:16px">This is the third game in the PumaSOC universe:</p>
+          <p style="margin-top:8px;padding-left:12px">
+            &bull; <strong style="color:var(--green)">PumaSOC</strong> — Run your own security operations program from the comfort of your SIEM interface!<br>
+            &bull; <strong style="color:var(--amber)">PumaResponse</strong> — An incident response choose-your-own-edutainment-adventure!<br>
+            &bull; <strong style="color:var(--cyan)">PumaSecure</strong> — Taking over vulnerability management in the middle of a red team assessment!
+          </p>
+          <p style="margin-top:16px">Once again, this app was made by me, who is not a developer, using Claude Code.</p>
+          <p style="margin-top:16px;color:var(--amber)">Built by <a href="https://www.greykit.com/projects" target="_blank" style="color:var(--green);text-decoration:underline">greykit.com</a></p>
         </div>
       </div>
     </div>
@@ -1634,12 +1748,7 @@ function initCanvas() {
       if (dist < minDist) { minDist = dist; closest = n; }
     }
     if (!closest) return;
-    if ((closest.anomaly && !closest.compromiseConfirmed && !closest.investigating) ||
-        (closest.compromised && closest.compromiseConfirmed && !closest.investigating) ||
-        (closest.compromised && !closest.compromiseConfirmed && getDetectionTier(closest) === 1 && !closest.investigating)) {
-      startInvestigation(closest.id);
-    } else if (!closest.scanned && !closest.scanning) scanAsset(closest.id);
-    else if (closest.scanned && !closest.deepScanned && !closest.deepScanning) deepScan(closest.id);
+    quickAction(closest);
   });
 
   // Zoom toward mouse pointer
@@ -2752,6 +2861,28 @@ function deepScan(nodeId) {
   renderAssetList();
 }
 
+// Double-click quick action: Investigate > IR > Scan > Deep Scan
+function quickAction(node) {
+  if (!node || !R || R.paused) return;
+  const id = node.id;
+  // Priority 1: Investigate anomaly
+  if (node.anomaly && !node.compromiseConfirmed && !node.investigating) {
+    startInvestigation(id);
+  // Priority 2: Incident response on confirmed compromise
+  } else if (node.compromised && node.compromiseConfirmed && !node.investigating) {
+    startInvestigation(id);
+  // Priority 3: IR on Tier 1 auto-confirmed compromise
+  } else if (node.compromised && !node.compromiseConfirmed && getDetectionTier(node) === 1 && !node.investigating) {
+    startInvestigation(id);
+  // Priority 4: Scan unscanned node
+  } else if (!node.scanned && !node.scanning) {
+    scanAsset(id);
+  // Priority 5: Deep scan already-scanned node
+  } else if (node.scanned && !node.deepScanned && !node.deepScanning) {
+    deepScan(id);
+  }
+}
+
 function startInvestigation(nodeId) {
   if (!R || R.paused || R.phase === 'COMPLETE') return;
   const node = R.net.nodes[nodeId];
@@ -3033,7 +3164,7 @@ function getDetectionTier(node) {
   if (!node) return 3;
   // Missing Monitoring vuln downgrades detection regardless of scan state
   const hasMissingMonitoring = node.vulns.some(v =>
-    v.category.id === 'missing_monitoring' && !v.fixed && !v.mitigated
+    v.category.id === 'no_monitor' && !v.fixed && !v.mitigated
   );
   if (hasMissingMonitoring) return 3;
   if (node.deepScanned) return 1;
@@ -3096,7 +3227,7 @@ function queueDetectionAlert(node, eventType, pentesterId) {
   }
 }
 
-function rtTryExploit(node) {
+function rtTryExploit(node, pentester) {
   const rt = R.redTeam;
   // Generate vulns for unscanned nodes so red team has something to exploit
   if (node.vulns.length === 0) {
@@ -3105,8 +3236,9 @@ function rtTryExploit(node) {
   }
 
   // Context for physical/local access
-  const sameZoneFoothold = rt.footholds.some(fId => R.net.nodes[fId].zone === node.zone);
-  const adjZoneFoothold = rt.footholds.some(fId => Math.abs(R.net.nodes[fId].zone - node.zone) === 1);
+  const sameZoneFoothold = rt.footholds.some(fId => R.net.nodes[fId] && R.net.nodes[fId].zone === node.zone);
+  const adjZoneFoothold = rt.footholds.some(fId => R.net.nodes[fId] && Math.abs(R.net.nodes[fId].zone - node.zone) === 1);
+  const isOnsite = pentester && pentester.onsite;
   const intel = rt.intel.get(node.id);
 
   for (const vuln of node.vulns) {
@@ -3118,14 +3250,12 @@ function rtTryExploit(node) {
       if (R.phase === 'LATERAL MOVEMENT' && !intel.has(vuln.category.id) && vuln.attackVector !== 'Network') continue;
     }
 
-    // Physical vector: contextual multiplier based on proximity
+    // Physical vector: requires pentester to be physically onsite
     let chance;
     if (vuln.attackVector === 'Physical') {
-      if (!sameZoneFoothold && !adjZoneFoothold) continue; // can't attempt without proximity
-      let physMult = 0.02;
-      if (sameZoneFoothold) physMult = 0.15;
-      else if (adjZoneFoothold) physMult = 0.08;
-      // Wi-Fi AP or IoT compromise in same zone: physical proximity buff
+      if (!isOnsite) continue; // can't exploit physical vulns remotely — need a body in the building
+      let physMult = 0.15; // onsite base
+      // Wi-Fi AP or IoT compromise in same zone gives better physical positioning
       if (rt.buffs.has('physical_proximity') && sameZoneFoothold) physMult = 0.25;
       chance = vuln.exploitability * physMult;
     } else if (vuln.attackVector === 'Local') {
@@ -3688,7 +3818,7 @@ function updatePentester(pt, dt) {
       }
 
       // Attempt exploit using existing logic
-      const vuln = rtTryExploit(target);
+      const vuln = rtTryExploit(target, pt);
       if (vuln) {
         // SUCCESS - compromise the node
         ptCompromiseNode(pt, target, vuln);
@@ -3753,7 +3883,7 @@ function updatePentester(pt, dt) {
       if (!target || target.rebuilding) { ptReset(pt); return; }
 
       // Pivot complete — attempt exploit on the target
-      const vuln = rtTryExploit(target);
+      const vuln = rtTryExploit(target, pt);
       if (vuln) {
         ptCompromiseNode(pt, target, vuln);
       } else {
@@ -4001,7 +4131,7 @@ function endRun() {
   checkAchievements({ coverage, grade, breaches, finalScore, budgetRemaining: R.budget, elapsed: R.elapsed, clockSpeed: R.clockSpeed, threatLevel: R.threatLevel });
 
   // Check template unlocks
-  checkTemplateUnlocks({ grade, coverage, templateId: R.net.template.id, threatLevel: R.threatLevel });
+  checkTemplateUnlocks({ grade, coverage, templateId: R.net.template.id, threatLevel: R.threatLevel, elapsed: R.elapsed });
 
   writeSave();
 
@@ -4045,6 +4175,7 @@ function checkTemplateUnlocks(data) {
   if (data.templateId === 'enterprise' && gradeRank(data.grade) >= gradeRank('B')) unlock('fintech');
   if (data.coverage >= 100) unlock('university');
   if (save.stats.totalRuns >= 5) unlock('manufacturing');
+  if (data.elapsed < 480 && data.grade !== 'F') unlock('startup');
   if (data.threatLevel >= 7 && data.grade !== 'F') unlock('government');
 }
 
@@ -4353,7 +4484,8 @@ function renderDetail() {
 
   // Scan button for unscanned nodes
   if (!node.scanned && !node.scanning) {
-    html += `<button id="btn-scan" onclick="scanAsset(${node.id})" style="width:100%;margin-bottom:8px">
+    html += `<button id="btn-scan" onclick="scanAsset(${node.id})" style="width:100%;margin-bottom:8px"
+      title="Vulnerability scan: Reveals all vulnerabilities on this host and discovers connected neighbor assets. Upgrades detection to Tier 2 (delayed alerts). Takes 15-25s and 1 analyst.">
       <span class="fix-label">Scan Asset (1 analyst)</span><span class="fix-reason"></span>
     </button>`;
   } else if (node.scanning) {
@@ -4367,7 +4499,8 @@ function renderDetail() {
 
   // Deep scan button for already-scanned nodes
   if (node.scanned && !node.deepScanned && !node.deepScanning) {
-    html += `<button id="btn-deep-scan" onclick="deepScan(${node.id})" style="width:100%;margin-bottom:8px;font-size:12px">
+    html += `<button id="btn-deep-scan" onclick="deepScan(${node.id})" style="width:100%;margin-bottom:8px;font-size:12px"
+      title="Threat analysis: Reduces vulnerability exploitability by 25-40%, discovers shadow IT connections, and upgrades detection to Tier 1 (instant, specific alerts). Auto-confirms any existing compromise. Takes 20-30s and 1 analyst.">
       <span class="fix-label">Deep Scan (1 analyst)</span><span class="fix-reason"></span>
     </button>`;
   } else if (node.deepScanning) {
@@ -4430,6 +4563,12 @@ function renderDetail() {
         // Available: category's fix types + patch/replace if partially fixed
         const available = new Set(v.category.fixTypes);
         if (isPartiallyFixed) { available.add('patch'); available.add('replace'); }
+        const FIX_TOOLTIPS = {
+          mitigate: `Mitigate: Reduces exploitability by 50-75%. Always succeeds. Does not fix the root cause — the vulnerability remains, but is harder to exploit. Use when no patch is available (zero-days) or budget is tight.`,
+          configure: `Configure: Reduces severity by 3-5 points (e.g. Critical → Medium). Fast and cheap, 85-100% success rate. No downtime. May be reverted by operations. Can upgrade to a full Patch or Replace later.`,
+          patch: `Patch: Fully removes the vulnerability. Moderate cost, 70-95% success rate. May cause downtime. Risk of failure from denied change windows, broken dependencies, or operational pushback.`,
+          replace: `Replace: Replaces the affected component entirely. Expensive and slow, but 95-100% success rate. Causes downtime. Required for end-of-life systems with no patches available.`,
+        };
         for (const ft of fixOrder) {
           if (!available.has(ft)) continue;
           if (ft === 'mitigate' && v.mitigated) continue;
@@ -4443,8 +4582,13 @@ function renderDetail() {
             : `$${(minCost/1000).toFixed(0)}-${(maxCost/1000).toFixed(0)}K`;
           const isRework = v.lastFixFailed && v.fixTypeApplied === ft;
           const label = isRework ? `Rework ${ftInfo.label}` : ftInfo.label;
+          let tooltip = FIX_TOOLTIPS[ft] || '';
+          if (isRework) tooltip = `Rework: Retry the failed ${ftInfo.label.toLowerCase()} at 1.5x cost. ` + tooltip;
+          if (costMult > 1 && !isRework) tooltip += ` Cost is 1.5x because you are upgrading from a partial fix.`;
+          tooltip += ` Cost: ${costStr}. Time: ${ftInfo.timeRange[0]}-${ftInfo.timeRange[1]}s. Requires 1 analyst.`;
           html += `<button class="fix-btn btn-sm" data-fix-type="${ft}" data-min-cost="${minCost}"
-            onclick="event.stopPropagation();startFix(${node.id},${i},'${ft}')">
+            onclick="event.stopPropagation();startFix(${node.id},${i},'${ft}')"
+            title="${tooltip.replace(/"/g, '&quot;')}">
             <span class="fix-label">${label}</span><span class="fix-cost">${costStr}</span><span class="fix-reason"></span>
           </button>`;
         }
@@ -4463,15 +4607,18 @@ function renderDetail() {
   // Investigate/IR buttons for anomaly and compromised nodes
   if (node.anomaly && !node.compromiseConfirmed && !node.investigating) {
     // Anomaly: needs investigation to confirm
-    html += `<button class="btn-sm btn-amber" onclick="startInvestigation(${node.id})" style="width:100%;margin-top:8px">
+    html += `<button class="btn-sm btn-amber" onclick="startInvestigation(${node.id})" style="width:100%;margin-top:8px"
+      title="Investigate the anomaly to determine if this node is compromised or if it's a false positive. Takes 5-10s and 1 analyst.">
       Investigate Anomaly (1 analyst)</button>`;
   } else if (node.compromised && node.compromiseConfirmed && !node.investigating) {
     // Confirmed compromise: full IR
-    html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-top:8px">
+    html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-top:8px"
+      title="Incident Response: Assign an analyst to evict the attacker and harden the node. This is a race — if the red team establishes persistence before IR completes, the foothold survives eviction. Takes 10-20s and 1 analyst. Node is hardened for 4 minutes after reclamation.">
       Incident Response (1 analyst)</button>`;
   } else if (node.compromised && !node.compromiseConfirmed && getDetectionTier(node) === 1 && !node.investigating) {
     // Tier 1 auto-confirmed: full IR
-    html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-top:8px">
+    html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-top:8px"
+      title="Incident Response: Assign an analyst to evict the attacker and harden the node. This is a race — if the red team establishes persistence before IR completes, the foothold survives eviction. Takes 10-20s and 1 analyst. Node is hardened for 4 minutes after reclamation.">
       Incident Response (1 analyst)</button>`;
   } else if (node.investigating) {
     const pct = Math.min(100, (node.irProgress / node.irTotalTime) * 100);
@@ -4486,7 +4633,8 @@ function renderDetail() {
     const rebuildCost = REBUILD_COSTS[node.zone] || 12000;
     const canAfford = R.budget >= rebuildCost;
     const hasSlot = getActiveWorkCount() < R.teamSlots;
-    html += `<button class="btn-sm" onclick="burnAndRebuild(${node.id})" style="width:100%;margin-top:8px;border-color:var(--red);color:var(--red);opacity:${canAfford && hasSlot ? 1 : 0.4}" ${canAfford && hasSlot ? '' : 'disabled'}>
+    html += `<button class="btn-sm" onclick="burnAndRebuild(${node.id})" style="width:100%;margin-top:8px;border-color:var(--red);color:var(--red);opacity:${canAfford && hasSlot ? 1 : 0.4}" ${canAfford && hasSlot ? '' : 'disabled'}
+      title="Scorched-earth system replacement. Eliminates red team persistence, takes the node offline during rebuild, and severs downstream red team access through this node. The system comes back clean with zero vulnerabilities. Costs $${(rebuildCost/1000).toFixed(0)}K, takes 25-45s, requires 1 analyst.">
       🔥 Burn & Rebuild — $${(rebuildCost/1000).toFixed(0)}K (1 analyst)</button>`;
     if (!canAfford) html += '<div style="font-size:10px;color:var(--red-dim);text-align:center">Insufficient budget</div>';
     else if (!hasSlot) html += '<div style="font-size:10px;color:var(--amber);text-align:center">All analysts busy</div>';
@@ -4899,12 +5047,7 @@ console.log(
     const nodeId = Number(item.dataset.nodeId);
     const node = R.net.nodes.find(n => n.id === nodeId);
     if (!node) return;
-    if ((node.anomaly && !node.compromiseConfirmed && !node.investigating) ||
-        (node.compromised && node.compromiseConfirmed && !node.investigating) ||
-        (node.compromised && !node.compromiseConfirmed && getDetectionTier(node) === 1 && !node.investigating)) {
-      startInvestigation(nodeId);
-    } else if (!node.scanned && !node.scanning) scanAsset(nodeId);
-    else if (node.scanned && !node.deepScanned && !node.deepScanning) deepScan(nodeId);
+    quickAction(node);
   });
 
   // Asset list keyboard navigation

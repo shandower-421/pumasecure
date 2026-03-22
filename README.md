@@ -6,7 +6,7 @@ An infosec roguelike in a single HTML file. You're a security team dropped into 
 
 ## Gameplay
 
-You have **15 minutes** to defend a procedurally generated network while an AI red team escalates through MITRE ATT&CK-inspired phases — from passive recon to active exploitation to exfiltration.
+You have **15 minutes** to defend a procedurally generated network while 1-3 AI pentester agents escalate through MITRE ATT&CK-inspired phases — from passive recon to active exploitation to exfiltration. Secure the network before they reach your critical assets, or end the engagement early by locking them out completely.
 
 ### The network
 
@@ -21,44 +21,71 @@ Six concentric zones, from outer perimeter to inner core:
 | Data / Critical | Databases, domain controllers, backup systems, key vaults |
 | Cloud / Shadow IT | Cloud VMs, containers, SaaS apps, IoT, unmanaged devices |
 
-The red team typically attacks from the outside in, but compromised Wi-Fi APs, unpatched workstations, or shadow IT can give them unexpected entry points.
+The red team typically attacks from the outside in, but compromised Wi-Fi APs, unpatched workstations, or shadow IT can give them unexpected entry points. When locked out remotely, they may go onsite and attempt physical intrusion.
 
-### Red team phases
+### Red team
 
-| Phase | Window | Tempo |
-|-------|--------|-------|
-| Reconnaissance | 0:00 – 3:00 | Passive probing every 10–15s |
-| Initial Access | 3:00 – 6:00 | Active exploitation every 5–8s |
-| Lateral Movement | 6:00 – 10:00 | Pivoting inward every 4–6s |
-| Privilege Escalation | 10:00 – 13:00 | 1.3x bonus, every 3–5s |
-| Exfiltration | 13:00 – 15:00 | 1.5x bonus, every 2–4s |
+The red team operates as 1-3 independent **pentester agents** (count scales with threat level). Each pentester follows a multi-step attack chain: scanning a target, exploiting vulnerabilities, then choosing between **persistence** (durable, slow) or **pivoting** (fast, fragile).
 
-The red team gathers intel during recon and picks targets strategically. Compromising key assets gives them lasting advantages — owning a firewall bypasses perimeter defenses, a domain controller grants credential access network-wide, a VPN gateway tunnels past internal defenses.
+Phases advance based on both time floors and event triggers:
+
+| Phase | Earliest | Trigger |
+|-------|----------|---------|
+| Reconnaissance | 0:00 | Start of engagement |
+| Initial Access | 2:00 | 3+ nodes probed |
+| Lateral Movement | 4:00 | 1+ foothold established |
+| Privilege Escalation | 6:00 | 2+ footholds or foothold in zone 2+ |
+| Exfiltration | 8:00 | Foothold in zone 3+ |
+
+Compromising key assets gives the red team lasting advantages — a VPN gateway tunnels past internal defenses, a domain controller grants credential access network-wide, a CI/CD server enables supply chain attacks.
+
+If the red team can't break in remotely, they may send a pentester **onsite** to attack Wi-Fi APs from a coffee shop or attempt physical penetration of secured areas — risking incarceration if caught.
+
+### Detection tiers
+
+You can only defend what you can see. Detection depends on each node's security posture:
+
+| Tier | Condition | What you see |
+|------|-----------|-------------|
+| **Tier 1** | Deep-scanned | Instant, specific alerts. Compromises immediately visible. |
+| **Tier 2** | Scanned | Delayed, vague zone-level alerts. Compromises appear as amber **anomalies** — must investigate to confirm. |
+| **Tier 3** | Unscanned / missing monitoring | Nothing. The red team owns the node and you don't know. |
+
+Scanning a silently-compromised node reveals an anomaly. Deep scanning auto-confirms the breach. The "Missing Monitoring" vulnerability forces Tier 3 regardless of scan state — fix it or stay blind.
 
 ### Scanning
 
-- **Passive scanning** runs automatically but is slow and incomplete
-- **Active scanning** (click "Scan Asset") reveals all vulns and discovers neighboring assets — takes 15–25s and one team slot
-- **Deep scanning** reduces exploitability by 15–20% and uncovers shadow IT connections — takes 20–30s and one team slot
+- **Passive scanning** runs automatically but only detects 6 common vulnerability types (exposed services, default creds, weak crypto, misconfigs, EOL software)
+- **Active scanning** reveals all vulns, discovers neighboring assets, and upgrades the node to Tier 2 detection — takes 15-25s and one analyst
+- **Deep scanning** reduces exploitability, uncovers shadow IT connections, and upgrades to Tier 1 detection — takes 20-30s and one analyst
 
 ### Fixing vulnerabilities
 
 | Action | Speed | Effect | Risk |
 |--------|-------|--------|------|
-| **Patch** | Slow | Full fix | 70–95% success; change windows get denied, dependencies break |
-| **Configure** | Fast | Reduces severity | Configs get reverted, deployed to wrong host |
+| **Mitigate** | Fast | Reduces exploitability 50-75% | Doesn't fix the root cause |
+| **Configure** | Fast | Reduces severity 3-5 points | Configs get reverted, deployed to wrong host |
+| **Patch** | Slow | Full fix | 70-95% success; change windows denied, dependencies break |
 | **Replace** | Very slow | Near-guaranteed fix | Migrations crash, license keys reject |
-| **Mitigate** | Instant | Reduces exploitability 50–75% | Doesn't fix the underlying issue |
 
-Fixes fail for real reasons. Some vuln categories (zero-days, physical security) can only be mitigated.
+Fixes can fail for realistic reasons. Failed fixes can be reworked (1.5x cost). A mitigated vulnerability can later be properly patched when resources free up. Some vuln categories (zero-days, physical security) can only be mitigated.
 
-### Team slots
+### Incident response
 
-Everything costs a team slot — scanning, fixing, investigating incidents. You start with 2 slots. Hire a contractor mid-run (+1 slot, $10K) or unlock permanent slots in the Skill Tree.
+When a compromise is detected, assign an analyst to investigate. IR is a **race** against the pentester's current activity:
+
+- **IR wins before persistence**: Attacker evicted, node hardened for 4 minutes
+- **Persistence wins before IR**: Attacker has a durable foothold that survives eviction — the red team can re-enter in seconds
+
+If persistence was established, your only option is **Burn & Rebuild** ($8-20K, 25-45s) — a scorched-earth system replacement that eliminates persistence, takes the node offline, and severs downstream red team access. The node comes back clean with zero vulnerabilities.
+
+### Analysts
+
+Everything costs an analyst — scanning, fixing, investigating, rebuilding. You start with 2. Hire a contractor mid-run (+1, $10K) or unlock permanent analysts in the Skill Tree.
 
 ### Scoring
 
-Any critical asset breached = automatic **F**. Otherwise you're graded on:
+Any critical asset (zone 4) breached = automatic **F**. Otherwise you're graded on:
 
 | Axis | Weight |
 |------|--------|
@@ -70,24 +97,38 @@ Any critical asset breached = automatic **F**. Otherwise you're graded on:
 
 Grades: **S** (95+, threat 5+ only) / **A** (85+) / **B** (70+) / **C** (55+) / **D** (40+) / **F**
 
+**Early win**: If you secure all discovered nodes, eliminate all compromises, and the red team has no footholds after 5 minutes, the engagement ends early.
+
 ### Meta-progression
 
-Earn **Intel** based on your grade and threat level. Spend it in the **Skill Tree** for permanent upgrades — faster scanning, extra team slots, budget boosts, threat intelligence. Unlock new network templates (Healthcare, Finance, Government) by hitting milestones. Crank up the **Threat Level** (1–10) for harder runs and bigger Intel rewards.
+Earn **Intel** based on your grade and threat level. Spend it in the **Skill Tree** for permanent upgrades — faster scanning, extra analysts, budget boosts, threat intelligence. Unlock new network templates (Healthcare, Finance, Government) by hitting milestones. Crank up the **Threat Level** (1-10) for harder runs and bigger Intel rewards.
 
 ## Controls
 
 | Input | Action |
 |-------|--------|
 | Click | Select a node |
+| Double-click | Quick action (Investigate > IR > Scan > Deep Scan) |
 | Scroll | Zoom the map |
 | Drag | Pan the map |
 | Space | Pause / unpause |
+| ? | Help |
 
-Use the detail panel on the right to scan, fix, and investigate.
+Use the detail panel on the right to scan, fix, investigate, and rebuild.
 
 ## Tech
 
 Single HTML file. Vanilla JS. HTML5 Canvas. No frameworks, no build tools, no external assets. CRT terminal aesthetic.
+
+## The PumaSOC Universe
+
+PumaSecure is the third game in the series:
+
+- **PumaSOC** — Run your own security operations program from the comfort of your SIEM interface
+- **PumaResponse** — An incident response choose-your-own-edutainment-adventure
+- **PumaSecure** — Taking over vulnerability management in the middle of a red team assessment
+
+Built by [greykit.com](https://www.greykit.com/projects)
 
 ---
 
