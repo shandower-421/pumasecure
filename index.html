@@ -960,14 +960,11 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p style="color:var(--green);margin-bottom:8px">The red team is an AI-controlled adversary with 1-3 independent pentester agents. They operate like a second player — limited resources, strategic decisions, and real-time operations.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">PENTESTER AGENTS</p>
-        <p>Each pentester independently selects targets, scans, exploits, and establishes footholds. More pentesters at higher threat levels:</p>
-        <p style="margin-top:4px;padding-left:12px">
-          TL 1: 1 pentester &nbsp;&nbsp; TL 2-3: 2 pentesters &nbsp;&nbsp; TL 4+: 3 pentesters (faster at TL 6+)
-        </p>
+        <p>Each pentester independently selects targets, scans, exploits, and establishes footholds. Red Team Size (1-5) and Expertise are set on the difficulty screen. <strong>Red Team Coordination</strong> controls whether pentesters share footholds — at low coordination, each operates in isolation.</p>
         <p style="margin-top:4px">A pentester's attack chain: <strong>Scan target</strong> (5-12s) &rarr; <strong>Exploit vuln</strong> (4-10s) &rarr; <strong>Compromise</strong> &rarr; <strong>Persist or Pivot</strong>. Each step takes real time, giving you windows to detect and respond.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">ATTACK BEHAVIOR</p>
-        <p>You get a <strong style="color:var(--green)">3-minute head start</strong> before the red team activates. Use this time to scan and prioritize fixes.</p>
+        <p>You get a <strong style="color:var(--green)">head start</strong> (configurable, 1-5 min) before the red team activates. Use this time to scan and prioritize fixes.</p>
         <p style="margin-top:4px">Once active, each pentester operates independently. Their behavior adapts to their situation:</p>
         <p style="margin-top:4px;padding-left:12px">
           <strong style="color:var(--amber)">No footholds</strong> — Probe and attack perimeter nodes (zone 0-1), looking for an entry point.<br>

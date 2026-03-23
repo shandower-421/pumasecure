@@ -28,9 +28,9 @@ Information flows through three tiers, each costing more time and analyst capaci
 
 **Passive Monitoring** reveals a trickle of easily-detectable issues — exposed services, default credentials, weak crypto, end-of-life software. It's free but slow and incomplete. A player relying solely on passive scanning will miss the vulnerabilities that matter most.
 
-**Active Scanning** is a full vulnerability scan. It reveals every vulnerability on the host and discovers neighboring assets connected to it. It provides the information needed to prioritize, but costs an analyst slot for 15-25 seconds — time that analyst isn't fixing anything.
+**Vuln Scanning** (active scanning) runs a vulnerability scanner like Nessus or Qualys. It reveals every vulnerability on the host and discovers neighboring assets connected to it. It provides the information needed to prioritize, but costs an analyst slot for 15-25 seconds — time that analyst isn't fixing anything.
 
-**Deep Scanning** is a comprehensive threat analysis. It finds everything, including physical security gaps. It also reduces the host's attack surface (reflecting the value of an up-to-date asset inventory and threat model). But it's the most expensive scan in terms of time.
+**EDR Deployment** (deep scanning) installs an endpoint detection agent like CrowdStrike. It finds everything, including physical security gaps. It also reduces the host's attack surface (reflecting the value of an up-to-date asset inventory and threat model) and provides Tier 1 instant-alert detection. But it's the most expensive scan in terms of time.
 
 The design tension: **scanning gives you information, but costs the same resource (analyst time) that you need to act on that information**. Scanning everything before fixing anything means the red team gets a head start. Fixing without scanning means you might miss the critical vulnerability.
 
@@ -57,7 +57,7 @@ The design tension: **the fastest fixes are the least effective, and the most ef
 
 ### Analyst Capacity
 
-Every action — scanning, fixing, investigating, rebuilding — requires an analyst. You start with two. Everything competes for the same limited pool of human attention.
+Every action — scanning, fixing, investigating, rebuilding — requires an analyst. Everything competes for the same limited pool of human attention.
 
 This creates constant triage decisions:
 - Do you scan the next node or fix the critical vuln you already found?
@@ -66,36 +66,41 @@ This creates constant triage decisions:
 
 ---
 
-## The Red Team as a Second Player
+## The Red Team as Independent Agents
 
-The red team isn't a difficulty slider or a random event generator. It's modeled as an independent actor with its own resources, information, and decision-making.
+The red team isn't a difficulty slider or a random event generator. It's modeled as independent actors with their own resources, information, and decision-making.
 
 ### Red Team Resources
 
-The red team has **pentesters** — independent operators that work in parallel. Their count scales with threat level:
-
-| Threat Level | Pentesters |
-|-------------|-----------|
-| 1 | 1 |
-| 2-3 | 2 |
-| 4-5 | 3 |
-| 6+ | 3 (faster operations) |
-
-Each pentester is an autonomous agent with their own target, progress timer, and state. Multiple pentesters can attack different nodes simultaneously, creating multi-front pressure that a single defender must triage.
+The red team has **pentesters** — independent operators that work in parallel. Their count is controlled by the Red Team Size slider (1-5). Each pentester is an autonomous agent with their own target, progress timer, and state. Multiple pentesters can attack different nodes simultaneously, creating multi-front pressure that a single defender must triage.
 
 Pentesters can also **double up** on high-value targets (zone 3+), halving the time to establish persistence on critical infrastructure.
+
+### Red Team Coordination
+
+The **Red Team Coordination** slider controls how pentesters share intelligence:
+
+| Setting | Behavior |
+|---------|---------|
+| **None** | Each pentester only uses footholds they personally established |
+| **Low** | Personal footholds always available; team footholds shared 25% of the time |
+| **Mid** | 50% chance of sharing team footholds |
+| **High** | 75% chance of sharing |
+| **Full** | All pentesters share all footholds — a single foothold is an entry for everyone |
+
+This creates a meaningful difficulty axis: at low coordination, eliminating one pentester's foothold doesn't help the others, but they also can't leverage each other's work. At full coordination, a single breach becomes a team-wide attack vector.
 
 ### Multi-Step Attack Chains
 
 The red team doesn't instantly compromise nodes. Each attack follows a realistic chain:
 
 ```
-IDLE → SCANNING (5-12s) → EXPLOITING (4-10s) → COMPROMISED → PERSISTING (15-30s) or PIVOTING (3-8s)
+IDLE -> SCANNING (5-12s) -> EXPLOITING (4-10s) -> COMPROMISED -> PERSISTING (15-30s) or PIVOTING (3-8s)
 ```
 
 **Scanning** probes the target for exploitable vulnerabilities. The pentester learns vulnerability categories on the target, building intelligence for the exploit attempt.
 
-**Exploiting** attempts to leverage a known vulnerability. Success depends on the vulnerability's exploitability, the node's defensive posture (hardening, deep scanning, patching), and accumulated strategic buffs.
+**Exploiting** attempts to leverage a known vulnerability. Success depends on the vulnerability's exploitability, the node's defensive posture (hardening, EDR deployment, patching), and accumulated strategic buffs.
 
 **Persisting** establishes a durable foothold on high-value targets. This takes significant time (15-30s), during which the defender can race to interrupt via incident response. Once persistence is established, the foothold survives eviction — the red team can re-enter without re-exploiting.
 
@@ -118,21 +123,18 @@ Compromising specific node types grants lasting advantages:
 
 This means the red team's target selection is strategic, not random. A VPN gateway isn't just a perimeter node — it's a skeleton key to the internal network. A domain controller isn't just a high-value target — it's a force multiplier for every subsequent attack.
 
-### Phase Progression
+### Event-Driven Behavior
 
-The red team escalates through five phases inspired by real adversary tradecraft:
+The red team has no global phase system tied to a clock. Instead, each pentester independently adapts to their situation:
 
-| Phase | Behavior |
-|-------|---------|
-| **Reconnaissance** | Passive probing of perimeter nodes, gathering intelligence on vulnerability categories |
-| **Initial Access** | Active exploitation of perimeter, preferring previously probed targets |
-| **Lateral Movement** | Pivoting from footholds to neighboring nodes, following network connections |
-| **Privilege Escalation** | Targeting inner zones (3+), seeking domain admin and critical infrastructure |
-| **Exfiltration** | Aggressively targeting data assets (zone 4), attempting to breach critical systems |
+- **No footholds**: Probe and attack perimeter nodes, looking for an entry point
+- **Has foothold**: Expand inward, prioritizing high-value and deeper-zone neighbors
+- **Deep footholds**: Aggressively target critical assets (zone 4), increased exploit bonuses
+- **Locked out**: Regroup and re-target the perimeter — the red team never gives up
 
-Phases use a **hybrid transition system** — each has a minimum time floor (the red team can't rush) and an event trigger (they advance when conditions are met, not just when the clock says so). If the red team gets a foothold at 4:30, lateral movement starts at 4:30 — they don't wait for a fixed timer.
+The only clock-tied element is a configurable **head start** (1-5 minutes) before pentesters activate, giving the player time to scan and begin remediation.
 
-If the red team has no footholds in late phases, they don't give up. They fall back to re-probing the perimeter, trying new approaches, and eventually going onsite for physical intrusion.
+If the red team is completely locked out (no viable targets for 45+ seconds), they escalate to physical intrusion.
 
 ---
 
@@ -146,8 +148,8 @@ Detection quality depends entirely on the node's security posture:
 
 | Tier | Condition | Scanning Alerts | Compromise Visibility |
 |------|-----------|----------------|----------------------|
-| **Tier 1** | Deep-scanned | Immediate, specific ("Scanning detected on FW-01") | Instant red flag, IR available immediately |
-| **Tier 2** | Scanned (not deep) | Delayed (5-10s), vague ("Unusual traffic in DMZ zone") | Amber anomaly indicator — must investigate to confirm |
+| **Tier 1** | EDR deployed | Immediate, specific ("Scanning detected on FW-01") | Instant red flag, IR available immediately |
+| **Tier 2** | Vuln scanned (no EDR) | Delayed (5-10s), vague ("Unusual traffic in DMZ zone") | Amber anomaly indicator — must investigate to confirm |
 | **Tier 3** | Unscanned or missing monitoring | None | Silent — player is completely blind |
 
 A node with an unfixed "Missing Monitoring" vulnerability behaves as Tier 3 regardless of scan state. This makes monitoring gaps a gameplay-critical vulnerability — fixing the RCE is important, but if you can't see the attack, the RCE fix might come too late.
@@ -160,7 +162,7 @@ The player must assign an analyst to **investigate the anomaly** (5-10s). The in
 
 ### Scanning Reveals Hidden Compromises
 
-If a node was silently compromised (Tier 3) and the player later scans it, the scan discovers indicators of compromise. Deep scanning auto-confirms the breach. This creates a discovery mechanic where **the act of scanning can reveal that you've already been owned**.
+If a node was silently compromised (Tier 3) and the player later scans it, the scan discovers indicators of compromise. EDR deployment auto-confirms the breach. This creates a discovery mechanic where **the act of scanning can reveal that you've already been owned**.
 
 ---
 
@@ -183,14 +185,15 @@ When persistence is established and survives IR, the player has one option: **Bu
 - **Cost**: $8K-$20K depending on the node's zone and criticality
 - **Duration**: 25-45 seconds (requires an analyst)
 - **Effect**: The node goes offline, then comes back as a clean system with zero vulnerabilities. All red team persistence is destroyed. Downstream nodes that depended on this path lose their access (unless they have their own persistence).
+- **Penalty**: Costs one analyst permanently — someone's getting fired for letting it get this bad.
 
-The design tension: **Burn & Rebuild is expensive and slow, but it's the only way to truly eliminate persistence**. The red team knows the clock is ticking — they must race to establish their own persistence deeper in the network before the choke point burns.
+The design tension: **Burn & Rebuild is expensive, slow, and permanently reduces your team, but it's the only way to truly eliminate persistence**. The red team knows the clock is ticking — they must race to establish their own persistence deeper in the network before the choke point burns.
 
 ---
 
 ## Physical Intrusion: The Nuclear Option
 
-When the red team is locked out of the network (perimeter fully patched, no footholds), they don't give up. After 45+ seconds of being stuck, they send a pentester onsite.
+When the red team is locked out of the network (perimeter fully patched, no footholds for 45+ seconds), they send a pentester onsite.
 
 ### Phase 1: Coffee Shop
 
@@ -212,7 +215,65 @@ From onsite, the pentester may attempt direct physical access to a system:
 - If physical security is **patched**: 75% chance of capture
 - **Caught = permanently removed** from the engagement
 
-This creates a genuine risk/reward calculation for the red team and a genuine incentive for the player to fix physical security vulnerabilities on critical infrastructure.
+### Physical Access Requirements
+
+Physical-vector vulnerabilities (unlocked server racks, missing badge access, no security cameras) are **only exploitable by onsite pentesters**. Having a same-zone foothold through network exploitation does not grant physical access — you need a body in the building. This creates a genuine risk/reward calculation for the red team and a genuine incentive for the player to fix physical security vulnerabilities on critical infrastructure.
+
+---
+
+## The Difficulty System
+
+PumaSecure's difficulty is fully configurable through 8 sliders and 16 modifiers.
+
+### Sliders
+
+**Player Resources** (higher = easier):
+- Starting Budget ($15K-$60K)
+- Budget Drip ($3K-$12K per 60s)
+- Starting Analysts (1-5)
+- Team Expertise (0.6x-1.5x action speed)
+- Head Start (1-5 minutes before red team activates)
+
+**Red Team Power** (higher = harder):
+- Red Team Size (1-5 pentesters)
+- Red Team Expertise (0.6x-1.4x attack speed)
+- Red Team Coordination (None-Full foothold sharing)
+
+### Modifiers (Advantages)
+
+Each has three positions: OFF / ? (random) / ON.
+
+| Modifier | Effect |
+|----------|--------|
+| MSSP Monitoring | No "missing monitoring" vulnerabilities |
+| Remote Attacker | No physical vulns, no onsite attacks |
+| Grizzled IT Veteran | Fixes never fail |
+| Strong IAM | Suppress brute force / credential vulns |
+| Threat Intel Feed | Reveals the current target of one pentester |
+| Network Mapper | Zone outlines visible on the map at start |
+| Passive Recon | Start with 20% more assets pre-discovered |
+| Incident Playbooks | First remediation on each asset is free |
+
+### Modifiers (Complications)
+
+| Modifier | Effect |
+|----------|--------|
+| Government Oversight | Fix times 1.5x longer (paperwork) |
+| Governance Requirements | 30% of vulns can only be mitigated |
+| Insider Threat | One node starts compromised with persistence |
+| Pandemic Protocol | One analyst goes AFK periodically |
+| Legacy Env | 30% of nodes get legacy flag, boosting vuln severity |
+| Zero Day | One critical vuln has no available fix |
+| Shadow IT | 2-3 unmanaged devices appear mid-game — red team discovers them first |
+| Supply Chain | Backdoored dependency spawns same critical vuln on 3-5 nodes simultaneously |
+
+Random modifiers are weighted by impact — powerful modifiers (Grizzled Veteran, Insider Threat) have lower activation chances than mild ones (Pandemic, Governance). Random rolls slightly favor the player.
+
+### Difficulty Score and Intel
+
+Every configuration produces a difficulty score (1.0-10.0). This score determines the **Intel multiplier** for that run. Normal difficulty (~4.3) yields 1.0x intel. Higher difficulty yields more; lower yields less.
+
+Five presets (Tutorial through Nightmare) configure everything, or players can use Custom to dial in exact parameters.
 
 ---
 
@@ -228,7 +289,7 @@ The final score reflects five dimensions of security program effectiveness:
 | **Incident Response** | 15% | How quickly were compromises detected and remediated? |
 | **Efficiency** | 15% | How much risk was reduced per dollar spent? |
 
-**Hard gate**: Any critical asset (zone 4) breached = automatic **F**, score capped at 39.
+**Hard gate (difficulty 4+)**: Any critical asset (zone 4) breached = automatic **F**, score capped at 39. At lower difficulties, a critical breach incurs a -30 penalty but isn't an automatic failure.
 
 **Early win**: If the player secures all discovered nodes, eliminates all compromises, and the red team has no footholds after 5 minutes, the engagement ends early. The response score uses actual elapsed time, rewarding decisive play.
 
@@ -236,7 +297,7 @@ The final score reflects five dimensions of security program effectiveness:
 
 | Grade | Score | Requirement |
 |-------|-------|-------------|
-| **S** | 95+ | Threat level 5+ |
+| **S** | 95+ | Difficulty 5+ |
 | **A** | 85+ | Strong defense |
 | **B** | 70+ | Functional defense |
 | **C** | 55+ | Needs improvement |
@@ -245,17 +306,22 @@ The final score reflects five dimensions of security program effectiveness:
 
 ---
 
-## Meta-Progression
+## Career Progression
 
-Intel earned per run feeds back into the **Skill Tree** across three branches:
+Intel earned per run is a **lifetime career score** that unlocks new network templates:
 
-**Recon** — Faster scanning, network mapping, passive discovery, OSINT capabilities
+| Template | Intel Required |
+|----------|---------------|
+| Small Office | 0 (free) |
+| Enterprise | 25 |
+| Manufacturing | 50 |
+| University | 100 |
+| Hospital | 150 |
+| Startup | 250 |
+| Fintech | 400 |
+| Government | 600 |
 
-**Engineering** — Additional analysts, patch automation, configuration templates, incident playbooks
-
-**Strategy** — Budget negotiation, risk frameworks, executive briefing, threat intelligence
-
-Higher threat levels yield more Intel but bring faster, smarter adversaries with more pentesters. The progression loop rewards the player for replaying at higher difficulties with better tools.
+Higher difficulty yields more intel, incentivizing players to increase the challenge as they improve. Each template provides a different network topology and asset mix, requiring different strategies.
 
 ---
 
@@ -263,7 +329,8 @@ Higher threat levels yield more Intel but bring faster, smarter adversaries with
 
 PumaSecure is not a tower defense game with a security skin. Every mechanic maps to a real security concept:
 
-- **Scanning** = vulnerability assessment and asset discovery
+- **Vuln Scanning** = vulnerability assessment and asset discovery
+- **EDR Deployment** = endpoint detection and response rollout
 - **Fixing** = patch management, configuration hardening, system replacement
 - **Detection tiers** = the SIEM coverage gap
 - **Anomaly investigation** = alert triage and false positive management
@@ -272,5 +339,8 @@ PumaSecure is not a tower defense game with a security skin. Every mechanic maps
 - **Physical intrusion** = physical penetration testing and facility security
 - **Analyst slots** = the staffing shortage that every security team faces
 - **Budget** = the reality that security competes with every other business priority
+- **Shadow IT** = unmanaged devices appearing on corporate networks
+- **Supply Chain** = dependency compromise (SolarWinds, Log4Shell, XZ Utils)
+- **Red Team Coordination** = the difference between a solo operator and a coordinated APT group
 
 The game teaches by forcing trade-offs that mirror real security leadership: you will never have enough time, people, or money to fix everything. The question is always **what do you fix first, and what do you accept the risk on?**
