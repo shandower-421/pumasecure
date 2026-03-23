@@ -386,6 +386,44 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 .hq-selector select:focus{outline:1px solid var(--amber);border-color:var(--amber)}
 .hq-nav{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;justify-content:center}
 
+/* Difficulty Panel */
+.diff-panel{width:100%;max-width:700px;margin:0 auto}
+.diff-presets{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.diff-presets button{font-family:var(--font);font-size:12px;padding:4px 10px;background:var(--surface);border:1px solid var(--border);color:var(--green-dim);cursor:pointer;text-transform:uppercase;letter-spacing:1px}
+.diff-presets button.active{color:var(--green);border-color:var(--green);box-shadow:0 0 6px rgba(0,255,65,0.3)}
+.diff-presets button:hover{border-color:var(--green-dim)}
+.diff-score{text-align:center;margin:8px 0 14px;font-size:14px;color:var(--green-dim)}
+.diff-score-val{font-size:28px;font-weight:bold;display:inline-block;min-width:50px}
+.diff-columns{display:flex;gap:16px;flex-wrap:wrap}
+.diff-col{flex:1;min-width:280px}
+.diff-col h3{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--green-dim);margin:0 0 8px;border-bottom:1px solid var(--border);padding-bottom:4px}
+/* Sliders */
+.diff-slider{margin-bottom:10px}
+.diff-slider-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.diff-slider-label span:first-child{color:var(--green-dim)}
+.diff-slider-label .diff-val{color:var(--green);font-weight:bold}
+.diff-track{display:flex;align-items:center;gap:4px;height:24px;position:relative;cursor:pointer}
+.diff-track-line{display:none}
+.diff-track-fill{display:none}
+.diff-dot{height:12px;border-radius:2px;border:1px solid var(--border);background:var(--bg);flex:1;display:flex;justify-content:center;align-items:center;position:relative;z-index:1;transition:all 0.15s}
+.diff-dot.active{border-color:var(--green);background:var(--green);box-shadow:0 0 6px rgba(0,255,65,0.4)}
+.diff-dot.rt.active{border-color:var(--red);background:var(--red);box-shadow:0 0 6px rgba(255,60,60,0.4)}
+.diff-dot:hover{border-color:var(--green-dim)}
+/* Modifier Switches */
+.diff-mod{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px}
+.diff-mod-icon{width:20px;text-align:center}
+.diff-mod-name{flex:1;color:var(--green-dim);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.diff-mod-name.good{color:var(--green-dim)}
+.diff-mod-name.bad{color:rgba(255,100,100,0.7)}
+.diff-sw{display:flex;gap:2px;flex-shrink:0}
+.diff-sw-pos{width:38px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;border:1px solid var(--border);background:var(--bg);color:var(--green-dim);cursor:pointer;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.5px;margin-right:2px}
+.diff-sw-pos:first-child{border-radius:3px 0 0 3px}
+.diff-sw-pos:last-child{border-radius:0 3px 3px 0;margin-right:0}
+.diff-sw-pos.active.good{background:rgba(0,180,50,0.3);border-color:var(--green);color:var(--green)}
+.diff-sw-pos.active.bad{background:rgba(255,60,60,0.2);border-color:var(--red);color:var(--red)}
+.diff-sw-pos.active.random{background:rgba(255,176,0,0.2);border-color:var(--amber);color:var(--amber)}
+.diff-sw-pos:hover{border-color:var(--green-dim)}
+
 /* ═══════════════════════════════════════════════════════════════
    Modal
    ═══════════════════════════════════════════════════════════════ */
@@ -660,22 +698,21 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
       <div><span class="hq-stat-val" id="stat-runs">0</span>Total Runs</div>
       <div><span class="hq-stat-val" id="stat-best">—</span>Best Grade</div>
       <div><span class="hq-stat-val" id="stat-intel">0</span>Intel</div>
-      <div><span class="hq-stat-val" id="stat-threat">1</span>Max Threat</div>
+      <div><span class="hq-stat-val" id="stat-threat">1</span>Max Difficulty</div>
     </div>
     <div class="hq-controls">
       <div class="hq-selector">
         <label>Network Template</label>
         <select id="sel-template"></select>
       </div>
-      <div class="hq-selector">
-        <label>Threat Level</label>
-        <select id="sel-threat"></select>
+      <div class="diff-panel" id="diff-panel"></div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:8px">
+        <button id="btn-skill-tree" class="btn-primary" onclick="showModal('skill-modal')" style="background:transparent">Skill Tree</button>
+        <button class="btn-primary" onclick="startRun()">New Run</button>
       </div>
-      <button class="btn-primary" onclick="startRun()" style="margin-top:8px">New Run</button>
     </div>
     <div id="hq-first-run-box"></div>
     <div class="hq-nav">
-      <button id="btn-skill-tree" onclick="showModal('skill-modal')">Skill Tree</button>
       <button onclick="showModal('ach-modal')">Achievements</button>
       <button onclick="showModal('settings-modal')">Settings</button>
     </div>
@@ -1028,12 +1065,27 @@ const STORAGE_KEY = 'pumasecure_save_v1';
 const RUN_DURATION = 900; // 15 minutes in seconds
 // Head start scales by threat level — more time at lower difficulties
 function getHeadStart() {
-  if (!R) return 180;
-  if (R.threatLevel <= 1) return 240;  // 4 min
-  if (R.threatLevel <= 2) return 210;  // 3.5 min
-  if (R.threatLevel <= 3) return 180;  // 3 min
-  if (R.threatLevel <= 4) return 150;  // 2.5 min
-  return 120;                           // 2 min
+  return R ? R.headStart : 180;
+}
+
+function rollModifiers(modsConfig) {
+  const active = [];
+  const goodCandidates = [];
+  const badCandidates = [];
+  for (const [id, pos] of Object.entries(modsConfig)) {
+    if (!pos || pos <= 0) continue;
+    const def = MODIFIER_DEFS[id];
+    if (!def) continue;
+    if (pos === 2) { active.push(id); continue; } // ON = always active
+    // pos === 1 = Random — roll against impact-weighted probability
+    if (pos === 1 && Math.random() < (def.randomChance || 0.45)) {
+      (def.group === 'good' ? goodCandidates : badCandidates).push(id);
+    }
+  }
+  // Max 1 good + 1 bad from random pool
+  if (goodCandidates.length) active.push(pick(goodCandidates));
+  if (badCandidates.length) active.push(pick(badCandidates));
+  return active;
 }
 const PASSIVE_VULN_CATS = new Set(['exposed_svc','crypto_weak','default_creds','misconfig','cloud_misconfig','eol']);
 const PASSIVE_INTERVALS = [15, 35, 60, 90, 120]; // escalating seconds between passive reveals
@@ -1171,16 +1223,123 @@ const NETWORK_TEMPLATES = [
   { id: 'government',   name: 'Government',    weights: [1.3,1.1,1,1.2,1.1,0.3], unlocked: false, req: 'Complete any run at Threat Level 7+' },
 ];
 
-const RUN_MODIFIERS = [
-  { id: 'legacy',      name: 'Legacy Systems',  desc: '30% of assets run outdated OS — more vulns', effect: 'legacy' },
-  { id: 'cloud_mig',   name: 'Cloud Migration', desc: 'Zone 5 is 2x larger, mixed security', effect: 'cloud' },
-  { id: 'merger',      name: 'Merger',          desc: 'Two disconnected sub-networks', effect: 'merger' },
-  { id: 'insider',     name: 'Insider Threat',  desc: 'One asset is pre-compromised', effect: 'insider' },
-  { id: 'zeroday_mod', name: 'Zero Day',        desc: 'One critical vuln has no patch', effect: 'zeroday' },
-  { id: 'compliance',  name: 'Compliance Audit',desc: 'Bonus for full discovery, penalty for gaps', effect: 'compliance' },
-  { id: 'skeleton',    name: 'Skeleton Crew',   desc: '50% fewer analysts', effect: 'skeleton' },
-  { id: 'surplus',     name: 'Budget Surplus',  desc: '50% more budget, 20% less time', effect: 'surplus' },
-];
+// Legacy constant for backward compat — actual modifier system uses MODIFIER_DEFS
+const RUN_MODIFIERS = [];
+
+/* ─── Difficulty Configuration System ─── */
+
+// Slider definitions: [position0, position1, position2, position3, position4]
+// Left = easiest, Right = hardest (for player sliders: more is easier; for RT: more is harder)
+// All values go least-to-most, left-to-right (position 0 = lowest, 4 = highest)
+// 'harder' flag: true = higher value = harder (rtSize), false = higher value = easier (budget)
+const SLIDER_DEFS = {
+  startBudget:    { label: 'Starting Budget',    values: [15000, 25000, 30000, 40000, 60000], unit: '$', format: v => '$'+Math.round(v/1000)+'K', harder: false },
+  dripAmount:     { label: 'Budget Drip',         values: [3000, 5000, 7000, 9000, 12000],   unit: '$', format: v => '$'+Math.round(v/1000)+'K', harder: false },
+  startAnalysts:  { label: 'Starting Analysts',   values: [1, 2, 3, 4, 5],                   unit: '',  format: v => v, harder: false },
+  teamExpertise:  { label: 'Team Expertise',       values: [1.5, 1.2, 1.0, 0.8, 0.6],        unit: 'x', format: v => v+'x', harder: false },
+  rtSize:         { label: 'Red Team Size',        values: [1, 2, 3, 4, 5],                   unit: '',  format: v => v, harder: true },
+  rtExpertise:    { label: 'Red Team Expertise',   values: [1.4, 1.2, 1.0, 0.8, 0.6],        unit: 'x', format: v => v+'x', harder: true },
+  headStart:      { label: 'Head Start',           values: [60, 120, 180, 240, 300],          unit: 's', format: v => Math.round(v/60)+'min', harder: false },
+};
+
+const MODIFIER_DEFS = {
+  // Advantages (green) — help the player. randomChance = probability when set to Random
+  mssp_monitor:      { name: 'MSSP Monitoring',      desc: 'No "missing monitoring" vulnerabilities',                 group: 'good', icon: '📡', randomChance: 0.45 },
+  remote_attacker:   { name: 'Remote Attacker',      desc: 'No physical vulns, no onsite attacks',                    group: 'good', icon: '🌐', randomChance: 0.45 },
+  well_funded:       { name: 'Well Funded',          desc: '2× starting budget and drip rate',                         group: 'good', icon: '💰', randomChance: 0.30 },
+  grizzled_vet:      { name: 'Grizzled IT Veteran',  desc: 'Fixes never fail',                                       group: 'good', icon: '🧔', randomChance: 0.30 },
+  netflix_release:   { name: 'Netflix Release',      desc: 'Pentesters distracted — extra delay between actions',     group: 'good', icon: '📺', randomChance: 0.45 },
+  strong_iam:        { name: 'Strong IAM',           desc: 'Suppress brute force — credentials are strong & rotated', group: 'good', icon: '🔑', randomChance: 0.45 },
+  threat_intel_feed: { name: 'Threat Intel Feed',    desc: 'Reveals the current target of one red team pentester',    group: 'good', icon: '🎯', randomChance: 0.45 },
+  // Complications (red) — challenge the player
+  govt_oversight:    { name: 'Government Oversight',  desc: 'Fix times 1.5× longer (paperwork)',                      group: 'bad',  icon: '📋', randomChance: 0.40 },
+  governance_lock:   { name: 'Governance Requirements',desc: '30% of vulns can only be mitigated',                    group: 'bad',  icon: '🔒', randomChance: 0.55 },
+  insider:           { name: 'Insider Threat',        desc: 'One node starts compromised with persistence',           group: 'bad',  icon: '🕵', randomChance: 0.25 },
+  pandemic:          { name: 'Pandemic Protocol',     desc: 'One idle analyst goes AFK every ~90s',                   group: 'bad',  icon: '🤢', randomChance: 0.55 },
+  legacy:            { name: 'Legacy Infrastructure', desc: '30% of nodes get legacy flag, boosting vuln severity',   group: 'bad',  icon: '💾', randomChance: 0.40 },
+  zeroday_mod:       { name: 'Zero Day',             desc: 'One critical vuln has no available fix',                  group: 'bad',  icon: '💀', randomChance: 0.25 },
+  budget_cuts:       { name: 'Budget Cuts',           desc: 'Budget drip reduced 25%',                                group: 'bad',  icon: '✂️', randomChance: 0.55 },
+};
+
+// Preset configurations: slider positions (0-4, left-to-right = least-to-most)
+// Modifier positions: 0=OFF, 1=Random, 2=ON
+// For player resources: higher = more. For RT: higher = more (harder).
+const DIFFICULTY_PRESETS = {
+  tutorial:  { label: 'Tutorial',   sliders: { startBudget:4, dripAmount:4, startAnalysts:4, teamExpertise:4, rtSize:0, rtExpertise:0, headStart:4 },
+               mods: { mssp_monitor:2, remote_attacker:2 } },
+  easy:      { label: 'Easy',       sliders: { startBudget:3, dripAmount:3, startAnalysts:3, teamExpertise:3, rtSize:0, rtExpertise:1, headStart:3 },
+               mods: {} },
+  normal:    { label: 'Normal',     sliders: { startBudget:2, dripAmount:2, startAnalysts:2, teamExpertise:2, rtSize:1, rtExpertise:2, headStart:2 },
+               mods: {} },
+  hard:      { label: 'Hard',       sliders: { startBudget:1, dripAmount:1, startAnalysts:1, teamExpertise:1, rtSize:2, rtExpertise:3, headStart:1 },
+               mods: { legacy:1, zeroday_mod:1, insider:1, govt_oversight:1 } },
+  nightmare: { label: 'Nightmare',  sliders: { startBudget:0, dripAmount:0, startAnalysts:0, teamExpertise:0, rtSize:4, rtExpertise:4, headStart:0 },
+               mods: { legacy:2, zeroday_mod:2, insider:2, govt_oversight:2, pandemic:2, budget_cuts:2, governance_lock:2 } },
+};
+
+// Active difficulty config — mutated by UI, read by startRun
+let diffConfig = {
+  sliders: { startBudget:2, dripAmount:2, startAnalysts:2, teamExpertise:2, rtSize:1, rtExpertise:2, headStart:2 }, // Normal
+  mods: {},
+};
+
+function getSliderValue(key) { return SLIDER_DEFS[key].values[diffConfig.sliders[key] || 0]; }
+
+function computeDifficultyScore() {
+  // Each slider normalized 0-1 where 1 = hardest
+  // For 'harder' sliders (RT): position 4 = hardest → pos/4
+  // For player sliders: position 4 = easiest → (4-pos)/4
+  const sw = {
+    startBudget: 0.15, dripAmount: 0.10, startAnalysts: 0.10, teamExpertise: 0.10,
+    rtSize: 0.20, rtExpertise: 0.15, headStart: 0.10,
+  };
+  let sliderScore = 0;
+  for (const [k, w] of Object.entries(sw)) {
+    const pos = diffConfig.sliders[k] || 0;
+    const hardness = SLIDER_DEFS[k].harder ? pos / 4 : (4 - pos) / 4;
+    sliderScore += hardness * w;
+  }
+  // Modifier weight: bad luck ON adds +, good luck ON subtracts -
+  let modScore = 0;
+  for (const [id, pos] of Object.entries(diffConfig.mods)) {
+    if (pos <= 0) continue;
+    const def = MODIFIER_DEFS[id];
+    if (!def) continue;
+    const strength = pos / 2; // 0.5 (random) or 1.0 (on)
+    modScore += def.group === 'bad' ? strength * 0.05 : -strength * 0.03;
+  }
+  const raw = clamp(sliderScore + modScore, 0, 1);
+  return clamp(Math.round(raw * 90 + 10) / 10, 1, 10); // 1.0 to 10.0
+}
+
+function detectPreset() {
+  for (const [id, preset] of Object.entries(DIFFICULTY_PRESETS)) {
+    let match = true;
+    for (const [k, v] of Object.entries(preset.sliders)) {
+      if (diffConfig.sliders[k] !== v) { match = false; break; }
+    }
+    if (!match) continue;
+    // Check mods match (absent = 0)
+    const allModIds = Object.keys(MODIFIER_DEFS);
+    for (const mid of allModIds) {
+      const pv = preset.mods[mid] || 0;
+      const cv = diffConfig.mods[mid] || 0;
+      if (pv !== cv) { match = false; break; }
+    }
+    if (match) return id;
+  }
+  return 'custom';
+}
+
+function applyPreset(id) {
+  const p = DIFFICULTY_PRESETS[id];
+  if (!p) return;
+  diffConfig.sliders = { ...p.sliders };
+  diffConfig.mods = { ...p.mods };
+  save.lastConfig = { sliders: { ...diffConfig.sliders }, mods: { ...diffConfig.mods } };
+  writeSave();
+  renderDifficultyPanel();
+}
 
 const SKILL_TREE = {
   recon: [
@@ -1237,6 +1396,7 @@ function defaultSave() {
     settings: { clockSpeed: 1, sound: true, reducedMotion: false },
     hintsSeen: {},
     hintsEnabled: true,
+    lastConfig: null, // last difficulty config used
   };
 }
 function loadSave() {
@@ -1504,7 +1664,7 @@ function tryContextualHint(id, overrideTarget) {
   if (R._hintsFired && R._hintsFired[id]) return;
   const def = CONTEXTUAL_HINTS.find(h => h.id === id);
   if (!def) return;
-  if (def.maxTL && R.threatLevel > def.maxTL) return;
+  if (def.maxTL && R.diffScore > def.maxTL * 1.5) return; // scale maxTL to difficulty score
   if (save.hintsSeen[id]) return;
   if (!R._hintsFired) R._hintsFired = {};
   R._hintsFired[id] = true;
@@ -1541,7 +1701,7 @@ function renderHQ() {
   document.getElementById('stat-runs').textContent = save.stats.totalRuns;
   document.getElementById('stat-best').textContent = save.stats.bestGrade || '—';
   document.getElementById('stat-intel').textContent = save.intel;
-  document.getElementById('stat-threat').textContent = save.stats.highestThreatCleared || 1;
+  document.getElementById('stat-threat').textContent = save.stats.highestDifficultyCleared ? save.stats.highestDifficultyCleared.toFixed(1) : (save.stats.highestThreatCleared || 1);
 
   // Template selector
   const sel = document.getElementById('sel-template');
@@ -1555,15 +1715,7 @@ function renderHQ() {
     sel.appendChild(opt);
   });
 
-  // Threat level selector
-  const maxThreat = Math.max(1, (save.stats.highestThreatCleared || 0) + 1);
-  const tsel = document.getElementById('sel-threat');
-  tsel.innerHTML = '';
-  for (let i = 1; i <= Math.min(10, maxThreat); i++) {
-    const opt = document.createElement('option');
-    opt.value = i; opt.textContent = `Threat Level ${i}`;
-    tsel.appendChild(opt);
-  }
+  // Threat level selector removed — replaced by difficulty panel
 
   // First-run guidance box
   const frBox = document.getElementById('hq-first-run-box');
@@ -1589,26 +1741,133 @@ function renderHQ() {
     branch.some((skill, i) => !hasUpgrade(skill.id) && (i === 0 || hasUpgrade(branch[i - 1].id)) && save.intel >= skill.cost)
   );
   btnST.classList.toggle('pulse-amber', canBuy);
+
+  // Restore last config or default to normal
+  if (save.lastConfig) {
+    diffConfig.sliders = { ...save.lastConfig.sliders };
+    diffConfig.mods = {};
+    // Migrate old 0-4 mod positions to 0-2: 0→0, 1-3→1 (random), 4→2 (on)
+    for (const [id, pos] of Object.entries(save.lastConfig.mods || {})) {
+      diffConfig.mods[id] = pos <= 0 ? 0 : pos >= 4 ? 2 : pos >= 1 ? 1 : 0;
+    }
+  }
+  renderDifficultyPanel();
+}
+
+function renderDifficultyPanel() {
+  const el = document.getElementById('diff-panel');
+  if (!el) return;
+
+  const preset = detectPreset();
+  const score = computeDifficultyScore();
+  const scoreColor = score <= 3 ? 'var(--green)' : score <= 6 ? 'var(--amber)' : 'var(--red)';
+
+  let html = '';
+
+  // Presets
+  html += '<div class="diff-presets">';
+  for (const [id, p] of Object.entries(DIFFICULTY_PRESETS)) {
+    html += `<button class="${preset===id?'active':''}" onclick="applyPreset('${id}')">${p.label}</button>`;
+  }
+  html += `<button class="${preset==='custom'?'active':''}" disabled>Custom</button>`;
+  html += '</div>';
+
+  // Difficulty score
+  const intelMult = (score / 4.6).toFixed(1);
+  html += `<div class="diff-score">DIFFICULTY <span class="diff-score-val" style="color:${scoreColor}">${score.toFixed(1)}</span> <span style="font-size:13px;color:var(--green-dim);margin-left:12px">Intel: ×${intelMult}</span></div>`;
+
+  // Two columns
+  html += '<div class="diff-columns">';
+
+  // Left: Sliders
+  html += '<div class="diff-col">';
+  html += '<h3>Configuration</h3>';
+  const sliderOrder = ['startBudget','dripAmount','startAnalysts','teamExpertise','headStart','rtSize','rtExpertise'];
+  for (const key of sliderOrder) {
+    const def = SLIDER_DEFS[key];
+    const pos = diffConfig.sliders[key] || 0;
+    const val = def.format(def.values[pos]);
+    const isRT = key.startsWith('rt');
+    html += `<div class="diff-slider">`;
+    html += `<div class="diff-slider-label"><span>${def.label}</span><span class="diff-val">${val}</span></div>`;
+    html += `<div class="diff-track" data-slider="${key}">`;
+    html += `<div class="diff-track-line"></div>`;
+    html += `<div class="diff-track-fill" style="width:${pos*25}%"></div>`;
+    for (let i = 0; i < 5; i++) {
+      html += `<div class="diff-dot${i<=pos?' active':''}${isRT?' rt':''}" data-pos="${i}"></div>`;
+    }
+    html += '</div></div>';
+  }
+  html += '</div>';
+
+  // Right: Modifiers
+  html += '<div class="diff-col">';
+  html += '<h3>Advantages</h3>';
+  const posLabels = ['OFF','?','ON'];
+  function renderModGroup(group, colorClass) {
+    for (const [id, def] of Object.entries(MODIFIER_DEFS)) {
+      if (def.group !== group) continue;
+      const pos = Math.min(diffConfig.mods[id] || 0, 2); // clamp old 0-4 to 0-2
+      html += `<div class="diff-mod" title="${def.desc}">`;
+      html += `<span class="diff-mod-icon">${def.icon}</span>`;
+      html += `<span class="diff-mod-name ${colorClass}">${def.name}</span>`;
+      html += `<div class="diff-sw" data-mod="${id}">`;
+      for (let i = 0; i < 3; i++) {
+        const cls = i === pos ? ` active ${i === 1 ? 'random' : colorClass}` : '';
+        const tip = i === 1 ? ' title="May activate — rarer for powerful modifiers"' : '';
+        html += `<div class="diff-sw-pos${cls}" data-pos="${i}"${tip}>${posLabels[i]}</div>`;
+      }
+      html += '</div></div>';
+    }
+  }
+  renderModGroup('good', 'good');
+  html += '<h3 style="margin-top:10px">Complications</h3>';
+  renderModGroup('bad', 'bad');
+  html += '</div></div>';
+
+  el.innerHTML = html;
+
+  // Wire up slider clicks
+  el.querySelectorAll('.diff-track').forEach(track => {
+    track.addEventListener('click', e => {
+      const dot = e.target.closest('.diff-dot');
+      if (!dot) return;
+      const key = track.dataset.slider;
+      diffConfig.sliders[key] = parseInt(dot.dataset.pos);
+      save.lastConfig = { sliders: { ...diffConfig.sliders }, mods: { ...diffConfig.mods } };
+      writeSave();
+      renderDifficultyPanel();
+    });
+  });
+
+  // Wire up modifier switches
+  el.querySelectorAll('.diff-sw').forEach(sw => {
+    sw.addEventListener('click', e => {
+      const posEl = e.target.closest('.diff-sw-pos');
+      if (!posEl) return;
+      const modId = sw.dataset.mod;
+      diffConfig.mods[modId] = parseInt(posEl.dataset.pos);
+      save.lastConfig = { sliders: { ...diffConfig.sliders }, mods: { ...diffConfig.mods } };
+      writeSave();
+      renderDifficultyPanel();
+    });
+  });
 }
 
 /* ═══════════════════════════════════════════════════════════════
    PROCEDURAL NETWORK GENERATION
    ═══════════════════════════════════════════════════════════════ */
-function generateNetwork(templateId, threatLevel) {
+function generateNetwork(templateId, threatLevel, activeMods = []) {
   const template = NETWORK_TEMPLATES.find(t => t.id === templateId) || NETWORK_TEMPLATES[0];
   const nodes = [];
   const edges = [];
   let nodeId = 0;
 
-  // Roll modifiers — TL 1-2 skips harsh modifiers to protect new players
-  const modCount = threatLevel <= 2 ? 0 : threatLevel >= 5 ? 2 : 1;
-  const HARSH_MODS = ['skeleton', 'insider', 'zeroday_mod']; // too punishing for beginners
-  const mods = [];
-  const modPool = threatLevel <= 3 ? RUN_MODIFIERS.filter(m => !HARSH_MODS.includes(m.id)) : [...RUN_MODIFIERS];
-  for (let i = 0; i < modCount && modPool.length; i++) {
-    const idx = rand(0, modPool.length - 1);
-    mods.push(modPool.splice(idx, 1)[0]);
-  }
+  // Convert active modifier IDs to legacy format for backward compat
+  const mods = activeMods.map(id => {
+    const def = MODIFIER_DEFS[id];
+    return def ? { id, name: def.name, desc: def.desc, effect: id } : { id, name: id, desc: '', effect: id };
+  });
 
   // Generate nodes per zone
   for (let z = 0; z < 6; z++) {
@@ -1891,8 +2150,11 @@ function generateVulns(node, threatLevel, mods) {
   const isLegacy = mods.find(m => m.id === 'legacy') && Math.random() < 0.3;
   const vulns = [];
 
-  // At TL 1-2, skip "Missing Monitoring" vulns — new players get Tier 2 detection minimum
-  const availCats = threatLevel <= 2 ? VULN_CATEGORIES.filter(c => c.id !== 'no_monitor') : VULN_CATEGORIES;
+  // Filter vuln categories based on active modifiers
+  const am = R ? R.activeMods : [];
+  let availCats = [...VULN_CATEGORIES];
+  if (am.includes('mssp_monitor') || threatLevel <= 2) availCats = availCats.filter(c => c.id !== 'no_monitor');
+  if (am.includes('remote_attacker')) availCats = availCats.filter(c => !c.vectors || !c.vectors.every(v => v === 'Physical'));
 
   for (let i = 0; i < count; i++) {
     const cat = pick(availCats);
@@ -1911,10 +2173,11 @@ function generateVulns(node, threatLevel, mods) {
 
     // Legacy systems get severity boost
     if (isLegacy && cat.id !== 'zeroday') severity = clamp(severity + 1.5, 0.1, 10);
-    // Higher threat levels push severity up
-    severity = clamp(severity + (threatLevel - 1) * 0.15, 0.1, 10);
+    // Higher difficulty pushes severity up
+    const ds = R ? R.diffScore : threatLevel;
+    severity = clamp(severity + (ds - 1) * 0.15, 0.1, 10);
 
-    const exploitability = clamp(exploitMat * AV_WEIGHTS[av] * (0.7 + threatLevel * 0.03), 0.05, 0.95);
+    const exploitability = clamp(exploitMat * AV_WEIGHTS[av] * (0.7 + ds * 0.03), 0.05, 0.95);
 
     // Determine available fix types for this vuln
     const fixType = pick(cat.fixTypes);
@@ -1922,6 +2185,9 @@ function generateVulns(node, threatLevel, mods) {
     const cost = rand(ft.costRange[0], ft.costRange[1]);
     const time = rand(ft.timeRange[0], ft.timeRange[1]);
     const successRate = randf(ft.successRange[0], ft.successRange[1]);
+
+    // Governance lock: 30% of vulns can only be mitigated
+    const fixLocked = am.includes('governance_lock') && Math.random() < 0.3;
 
     vulns.push({
       id: 'PUMA-' + (2024 + rand(0, 2)) + '-' + String(rand(1000, 9999)),
@@ -1933,6 +2199,7 @@ function generateVulns(node, threatLevel, mods) {
       fixed: false, mitigated: false, mitigationFactor: 0,
       fixing: false, fixProgress: 0,
       revealed: false,
+      fixLocked, // governance: can only mitigate, not patch/configure/replace
     });
   }
   return vulns;
@@ -2443,6 +2710,26 @@ function renderCanvas() {
       ctx.globalAlpha = 1;
     }
 
+    // Threat Intel Feed — crosshair on targeted node
+    if (R.lastIntelTarget === n.id && R.activeMods.includes('threat_intel_feed')) {
+      const pulse = (Math.sin(R.elapsed * 4) + 1) / 2;
+      const r = 22 + pulse * 4;
+      ctx.strokeStyle = `rgba(255,51,51,${0.4 + pulse * 0.5})`;
+      ctx.lineWidth = 1.5;
+      // Circle
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+      ctx.stroke();
+      // Crosshair lines
+      const cr = r + 4;
+      ctx.beginPath();
+      ctx.moveTo(n.x - cr, n.y); ctx.lineTo(n.x - r + 6, n.y);
+      ctx.moveTo(n.x + r - 6, n.y); ctx.lineTo(n.x + cr, n.y);
+      ctx.moveTo(n.x, n.y - cr); ctx.lineTo(n.x, n.y - r + 6);
+      ctx.moveTo(n.x, n.y + r - 6); ctx.lineTo(n.x, n.y + cr);
+      ctx.stroke();
+    }
+
     // Criticality stars
     if (n.scanned) {
       ctx.fillStyle = 'rgba(255,176,0,0.6)';
@@ -2548,6 +2835,11 @@ function startFix(nodeId, vulnIdx, fixType) {
   if (fixType === 'patch' && hasUpgrade('patch_auto')) successRate = Math.min(1, successRate + 0.1);
   if (fixType === 'configure' && hasUpgrade('config_tmpl')) time = Math.ceil(time * 0.5);
 
+  // Modifier effects on fixes
+  if (R.activeMods.includes('grizzled_vet')) successRate = 1.0;
+  if (R.activeMods.includes('govt_oversight')) time = Math.ceil(time * 1.5);
+  time = Math.ceil(time * R.teamExpertise); // team expertise slider
+
   // Check team capacity (fixes + investigations)
   const activeFixCount = getActiveWorkCount();
   if (activeFixCount >= R.teamSlots) { addLog('All analysts busy — wait or hire contractor', 'warn'); return; }
@@ -2588,31 +2880,44 @@ function startRun() {
   _resDom = null; _lastResState = { budget: -1, work: -1, disc: -1 }; // reset cached DOM refs
   _activeWorkCache = { frame: -1, count: 0 };
   const templateId = document.getElementById('sel-template').value;
-  const threatLevel = parseInt(document.getElementById('sel-threat').value) || 1;
   const clockSpeed = 1;
 
-  const net = generateNetwork(templateId, threatLevel);
+  // Read difficulty config
+  const cfg = diffConfig;
+  const diffScore = computeDifficultyScore();
+  const threatLevel = Math.max(1, Math.round(diffScore)); // backward compat integer
 
-  // Calculate starting resources with upgrades
-  // Budget drip: start with smaller amount, drip $3-5K every 60s
-  let baseBudget = 50000 + (threatLevel - 1) * 5556;
-  let dripAmount = 5000 + threatLevel * 400; // ~$5K-$7K based on threat
+  // Roll modifiers from config
+  const activeMods = rollModifiers(cfg.mods);
+
+  const net = generateNetwork(templateId, threatLevel, activeMods);
+
+  // Starting resources from sliders
+  let budget = getSliderValue('startBudget');
+  let dripAmount = getSliderValue('dripAmount');
+  let teamSlots = getSliderValue('startAnalysts');
+  const teamExpertise = getSliderValue('teamExpertise');
+  const headStart = getSliderValue('headStart');
+
+  // Upgrade bonuses
   if (hasUpgrade('budget_neg')) dripAmount += 1000;
   if (hasUpgrade('board_appr')) dripAmount += 2000;
-  const budgetPct = threatLevel <= 1 ? 0.60 : 0.50; // TL1 gets 60% start
-  let budget = Math.round(baseBudget * budgetPct);
-  let teamSlots = 2;
   if (hasUpgrade('jr_analyst')) teamSlots++;
   if (hasUpgrade('sr_engineer')) teamSlots++;
 
-  // Apply modifiers
+  // Apply active modifiers to resources
+  // Budget modifiers: take strongest good, multiply by bad
+  const budgetGoodMult = activeMods.includes('well_funded') ? 2 : 1;
+  const budgetBadMult = activeMods.includes('budget_cuts') ? 0.75 : 1;
+  budget = Math.round(budget * budgetGoodMult);
+  dripAmount = Math.round(dripAmount * budgetGoodMult * budgetBadMult);
+
   let duration = RUN_DURATION;
-  if (net.mods.find(m => m.id === 'surplus')) { dripAmount = Math.round(dripAmount * 1.5); duration = Math.round(duration * 0.8); }
-  if (net.mods.find(m => m.id === 'skeleton')) teamSlots = Math.max(1, Math.floor(teamSlots * 0.5));
 
   R = {
     net,
-    threatLevel,
+    threatLevel, // backward compat integer derived from difficulty score
+    diffScore,
     clockSpeed,
     elapsed: 0,
     duration,
@@ -2625,42 +2930,50 @@ function startRun() {
     budgetDripInterval: 60,
     budgetDripTimer: 30, // first drip comes early
     teamSlots,
+    teamExpertise,
+    headStart,
     contractorHired: false,
     selectedNode: null,
     totalDiscovered: net.nodes.filter(n => n.discovered).length,
     totalVulns: 0,
     totalFixed: 0,
+    activeMods,
+    lastIntelTarget: null, // for Threat Intel Feed — avoid log spam
+    // Pandemic: periodic analyst AFK
+    pandemicTimer: activeMods.includes('pandemic') ? randf(60, 120) : 0,
+    pandemicAfk: false,
+    pandemicAfkTimer: 0,
     redTeam: {
-      footholds: [],           // node IDs with active footholds
-      persistedNodes: new Set(), // node IDs with established persistence (survive IR)
-      compromised: new Set(),  // all currently compromised node IDs
+      footholds: [],
+      persistedNodes: new Set(),
+      compromised: new Set(),
       probedNodes: new Set(),
       breachedCritical: [],
       buffs: new Set(),
       exploitBonus: 0,
       intel: new Map(),
-      pentesters: [],          // array of pentester objects (initialized below)
-      stuckTimer: 0,           // time all pentesters have been idle with no targets
+      pentesters: [],
+      stuckTimer: 0,
     },
     pendingAlerts: [],
     log: [],
   };
 
-  // Initialize pentesters based on threat level
-  const ptCount = threatLevel <= 1 ? 1 : threatLevel <= 3 ? 2 : 3;
-  const ptSpeedMult = threatLevel >= 6 ? 0.7 : 1.0;
+  // Initialize pentesters from config
+  const ptCount = getSliderValue('rtSize');
+  const rtExpertise = getSliderValue('rtExpertise');
   for (let i = 0; i < ptCount; i++) {
     R.redTeam.pentesters.push({
       id: i,
-      state: 'idle',       // idle, scanning, exploiting, persisting, pivoting, traveling, cooldown
-      targetNode: null,     // node ID being worked on
-      sourceNode: null,     // for pivots: the foothold being pivoted from
+      state: 'idle',
+      targetNode: null,
+      sourceNode: null,
       progress: 0,
       totalTime: 0,
-      cooldown: 0,          // wait time between actions
-      onsite: false,        // true if pentester is physically onsite (coffee shop)
-      doubledWith: null,    // ID of pentester being assisted
-      speedMult: ptSpeedMult,
+      cooldown: 0,
+      onsite: false,
+      doubledWith: null,
+      speedMult: rtExpertise,
     });
   }
 
@@ -2693,7 +3006,10 @@ function startRun() {
 
   // Log run start — opening briefing
   addLog('=== PumaSecure Run Started ===', 'info');
-  addLog(`Template: ${net.template.name} | Threat Level: ${threatLevel}`, 'info');
+  addLog(`Template: ${net.template.name} | Difficulty: ${diffScore.toFixed(1)}`, 'info');
+  if (activeMods.length) {
+    addLog(`Active modifiers: ${activeMods.map(id => MODIFIER_DEFS[id]?.name || id).join(', ')}`, 'info');
+  }
   net.mods.forEach(m => addLog(`Modifier: ${m.name} — ${m.desc}`, 'warn'));
   addLog(`Resources: ${fmtMoney(budget)} budget, ${teamSlots} analyst${teamSlots > 1 ? 's' : ''}`, 'ok');
 
@@ -2706,7 +3022,7 @@ function startRun() {
   gameLoop();
 
   // Show mission briefing for new/low-TL players (after first render)
-  if (save.stats.totalRuns <= 2 || threatLevel <= 2) {
+  if (save.stats.totalRuns <= 2 || diffScore < 4) {
     setTimeout(() => startBriefing(), 500);
   }
 }
@@ -2749,6 +3065,9 @@ function gameLoop() {
 
       // Budget drip
       processBudgetDrip(dt * R.clockSpeed);
+
+      // Modifier timers (skeleton crew restoration, pandemic AFK)
+      processModifierTimers(dt * R.clockSpeed);
 
       // Contextual hints (throttled to once/second)
       checkGameLoopHints();
@@ -3328,6 +3647,65 @@ function processBudgetDrip(dt) {
 }
 
 
+function processModifierTimers(dt) {
+  if (!R) return;
+
+  // Threat Intel Feed: reveal one pentester's target
+  if (R.activeMods.includes('threat_intel_feed')) {
+    const pt = R.redTeam.pentesters.find(p => p.targetNode !== null && p.state !== 'idle' && p.state !== 'cooldown');
+    const targetId = pt ? pt.targetNode : null;
+    if (targetId !== R.lastIntelTarget) {
+      R.lastIntelTarget = targetId;
+      if (targetId !== null) {
+        const node = R.net.nodes[targetId];
+        if (node) addLog(`🎯 INTEL: Red team operator targeting ${node.name}`, 'warn');
+      }
+    }
+  }
+
+  // Pandemic: periodic analyst AFK
+  if (R.activeMods.includes('pandemic')) {
+    if (R.pandemicAfk) {
+      R.pandemicAfkTimer -= dt;
+      if (R.pandemicAfkTimer <= 0) {
+        R.pandemicAfk = false;
+        R.teamSlots++;
+        R.pandemicTimer = randf(60, 120); // next AFK in 60-120s
+        addLog('✓ Analyst has returned from... break', 'ok');
+        updateResourceDisplay();
+      }
+    } else {
+      R.pandemicTimer -= dt;
+      if (R.pandemicTimer <= 0 && R.teamSlots > 1) {
+        // Only AFK an idle analyst (check active work count)
+        const activeWork = R.net.nodes.reduce((c, n) => {
+          let w = 0;
+          if (n.scanning || n.deepScanning) w++;
+          if (n.investigating) w++;
+          n.vulns.forEach(v => { if (v.fixing) w++; });
+          if (n.rebuilding) w++;
+          return c + w;
+        }, 0);
+        if (activeWork < R.teamSlots) {
+          R.pandemicAfk = true;
+          R.pandemicAfkTimer = randf(15, 30);
+          R.teamSlots--;
+          addLog('🤢 An analyst has stepped away...', 'warn');
+          updateResourceDisplay();
+          // Pulse analysts red
+          const analystEl = document.getElementById('hdr-analysts');
+          if (analystEl) {
+            analystEl.style.color = 'var(--red)';
+            setTimeout(() => { if (analystEl) analystEl.style.color = ''; }, 1500);
+          }
+        } else {
+          R.pandemicTimer = randf(15, 30); // retry soon
+        }
+      }
+    }
+  }
+}
+
 function setSpeed(speed) {
   if (!R) return;
   R.paused = speed === 0;
@@ -3412,8 +3790,9 @@ function rtGetInterval() {
   else if (deepest >= 1) range = [5, 8];
   else if (deepest >= 0) range = [6, 10];
   else range = [8, 12];                    // no footholds — slow probing
-  const threatScale = 1 - (R.threatLevel - 1) * 0.08;
-  return randf(range[0], range[1]) * Math.max(0.4, threatScale);
+  // rtExpertise from config: lower = faster (0.6 = very fast, 1.4 = slow)
+  // Already baked into pentester speedMult, but interval also scales
+  return randf(range[0], range[1]);
 }
 
 // Detection tier: 1 = deep-scanned (instant, specific), 2 = scanned (delayed, vague), 3 = unmonitored (silent)
@@ -3550,7 +3929,7 @@ function rtTryExploit(node, pentester) {
   // Brute force chance — respects node defenses
   const unfixed = node.vulns.filter(v => !v.fixed);
   if (unfixed.length) {
-    let bruteChance = 0.05 * R.threatLevel / 5;
+    let bruteChance = R.activeMods.includes('strong_iam') ? 0 : 0.05 * R.diffScore / 10;
     if (node.hardened) bruteChance *= 0.1;
     if (node.deepScanned) bruteChance *= 0.5;
     const mitigatedRatio = node.vulns.filter(v => v.mitigated).length / Math.max(1, unfixed.length);
@@ -3565,8 +3944,11 @@ function rtTryExploit(node, pentester) {
 // ── Pentester helper functions ──
 
 function ptReset(pt, cooldownTime) {
-  pt.state = cooldownTime ? 'cooldown' : 'idle';
-  pt.cooldown = cooldownTime || 0;
+  let cd = cooldownTime || 0;
+  // Netflix Release: pentesters take an extra 5-10s between actions
+  if (R && R.activeMods.includes('netflix_release')) cd += randf(5, 10);
+  pt.state = cd > 0 ? 'cooldown' : 'idle';
+  pt.cooldown = cd;
   pt.targetNode = null;
   pt.sourceNode = null;
   pt.progress = 0;
@@ -3645,7 +4027,7 @@ function ptCompromiseNode(pt, node, vulnUsed) {
     // Establish persistence on high-value targets
     pt.state = 'persisting';
     pt.progress = 0;
-    pt.totalTime = randf(R.threatLevel <= 2 ? 25 : 15, R.threatLevel <= 2 ? 40 : 30) * pt.speedMult;
+    pt.totalTime = randf(15, 30) * pt.speedMult; // speedMult from rtExpertise slider
     // Temporary foothold during persistence attempt
     if (!rt.footholds.includes(node.id)) rt.footholds.push(node.id);
   } else {
@@ -4212,7 +4594,8 @@ function processRedTeam(dt) {
   }
 
   // Physical intrusion: send a pentester onsite when stuck long enough
-  if (rt.stuckTimer > 45) {
+  // Remote Attacker modifier: no physical intrusion possible
+  if (rt.stuckTimer > 45 && !R.activeMods.includes('remote_attacker')) {
     const idlePt = rt.pentesters.find(p => (p.state === 'idle' || p.state === 'cooldown') && !p.onsite);
     if (idlePt) {
       idlePt.state = 'traveling';
@@ -4312,17 +4695,17 @@ function endRun() {
     response * 0.15 + efficiency * 0.15
   );
   let finalScore;
-  if (criticalBreached && R.threatLevel <= 2) {
-    // TL 1-2: heavy penalty instead of auto-F — let new players learn
+  if (criticalBreached && R.diffScore < 4) {
+    // Low difficulty: heavy penalty instead of auto-F — let new players learn
     finalScore = Math.max(0, rawScore - 30);
   } else {
     finalScore = criticalBreached ? Math.min(rawScore, 39) : rawScore;
   }
 
   let grade, label;
-  if (criticalBreached && R.threatLevel > 2) {
+  if (criticalBreached && R.diffScore >= 4) {
     grade = 'F'; label = 'CRITICAL BREACH — AUTOMATIC FAILURE';
-  } else if (finalScore >= 95 && R.threatLevel >= 5) {
+  } else if (finalScore >= 95 && R.diffScore >= 7) {
     grade = 'S'; label = 'EXCEPTIONAL POSTURE';
   } else if (finalScore >= 85) {
     grade = 'A'; label = 'STRONG DEFENSE';
@@ -4337,7 +4720,7 @@ function endRun() {
   }
 
   // Intel earned
-  let intel = (grade === 'F' && R.threatLevel > 2) ? 0 : Math.floor(finalScore * R.threatLevel * 0.5);
+  let intel = (grade === 'F' && R.diffScore >= 4) ? 0 : Math.floor(finalScore * (R.diffScore / 4.6));
   if (hasUpgrade('exec_brief')) intel = Math.floor(intel * 1.15);
 
   const coverage = clamp((discovered / totalNodes) * 100, 0, 100);
@@ -4348,13 +4731,15 @@ function endRun() {
   save.stats.totalAssetsDiscovered += discovered;
   save.stats.totalVulnsFixed += fixedVulns.length;
   if (!save.stats.bestGrade || gradeRank(grade) > gradeRank(save.stats.bestGrade)) save.stats.bestGrade = grade;
+  if (grade !== 'F' && R.diffScore > (save.stats.highestDifficultyCleared || 0)) save.stats.highestDifficultyCleared = R.diffScore;
+  // Backward compat
   if (grade !== 'F' && R.threatLevel > (save.stats.highestThreatCleared || 0)) save.stats.highestThreatCleared = R.threatLevel;
 
   // Check achievement unlocks
-  checkAchievements({ coverage, grade, breaches, finalScore, budgetRemaining: R.budget, elapsed: R.elapsed, clockSpeed: R.clockSpeed, threatLevel: R.threatLevel });
+  checkAchievements({ coverage, grade, breaches, finalScore, budgetRemaining: R.budget, elapsed: R.elapsed, clockSpeed: R.clockSpeed, threatLevel: R.threatLevel, diffScore: R.diffScore });
 
   // Check template unlocks
-  checkTemplateUnlocks({ grade, coverage, templateId: R.net.template.id, threatLevel: R.threatLevel, elapsed: R.elapsed });
+  checkTemplateUnlocks({ grade, coverage, templateId: R.net.template.id, threatLevel: R.threatLevel, elapsed: R.elapsed, diffScore: R.diffScore });
 
   writeSave();
 
@@ -4369,6 +4754,7 @@ function endRun() {
     criticalTotal: criticalAssets.length,
     budgetSpent: R.budgetSpent, budgetRemaining: R.budget,
     threatLevel: R.threatLevel,
+    diffScore: R.diffScore,
     noFootholds: R.redTeam.footholds.length === 0,
     // Axis scores
     containment, posture, assessment, response, efficiency,
@@ -4394,7 +4780,7 @@ function checkAchievements(data) {
   // Critical Condition: all critical-severity vulns (9-10) fixed
   const critVulns = R.net.nodes.flatMap(n => n.vulns.filter(v => v.severity >= 9 && v.revealed));
   if (critVulns.length > 0 && critVulns.every(v => v.fixed)) unlock('crit_cond');
-  if (data.threatLevel >= 8 && data.grade !== 'F') unlock('odds');
+  if ((data.diffScore || data.threatLevel) >= 8 && data.grade !== 'F') unlock('odds');
   if (save.unlockedTemplates.length >= NETWORK_TEMPLATES.length) unlock('completionist');
 }
 
@@ -4406,7 +4792,7 @@ function checkTemplateUnlocks(data) {
   if (data.coverage >= 100) unlock('university');
   if (save.stats.totalRuns >= 5) unlock('manufacturing');
   if (data.elapsed < 480 && data.grade !== 'F') unlock('startup');
-  if (data.threatLevel >= 7 && data.grade !== 'F') unlock('government');
+  if ((data.diffScore || data.threatLevel) >= 7 && data.grade !== 'F') unlock('government');
 }
 
 function renderResults(d) {
@@ -4418,7 +4804,7 @@ function renderResults(d) {
 
   // Build label with detail line
   let labelText = d.label;
-  if (d.breaches > 0 && d.threatLevel > 2) labelText += ' \u2014 AUTOMATIC FAILURE';
+  if (d.breaches > 0 && (d.diffScore || d.threatLevel) >= 4) labelText += ' \u2014 AUTOMATIC FAILURE';
   else if (d.breaches > 0) labelText += ' \u2014 Critical Breach (Heavy Penalty)';
   else if (d.noFootholds) labelText += ' \u2014 No footholds established';
   else if (d.stillCompromised === 0 && d.compromisedCount > 0) labelText += ' \u2014 All compromises reclaimed';
@@ -4441,7 +4827,7 @@ function renderResults(d) {
   let html = '<div class="score-card-title">\u2500\u2500 PERFORMANCE ASSESSMENT \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500</div>';
 
   // Red Team Summary
-  html += row('THREAT LEVEL', d.threatLevel, 'score-val');
+  html += row('DIFFICULTY', d.diffScore ? d.diffScore.toFixed(1) : d.threatLevel, 'score-val');
   html += row('CRITICAL ASSETS BREACHED', `${d.breaches} / ${d.criticalTotal}`,
     d.breaches > 0 ? 'score-bad' : 'score-good');
   html += row('NODES COMPROMISED', `${d.compromisedCount} / ${d.totalNodes}`,
@@ -4868,6 +5254,8 @@ function renderDetail() {
           if (!available.has(ft)) continue;
           if (ft === 'mitigate' && v.mitigated) continue;
           if (ft === 'configure' && v.configured) continue;
+          // Governance lock: only mitigate allowed
+          if (v.fixLocked && ft !== 'mitigate') continue;
           const ftInfo = FIX_TYPES[ft];
           const costMult = isPartiallyFixed && ftInfo.effect === 'full' ? 1.5 : 1;
           const minCost = Math.round(ftInfo.costRange[0] * costMult);
