@@ -695,6 +695,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
       </div>
       <div class="diff-panel" id="diff-panel"></div>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:8px">
+        <button class="btn" onclick="showHelp()" aria-label="Show help">?</button>
         <button class="btn-primary" onclick="startRun()" aria-label="Start new run">New Run</button>
       </div>
     </div>
@@ -1267,8 +1268,8 @@ function computeDifficultyScore() {
   // For 'harder' sliders (RT): position 4 = hardest → pos/4
   // For player sliders: position 4 = easiest → (4-pos)/4
   const sw = {
-    startBudget: 0.14, dripAmount: 0.09, startAnalysts: 0.09, teamExpertise: 0.09,
-    rtSize: 0.18, rtExpertise: 0.14, rtCoordination: 0.08, headStart: 0.09,
+    startBudget: 0.12, dripAmount: 0.13, startAnalysts: 0.12, teamExpertise: 0.10,
+    rtSize: 0.18, rtExpertise: 0.13, rtCoordination: 0.07, headStart: 0.10,
   };
   let sliderScore = 0;
   for (const [k, w] of Object.entries(sw)) {
@@ -1276,14 +1277,21 @@ function computeDifficultyScore() {
     const hardness = SLIDER_DEFS[k].harder ? pos / 4 : (4 - pos) / 4;
     sliderScore += hardness * w;
   }
-  // Modifier weight: bad luck ON adds +, good luck ON subtracts -
+  // Per-modifier impact weights — scaled by how much they affect gameplay
+  const MOD_WEIGHTS = {
+    // Advantages (negative = easier)
+    mssp_monitor: -0.03, remote_attacker: -0.03, grizzled_vet: -0.06, strong_iam: -0.02,
+    threat_intel_feed: -0.02, net_mapper: -0.01, passive_recon: -0.01, playbooks: -0.04,
+    // Complications (positive = harder)
+    govt_oversight: 0.03, governance_lock: 0.04, insider: 0.06, pandemic: 0.02,
+    legacy: 0.04, zeroday_mod: 0.05, shadow_it: 0.04, supply_chain: 0.05,
+  };
   let modScore = 0;
   for (const [id, pos] of Object.entries(diffConfig.mods)) {
     if (pos <= 0) continue;
-    const def = MODIFIER_DEFS[id];
-    if (!def) continue;
-    const strength = pos / 2; // 0.5 (random) or 1.0 (on)
-    modScore += def.group === 'bad' ? strength * 0.05 : -strength * 0.03;
+    const w = MOD_WEIGHTS[id] || 0;
+    const strength = pos === 1 ? 0.15 : 1.0; // Random = small impact, ON = full
+    modScore += strength * w;
   }
   const raw = clamp(sliderScore + modScore, 0, 1);
   return clamp(Math.round(raw * 90 + 10) / 10, 1, 10); // 1.0 to 10.0
