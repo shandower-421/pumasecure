@@ -869,7 +869,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p>Discover the network, scan assets, remediate vulnerabilities, and detect and respond to compromises. You're scored on containment, security posture, assessment coverage, incident response speed, and budget efficiency. Any critical asset breached = <strong style="color:var(--red)">automatic F</strong>.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">RESOURCES</p>
-        <p><strong style="color:var(--green)">Analysts</strong> — Your most precious resource. Each analyst can do one thing at a time: scan, fix, deep scan, investigate, respond to incidents, or rebuild systems. You start with 2. Hire a contractor mid-run (+1 analyst, $10K) using the yellow button next to the analyst count, or unlock permanent analysts in the Skill Tree.</p>
+        <p><strong style="color:var(--green)">Analysts</strong> — Your most precious resource. Each analyst can do one thing at a time: vuln scan, deploy EDR, fix vulnerabilities, investigate, respond to incidents, or rebuild systems. You start with 2. Hire a contractor mid-run (+1 analyst, $10K) using the yellow button next to the analyst count, or unlock permanent analysts in the Skill Tree.</p>
         <p style="margin-top:6px"><strong style="color:var(--green)">Budget ($)</strong> — Money for fixes, rebuilds, and hiring. Budget replenishes every 60 seconds. The progress bar under the amount shows when the next allocation arrives and how much you'll receive.</p>
         <p style="margin-top:6px"><strong style="color:var(--green)">Time</strong> — The clock counts up to 15:00. The red team escalates as conditions are met, not by the clock alone. If you secure everything and eliminate all threats after 5 minutes, the engagement ends early.</p>
 
@@ -886,7 +886,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">CONTROLS</p>
         <p style="padding-left:12px">
           <strong style="color:var(--green)">Click</strong> — Select a node (left panel or map)<br>
-          <strong style="color:var(--green)">Double-click</strong> — Quick action: Investigate > IR > Scan > Deep Scan<br>
+          <strong style="color:var(--green)">Double-click</strong> — Quick action: Investigate > IR > Vuln Scan > Deploy EDR<br>
           <strong style="color:var(--green)">Drag</strong> — Pan the map<br>
           <strong style="color:var(--green)">Scroll</strong> — Zoom<br>
           <strong style="color:var(--green)">Space / Esc</strong> — Pause / Resume<br>
@@ -897,7 +897,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p style="padding-left:12px">
           &bull; Scan perimeter nodes first — they're the red team's entry point.<br>
           &bull; Fix "Missing Monitoring" vulns early — without them, you're blind to attacks.<br>
-          &bull; Deep scan critical assets — Tier 1 detection catches compromises instantly.<br>
+          &bull; Deploy EDR on critical assets — Tier 1 detection catches compromises instantly.<br>
           &bull; Mitigate is your friend when budget runs low — it always works.<br>
           &bull; A cheap Configure can downgrade a Critical to Medium, making it far less exploitable.<br>
           &bull; Watch the SIEM feed — vague zone alerts mean a scanned node is under attack.<br>
@@ -923,8 +923,8 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">ASSET DISCOVERY</p>
         <p>You start knowing only some assets. New assets are discovered by:</p>
         <p style="margin-top:4px;padding-left:12px">
-          &bull; <strong style="color:var(--green)">Scanning</strong> a node reveals its direct neighbors.<br>
-          &bull; <strong style="color:var(--cyan)">Deep scanning</strong> may reveal hidden shadow IT assets.<br>
+          &bull; <strong style="color:var(--green)">Vuln scanning</strong> a node reveals its direct neighbors.<br>
+          &bull; <strong style="color:var(--cyan)">Deploying EDR</strong> may reveal hidden shadow IT assets.<br>
           &bull; The <strong style="color:var(--red)">red team</strong> attacking an undiscovered node will also reveal it to you.
         </p>
 
@@ -939,13 +939,13 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">SCANNING</p>
         <p><strong style="color:var(--green)">Passive Scanning</strong> — Runs automatically on all discovered nodes. Slow, detects only 6 common vulnerability types (exposed services, weak crypto, default creds, misconfigurations, cloud misconfig, end-of-life). The pulsing green bar in the left panel shows passive scan progress.</p>
-        <p style="margin-top:6px"><strong style="color:var(--green)">Active Scan</strong> (15-25s, 1 analyst) — A vulnerability scan. Reveals all vulnerabilities on the node, discovers neighboring assets, and upgrades the node to Tier 2 detection. Double-click an unscanned node to start.</p>
-        <p style="margin-top:6px"><strong style="color:var(--cyan)">Deep Scan</strong> (20-30s, 1 analyst) — A full threat analysis. Reduces exploitability of all vulns on the node, may discover shadow IT, and upgrades to Tier 1 detection (instant alerts). Also auto-confirms any existing compromise. Double-click a scanned node to start.</p>
+        <p style="margin-top:6px"><strong style="color:var(--green)">Vuln Scan</strong> (15-25s, 1 analyst) — Runs a vulnerability scanner (like Nessus or Qualys). Reveals all vulnerabilities on the node, discovers neighboring assets, and upgrades the node to Tier 2 detection. Double-click an unscanned node to start.</p>
+        <p style="margin-top:6px"><strong style="color:var(--cyan)">Deploy EDR</strong> (20-30s, 1 analyst) — Installs an endpoint detection agent (like CrowdStrike). Reduces exploitability of all vulns on the node, may discover shadow IT, and upgrades to Tier 1 detection (instant alerts). Also auto-confirms any existing compromise. Double-click a scanned node to start.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">LEFT PANEL BARS</p>
         <p>Each asset in the left panel shows status bars:</p>
         <p style="margin-top:4px;padding-left:12px">
-          <strong style="color:var(--green)">Scan bar</strong> — Pulsing green (passive), bright green (active scan), cyan (deep scan).<br>
+          <strong style="color:var(--green)">Scan bar</strong> — Pulsing green (passive), bright green (vuln scan), cyan (EDR deployed).<br>
           <strong style="color:var(--amber)">Risk bar</strong> — Yellow shows known risk. Pulsing red when compromised. Cyan overlay shows investigation progress.<br>
           <strong style="color:var(--amber)">Fix bar</strong> — Amber segments show active remediation progress on that node's vulnerabilities.
         </p>
@@ -986,7 +986,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p style="margin-top:4px;padding-left:12px">
           <strong>Passively detectable:</strong> Exposed services, weak crypto, default credentials, misconfigurations, cloud misconfig, end-of-life software.<br>
           <strong>Scan required:</strong> Unpatched software, injection flaws, access control issues, API vulnerabilities, supply chain risks, insecure protocols.<br>
-          <strong>Deep scan required:</strong> Missing monitoring, insider threat indicators, physical security gaps, zero-days.
+          <strong>EDR required:</strong> Missing monitoring, insider threat indicators, physical security gaps, zero-days.
         </p>
       </div>
       </div>
@@ -1025,8 +1025,8 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">DETECTION TIERS</p>
         <p>Your ability to see attacks depends on your monitoring posture:</p>
         <p style="margin-top:4px;padding-left:12px">
-          <strong style="color:var(--cyan)">Tier 1 (deep-scanned)</strong> — Instant, specific alerts. Compromises immediately confirmed.<br>
-          <strong style="color:var(--green)">Tier 2 (scanned)</strong> — Delayed, vague zone-level alerts. Compromises appear as amber <strong>anomalies</strong> — must be investigated to confirm.<br>
+          <strong style="color:var(--cyan)">Tier 1 (EDR deployed)</strong> — Instant, specific alerts. Compromises immediately confirmed.<br>
+          <strong style="color:var(--green)">Tier 2 (vuln scanned)</strong> — Delayed, vague zone-level alerts. Compromises appear as amber <strong>anomalies</strong> — must be investigated to confirm.<br>
           <strong style="color:var(--red)">Tier 3 (unscanned / missing monitoring)</strong> — Completely silent. You won't know you're compromised until the red team pivots to a monitored node.
         </p>
         <p style="margin-top:4px">The <strong>"Missing Monitoring"</strong> vulnerability forces Tier 3 even on scanned nodes — fix it or stay blind.</p>
@@ -1344,7 +1344,7 @@ const SKILL_TREE = {
   recon: [
     { id: 'ext_scan',    name: 'Rapid Scanning',        desc: 'Scans complete 30% faster', cost: 50 },
     { id: 'net_mapper',  name: 'Network Mapper',       desc: 'Reveal zone outlines at start', cost: 100 },
-    { id: 'deep_scan',   name: 'Deep Scan Protocol',   desc: 'Deep scans complete 30% faster', cost: 150 },
+    { id: 'deep_scan',   name: 'EDR Fast Deploy',       desc: 'EDR deployments complete 30% faster', cost: 150 },
     { id: 'passive_rec', name: 'Passive Recon',        desc: 'Auto-discover 2 random assets at start', cost: 250 },
     { id: 'osint',       name: 'OSINT Integration',    desc: 'See asset types before probing', cost: 400 },
   ],
@@ -1589,7 +1589,7 @@ const BRIEFING_SLIDES = [
   { target: '#net-canvas', arrow: 'right', title: 'NETWORK MAP',
     text: 'Your network topology. Nodes are connected by lines — as you scan, more connections and hidden assets are revealed. <strong style="color:var(--red)">Inner zones</strong> hold your critical assets.' },
   { target: '#detail-content', arrow: 'right', title: 'DETAIL PANEL',
-    text: 'Click any asset to see its details here — type, zone, criticality, and vulnerabilities. This is where you take action: scan, deep-scan, and fix.' },
+    text: 'Click any asset to see its details here — type, zone, criticality, and vulnerabilities. This is where you take action: vuln scan, deploy EDR, and fix.' },
   { target: '#detail-content', arrow: 'right', title: 'VULNERABILITIES',
     text: 'Each vulnerability has a severity and exploitability score. Fix them with <strong>Mitigate</strong>, <strong>Configure</strong>, <strong>Patch</strong>, or <strong>Replace</strong> — each costs different time and money, with varying effectiveness.' },
   { target: '#siem-log', arrow: 'down', title: 'SIEM FEED',
@@ -1652,8 +1652,8 @@ function endBriefing() {
     setTimeout(() => {
       showHint('tutorial_scan', {
         target: '#btn-scan',
-        title: 'SCAN THIS NODE',
-        text: 'Click <strong>Scan</strong> to run a vulnerability scan and discover what\'s lurking on this system. You can also <strong>double-click</strong> a node to quick-scan it.',
+        title: 'VULN SCAN THIS NODE',
+        text: 'Click <strong>Vuln Scan</strong> to run a vulnerability scanner and discover what\'s lurking on this system. You can also <strong>double-click</strong> a node to quick-scan it.',
         arrow: 'right',
   
       });
@@ -1686,8 +1686,8 @@ function advanceTutorial(step, targetSelector, title, text, arrow = 'right') {
 const CONTEXTUAL_HINTS = [
   { id: 'hint_headstart_end', target: '#siem-log', arrow: 'down', title: 'RED TEAM ACTIVE',
     text: 'The red team is now active. Watch the <strong>SIEM log</strong> here for alerts about their movements.', maxTL: 3 },
-  { id: 'hint_first_scan_done', target: '#detail-content', arrow: 'right', title: 'SCAN COMPLETE',
-    text: 'Scan complete! Review the vulnerabilities and fix the <strong style="color:var(--red)">highest-severity</strong> ones first. Red = most dangerous.', maxTL: 2 },
+  { id: 'hint_first_scan_done', target: '#detail-content', arrow: 'right', title: 'VULN SCAN COMPLETE',
+    text: 'Vuln scan complete! Review the vulnerabilities and fix the <strong style="color:var(--red)">highest-severity</strong> ones first. Red = most dangerous.', maxTL: 2 },
   { id: 'hint_first_compromise', target: '#siem-log', arrow: 'down', title: 'NODE COMPROMISED',
     text: 'A node has been compromised! Click it and start an <strong>Investigation</strong>, then <strong>Incident Response</strong> to kick the attacker out.', maxTL: 4 },
   { id: 'hint_persistence', target: '#siem-log', arrow: 'down', title: 'PERSISTENCE DETECTED',
@@ -2305,7 +2305,7 @@ function initCanvas() {
   });
   canvas.addEventListener('mouseleave', () => dragging = false);
 
-  // Double-click on canvas node: investigate > scan > deep scan
+  // Double-click on canvas node: investigate > vuln scan > deploy EDR
   canvas.addEventListener('dblclick', e => {
     if (!R || R.paused) return;
     const rect = canvas.getBoundingClientRect();
@@ -2679,6 +2679,24 @@ function renderCanvas() {
       ctx.fillText('☠', n.x - 14, n.y - 14);
     }
 
+    // Persistence node — pulsing dark red dashed ring (backdoor present but not actively compromised)
+    if (n.persistence && !n.compromised) {
+      const pulse = (Math.sin(R.elapsed * 2) + 1) / 2;
+      ctx.save();
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 18 + pulse * 3, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(255,51,51,${0.3 + pulse * 0.4})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+      // Backdoor icon
+      ctx.font = '9px serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = `rgba(255,51,51,${0.5 + pulse * 0.4})`;
+      ctx.fillText('🔓', n.x - 14, n.y - 14);
+    }
+
     // Anomaly node — pulsing amber glow
     if (n.anomaly && !n.compromiseConfirmed) {
       const pulse = (Math.sin(R.elapsed * 2.5) + 1) / 2;
@@ -2808,8 +2826,8 @@ function selectNode(node) {
     dismissHint();
     setTimeout(() => {
       const scanBtn = document.getElementById('btn-scan');
-      if (scanBtn) advanceTutorial('scan', '#btn-scan', 'SCAN THIS NODE',
-        'Click <strong>Scan</strong> to run a vulnerability scan. You can also <strong>double-click</strong> a node to quick-scan it.', 'right');
+      if (scanBtn) advanceTutorial('scan', '#btn-scan', 'VULN SCAN THIS NODE',
+        'Click <strong>Vuln Scan</strong> to run a vulnerability scanner. You can also <strong>double-click</strong> a node to quick-scan it.', 'right');
     }, 400);
   }
 }
@@ -2841,7 +2859,7 @@ function scanAsset(nodeId) {
   node.scanning = true;
   node.scanProgress = 0;
   node.scanTotalTime = hasUpgrade('ext_scan') ? rand(10, 18) : rand(15, 25);
-  addLog(`Scanning ${node.name}... ETA ${node.scanTotalTime}s`, 'info');
+  addLog(`Vuln scanning ${node.name}... ETA ${node.scanTotalTime}s`, 'info');
   updateResourceDisplay();
   renderDetail();
   renderAssetList();
@@ -3183,7 +3201,7 @@ function gameLoop() {
             if (dsContainer) {
               const remaining = Math.ceil(node.deepScanTotalTime - node.deepScanProgress);
               const div = dsContainer.querySelector('div');
-              if (div) div.textContent = `Deep scanning... ${remaining}s remaining`;
+              if (div) div.textContent = `Deploying EDR... ${remaining}s remaining`;
             }
           }
           updateDetailButtons();
@@ -3290,7 +3308,7 @@ function processScans(dt) {
         }
         const critCount = node.vulns.filter(v => v.severity >= 9).length;
         const sev = critCount > 0 ? 'crit' : node.vulns.length > 0 ? 'warn' : 'ok';
-        addLog(`Scan complete: ${node.name} — ${node.vulns.length} vuln${node.vulns.length !== 1 ? 's' : ''} found${critCount ? ` (${critCount} CRITICAL)` : ''}`, sev);
+        addLog(`Vuln scan complete: ${node.name} — ${node.vulns.length} vuln${node.vulns.length !== 1 ? 's' : ''} found${critCount ? ` (${critCount} CRITICAL)` : ''}`, sev);
         node.scanCompleteAt = R.elapsed;
         // Detect existing silent compromise (Tier 3 → Tier 2 upgrade reveals anomaly)
         if (R.redTeam.compromised.has(node.id) && !node.compromiseConfirmed && !node.anomaly) {
@@ -3309,8 +3327,8 @@ function processScans(dt) {
           R._tutorialStep = 'deepscan';
           setTimeout(() => {
             const dsBtn = document.getElementById('btn-deep-scan');
-            if (dsBtn) advanceTutorial('deepscan', '#btn-deep-scan', 'DEEP SCAN',
-              'Good work! Now run a <strong>Deep Scan</strong> for a complete threat analysis and defense bonus. You can also <strong>double-click</strong> a scanned node to deep-scan it.', 'right');
+            if (dsBtn) advanceTutorial('deepscan', '#btn-deep-scan', 'DEPLOY EDR',
+              'Good work! Now <strong>Deploy EDR</strong> for endpoint detection and a defense bonus. You can also <strong>double-click</strong> a scanned node to deploy EDR.', 'right');
           }, 800);
         }
       }
@@ -3336,15 +3354,15 @@ function processScans(dt) {
             }
             neighbor.passiveTimer = 0;
             R.totalDiscovered++;
-            addLog(`Deep scan revealed shadow IT device: ${neighbor.name}`, 'warn');
+            addLog(`EDR telemetry revealed shadow IT device: ${neighbor.name}`, 'warn');
           }
         }
-        addLog(`Deep analysis complete on ${node.name} — threat surface reduced`, 'ok');
+        addLog(`EDR deployed on ${node.name} — threat surface reduced`, 'ok');
         // Deep scan auto-confirms any existing compromise (Tier 1 detection)
         if (R.redTeam.compromised.has(node.id) && !node.compromiseConfirmed) {
           node.anomaly = false;
           node.compromiseConfirmed = true;
-          addLog(`🔴 CONFIRMED: Deep scan of ${node.name} found active backdoor — system compromised!`, 'crit');
+          addLog(`🔴 CONFIRMED: EDR on ${node.name} detected active backdoor — system compromised!`, 'crit');
           sfxBreach();
           screenShake();
         }
@@ -3527,13 +3545,13 @@ function deepScan(nodeId) {
   node.deepScanning = true;
   node.deepScanProgress = 0;
   node.deepScanTotalTime = hasUpgrade('deep_scan') ? rand(14, 21) : rand(20, 30);
-  addLog(`Deep scanning ${node.name}... ETA ${node.deepScanTotalTime}s`, 'info');
+  addLog(`Deploying EDR on ${node.name}... ETA ${node.deepScanTotalTime}s`, 'info');
   updateResourceDisplay();
   renderDetail();
   renderAssetList();
 }
 
-// Double-click quick action: Investigate > IR > Scan > Deep Scan
+// Double-click quick action: Investigate > IR > Vuln Scan > Deploy EDR
 function quickAction(node) {
   if (!node || !R || R.paused) return;
   const id = node.id;
@@ -3699,7 +3717,7 @@ function processPassiveIntel(dt) {
           R._tutorialStep = 'scan';
           R._tutorialNodeId = node.id;
           advanceTutorial('scan', `.asset-item[data-node-id="${node.id}"]`, 'VULNERABILITY DETECTED',
-            `A vulnerability was passively detected on <strong>${node.name}</strong>. Click the node to see it, then click <strong>Scan</strong> to find more.`, 'right');
+            `A vulnerability was passively detected on <strong>${node.name}</strong>. Click the node to see it, then click <strong>Vuln Scan</strong> to find more.`, 'right');
         }
       }
     }
@@ -3901,7 +3919,7 @@ function rtGetInterval() {
   return randf(range[0], range[1]);
 }
 
-// Detection tier: 1 = deep-scanned (instant, specific), 2 = scanned (delayed, vague), 3 = unmonitored (silent)
+// Detection tier: 1 = EDR deployed (instant, specific), 2 = vuln scanned (delayed, vague), 3 = unmonitored (silent)
 function getDetectionTier(node) {
   if (!node) return 3;
   // Missing Monitoring vuln downgrades detection regardless of scan state
@@ -5167,6 +5185,8 @@ function _renderAssetListNow() {
         riskLayers += `<div class="asset-bar-fill" id="ab-${bi}-a" style="width:100%;background:var(--amber);animation:pulse 1.5s infinite;z-index:2"></div>`;
       } else if (n.compromised && (n.compromiseConfirmed || getDetectionTier(n) === 1)) {
         riskLayers += `<div class="asset-bar-fill ab-comp" id="ab-${bi}-c" style="width:100%"></div>`;
+      } else if (n.persistence && !n.compromised) {
+        riskLayers += `<div class="asset-bar-fill" id="ab-${bi}-persist" style="width:100%;background:var(--red);opacity:0.4;animation:pulse 2s infinite;z-index:2"></div>`;
       }
       if (n.investigating) {
         const irPct = Math.min(100, (n.irProgress / n.irTotalTime) * 100);
@@ -5212,7 +5232,7 @@ function renderDetail() {
     const unscanned = R.net.nodes.filter(n => n.discovered && !n.scanned && !n.scanning).length;
     let hint = '';
     if (unscanned > 0 && activeWork < R.teamSlots) {
-      hint = `<div class="empty-hint">${unscanned} asset${unscanned > 1 ? 's' : ''} awaiting scan · ${R.teamSlots - activeWork} analyst${R.teamSlots - activeWork > 1 ? 's' : ''} idle</div>`;
+      hint = `<div class="empty-hint">${unscanned} asset${unscanned > 1 ? 's' : ''} awaiting vuln scan · ${R.teamSlots - activeWork} analyst${R.teamSlots - activeWork > 1 ? 's' : ''} idle</div>`;
     } else if (activeWork >= R.teamSlots) {
       hint = '<div class="empty-hint">All analysts busy — wait for a task to finish</div>';
     }
@@ -5229,20 +5249,20 @@ function renderDetail() {
       <div class="detail-row"><span class="detail-label">Criticality</span><span class="detail-value">${'★'.repeat(node.criticality)}${'☆'.repeat(5 - node.criticality)}</span></div>
       ${node.compromised && node.compromiseConfirmed ? '<div style="color:var(--red);padding:4px 0;font-weight:bold">☠ COMPROMISED — Red team has access</div>' : ''}
       ${node.anomaly && !node.compromiseConfirmed ? '<div style="color:var(--amber);padding:4px 0;font-weight:bold;animation:pulse 1.5s infinite">⚠ ANOMALY DETECTED — Investigation required</div>' : ''}
-      ${node.persistence ? '<div style="color:var(--red);padding:4px 0;font-size:11px">⚠ Persistence established — Burn & Rebuild required</div>' : ''}
+      ${node.persistence ? '<div style="color:var(--red);padding:4px 0;font-weight:bold;animation:pulse 1.5s infinite">🔓 PERSISTENCE — Backdoor active, Burn & Rebuild required</div>' : ''}
     </div>`;
 
   // Scan button for unscanned nodes
   if (!node.scanned && !node.scanning) {
     html += `<button id="btn-scan" onclick="scanAsset(${node.id})" style="width:100%;margin-bottom:8px"
-      title="Vulnerability scan: Reveals all vulnerabilities on this host and discovers connected neighbor assets. Upgrades detection to Tier 2 (delayed alerts). Takes 15-25s and 1 analyst.">
-      <span class="fix-label">Scan Asset (1 analyst)</span><span class="fix-reason"></span>
+      title="Vuln scan: Reveals all vulnerabilities on this host and discovers connected neighbor assets. Upgrades detection to Tier 2 (delayed alerts). Takes 15-25s and 1 analyst.">
+      <span class="fix-label">Vuln Scan</span><span class="fix-reason"></span>
     </button>`;
   } else if (node.scanning) {
     const pct = Math.min(100, (node.scanProgress / node.scanTotalTime) * 100);
     const remaining = Math.ceil(node.scanTotalTime - node.scanProgress);
     html += `<div id="scan-progress-container" style="margin-bottom:8px">
-      <div style="font-size:11px;color:var(--green-dim);margin-bottom:2px">Scanning... ${remaining}s remaining</div>
+      <div style="font-size:11px;color:var(--green-dim);margin-bottom:2px">Vuln scanning... ${remaining}s remaining</div>
       <div class="fix-progress"><div class="fix-progress-bar" id="scan-progress-bar" style="width:${pct}%"></div></div>
     </div>`;
   }
@@ -5250,33 +5270,33 @@ function renderDetail() {
   // Deep scan button for already-scanned nodes
   if (node.scanned && !node.deepScanned && !node.deepScanning) {
     html += `<button id="btn-deep-scan" onclick="deepScan(${node.id})" style="width:100%;margin-bottom:8px;font-size:12px"
-      title="Threat analysis: Reduces vulnerability exploitability by 25-40%, discovers shadow IT connections, and upgrades detection to Tier 1 (instant, specific alerts). Auto-confirms any existing compromise. Takes 20-30s and 1 analyst.">
-      <span class="fix-label">Deep Scan (1 analyst)</span><span class="fix-reason"></span>
+      title="Deploy EDR: Reduces vulnerability exploitability by 25-40%, discovers shadow IT connections, and upgrades detection to Tier 1 (instant, specific alerts). Auto-confirms any existing compromise. Takes 20-30s and 1 analyst.">
+      <span class="fix-label">Deploy EDR</span><span class="fix-reason"></span>
     </button>`;
   } else if (node.deepScanning) {
     const pct = Math.min(100, (node.deepScanProgress / node.deepScanTotalTime) * 100);
     const remaining = Math.ceil(node.deepScanTotalTime - node.deepScanProgress);
     html += `<div id="deep-scan-progress-container" style="margin-bottom:8px">
-      <div style="font-size:11px;color:var(--cyan);margin-bottom:2px">Deep scanning... ${remaining}s remaining</div>
+      <div style="font-size:11px;color:var(--cyan);margin-bottom:2px">Deploying EDR... ${remaining}s remaining</div>
       <div class="fix-progress"><div class="fix-progress-bar" id="deep-scan-progress-bar" style="width:${pct}%;background:var(--cyan,#00e5ff)"></div></div>
     </div>`;
   } else if (node.deepScanned) {
-    html += '<div style="color:var(--cyan);font-size:11px;padding:2px 0;margin-bottom:4px">◉ Deep scanned — threat surface reduced</div>';
+    html += '<div style="color:var(--cyan);font-size:11px;padding:2px 0;margin-bottom:4px">◉ EDR deployed — threat surface reduced</div>';
   }
 
   // Investigate/IR buttons — right below scanning for visibility
   if (node.anomaly && !node.compromiseConfirmed && !node.investigating) {
     html += `<button class="btn-sm btn-amber" onclick="startInvestigation(${node.id})" style="width:100%;margin-bottom:8px"
       title="Investigate the anomaly to determine if this node is compromised or if it's a false positive. Takes 5-10s and 1 analyst.">
-      Investigate Anomaly (1 analyst)</button>`;
+      Investigate Anomaly</button>`;
   } else if (node.compromised && node.compromiseConfirmed && !node.investigating) {
     html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-bottom:8px"
       title="Incident Response: Assign an analyst to evict the attacker and harden the node. This is a race — if the red team establishes persistence before IR completes, the foothold survives eviction. Takes 10-20s and 1 analyst. Node is hardened for 4 minutes after reclamation.">
-      Incident Response (1 analyst)</button>`;
+      Incident Response</button>`;
   } else if (node.compromised && !node.compromiseConfirmed && getDetectionTier(node) === 1 && !node.investigating) {
     html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-bottom:8px"
       title="Incident Response: Assign an analyst to evict the attacker and harden the node. This is a race — if the red team establishes persistence before IR completes, the foothold survives eviction. Takes 10-20s and 1 analyst. Node is hardened for 4 minutes after reclamation.">
-      Incident Response (1 analyst)</button>`;
+      Incident Response</button>`;
   } else if (node.investigating) {
     const pct = Math.min(100, (node.irProgress / node.irTotalTime) * 100);
     const irLabel = node.irType === 'anomaly' ? 'Investigating anomaly' : 'Incident response';
@@ -5290,9 +5310,9 @@ function renderDetail() {
     const rebuildCost = REBUILD_COSTS[node.zone] || 12000;
     const canAfford = R.budget >= rebuildCost;
     const hasSlot = getActiveWorkCount() < R.teamSlots;
-    html += `<button class="btn-sm" onclick="burnAndRebuild(${node.id})" style="width:100%;margin-bottom:8px;border-color:var(--red);color:var(--red);opacity:${canAfford && hasSlot ? 1 : 0.4}" ${canAfford && hasSlot ? '' : 'disabled'}
+    html += `<button class="btn-sm" onclick="burnAndRebuild(${node.id})" style="width:100%;margin-bottom:8px;padding:8px 6px;border-color:var(--red);color:var(--red);opacity:${canAfford && hasSlot ? 1 : 0.4}" ${canAfford && hasSlot ? '' : 'disabled'}
       title="Scorched-earth system replacement. Eliminates red team persistence, takes the node offline during rebuild, and severs downstream red team access. System comes back clean. Costs $${(rebuildCost/1000).toFixed(0)}K, 25-45s, 1 analyst. WARNING: You permanently lose 1 analyst when complete — someone's getting fired.">
-      🔥 Burn & Rebuild — $${(rebuildCost/1000).toFixed(0)}K (1 analyst)</button>`;
+      🔥 Burn & Rebuild — $${(rebuildCost/1000).toFixed(0)}K (Lose 1 Analyst)</button>`;
     if (!canAfford) html += '<div style="font-size:10px;color:var(--red-dim);text-align:center;margin-bottom:4px">Insufficient budget</div>';
     else if (!hasSlot) html += '<div style="font-size:10px;color:var(--amber);text-align:center;margin-bottom:4px">All analysts busy</div>';
   } else if (node.rebuilding) {
