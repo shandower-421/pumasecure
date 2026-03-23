@@ -13,17 +13,29 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --green:#00ff41;--green-dim:#00aa2b;--green-dark:#006622;
+  --green-a03:rgba(0,255,65,0.03);--green-a05:rgba(0,255,65,0.05);--green-a06:rgba(0,255,65,0.06);
+  --green-a08:rgba(0,255,65,0.08);--green-a10:rgba(0,255,65,0.1);--green-a12:rgba(0,255,65,0.12);
+  --green-a15:rgba(0,255,65,0.15);--green-a18:rgba(0,255,65,0.18);--green-a20:rgba(0,255,65,0.2);
+  --green-a25:rgba(0,255,65,0.25);--green-a30:rgba(0,255,65,0.3);--green-a40:rgba(0,255,65,0.4);
+  --green-a50:rgba(0,255,65,0.5);--green-a60:rgba(0,255,65,0.6);--green-a70:rgba(0,255,65,0.7);
   --amber:#ffb000;--amber-dim:#aa7500;--amber-dark:#3d2a00;
+  --amber-a05:rgba(255,176,0,0.05);--amber-a10:rgba(255,176,0,0.1);--amber-a15:rgba(255,176,0,0.15);
+  --amber-a20:rgba(255,176,0,0.2);--amber-a25:rgba(255,176,0,0.25);--amber-a30:rgba(255,176,0,0.3);
+  --amber-a40:rgba(255,176,0,0.4);--amber-a60:rgba(255,176,0,0.6);
   --red:#ff3333;--red-dim:#aa0000;--red-dark:#3d0000;
+  --red-a05:rgba(255,51,51,0.05);--red-a10:rgba(255,51,51,0.1);--red-a12:rgba(255,51,51,0.12);
+  --red-a15:rgba(255,51,51,0.15);--red-a20:rgba(255,51,51,0.2);--red-a25:rgba(255,51,51,0.25);
+  --red-a30:rgba(255,51,51,0.3);--red-a40:rgba(255,51,51,0.4);
   --cyan:#00e5ff;--cyan-dim:#009db3;
+  --cyan-a15:rgba(0,229,255,0.15);--cyan-a30:rgba(0,229,255,0.3);
   --bg:#020c03;--bg2:#040f05;--bg3:#081a0a;
   --surface:rgba(0,30,8,0.4);--surface-hi:rgba(0,50,14,0.5);
-  --border:rgba(0,255,65,0.15);--border-hi:rgba(0,255,65,0.3);
+  --border:var(--green-a15);--border-hi:var(--green-a30);
   --backdrop:rgba(0,8,2,0.88);
-  --glow-sm:0 0 4px rgba(0,255,65,0.15);
-  --glow-md:0 0 8px rgba(0,255,65,0.2);
-  --glow-lg:0 0 16px rgba(0,255,65,0.25);
-  --glow-text:0 0 8px rgba(0,255,65,0.4);
+  --glow-sm:0 0 4px var(--green-a15);
+  --glow-md:0 0 8px var(--green-a20);
+  --glow-lg:0 0 16px var(--green-a25);
+  --glow-text:0 0 8px var(--green-a40);
   --font:'Share Tech Mono',monospace;
   --z-crt:10000;--z-modal:500;--z-overlay:600;
   --ease:cubic-bezier(0.22,1,0.36,1);
@@ -68,7 +80,7 @@ button,.btn{
   position:relative;
 }
 button:hover,.btn:hover{
-  background:rgba(0,255,65,0.1);color:#fff;
+  background:var(--green-a10);color:#fff;
   box-shadow:var(--glow-md);border-color:var(--green);
 }
 button:active,.btn:active{transform:scale(0.97)}
@@ -78,22 +90,22 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
   outline:2px solid var(--amber);outline-offset:2px;
 }
 .btn-primary{
-  background:rgba(0,255,65,0.12);border-color:var(--green);
+  background:var(--green-a12);border-color:var(--green);
   font-size:15px;padding:12px 28px;
 }
-.btn-primary:hover{background:rgba(0,255,65,0.25)}
+.btn-primary:hover{background:var(--green-a25)}
 .btn-amber{border-color:var(--amber-dim);color:var(--amber)}
-.btn-amber:hover{background:rgba(255,176,0,0.1);border-color:var(--amber);color:#fff}
+.btn-amber:hover{background:var(--amber-a10);border-color:var(--amber);color:#fff}
 .btn-red{border-color:var(--red-dim);color:var(--red)}
-.btn-red:hover{background:rgba(255,51,51,0.1);border-color:var(--red);color:#fff}
+.btn-red:hover{background:var(--red-a10);border-color:var(--red);color:#fff}
 .btn-sm{font-size:13px;padding:0 12px;height:32px;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
 .btn-restart{
   width:32px;height:32px;padding:0;display:inline-flex;
   align-items:center;justify-content:center;
   border:1px solid var(--green);color:var(--green);
-  background:rgba(0,255,65,0.08);vertical-align:middle;
+  background:var(--green-a08);vertical-align:middle;
 }
-.btn-restart:hover{background:rgba(0,255,65,0.18)}
+.btn-restart:hover{background:var(--green-a18)}
 .btn-speed{
   height:32px;padding:0 8px;display:inline-flex;
   align-items:center;justify-content:center;
@@ -101,15 +113,15 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
   background:transparent;vertical-align:middle;font-size:12px;
   font-family:'Share Tech Mono',monospace;cursor:pointer;min-width:32px;
 }
-.btn-speed:hover{background:rgba(0,255,65,0.1);color:var(--green);border-color:var(--green-dim)}
-.btn-speed.active{border-color:var(--green);color:var(--green);background:rgba(0,255,65,0.15)}
+.btn-speed:hover{background:var(--green-a10);color:var(--green);border-color:var(--green-dim)}
+.btn-speed.active{border-color:var(--green);color:var(--green);background:var(--green-a15)}
 .btn-restart.confirming{
   border-color:var(--red);color:var(--red);
-  background:rgba(255,51,51,0.12);
+  background:var(--red-a12);
   animation:restart-pulse 0.6s ease infinite;
 }
-.btn-restart.confirming:hover{background:rgba(255,51,51,0.25);border-color:var(--red)}
-@keyframes restart-pulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 8px rgba(255,51,51,0.4)}}
+.btn-restart.confirming:hover{background:var(--red-a25);border-color:var(--red)}
+@keyframes restart-pulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 8px var(--red-a40)}}
 /* ═══════════════════════════════════════════════════════════════
    Layout
    ═══════════════════════════════════════════════════════════════ */
@@ -134,8 +146,8 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 @keyframes pause-blink{0%,100%{opacity:1}50%{opacity:0.3}}
 .hdr-center{display:flex;flex-direction:column;align-items:center;min-width:160px}
 .hdr-budget{font-size:22px;letter-spacing:2px;text-shadow:var(--glow-text);transition:color 0.2s,text-shadow 0.2s}
-.hdr-budget.pulse{color:#00ff41;text-shadow:0 0 12px rgba(0,255,65,0.6)}
-@keyframes budget-pulse{0%{color:#00ff41;text-shadow:0 0 12px rgba(0,255,65,0.6)}100%{color:var(--green);text-shadow:var(--glow-text)}}
+.hdr-budget.pulse{color:var(--green);text-shadow:0 0 12px var(--green-a60)}
+@keyframes budget-pulse{0%{color:var(--green);text-shadow:0 0 12px var(--green-a60)}100%{color:var(--green);text-shadow:var(--glow-text)}}
 .hdr-drip-bar{width:100%;height:3px;background:var(--bg);border-radius:2px;overflow:hidden}
 .hdr-drip-fill{height:100%;width:0;background:var(--amber);transition:width 0.15s linear;border-radius:2px}
 .hdr-drip-text{font-size:10px;color:var(--green-dim);white-space:nowrap}
@@ -147,14 +159,14 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 .hdr-hire-cost.hidden{display:none}
 .hdr-analysts-value{font-size:22px;letter-spacing:2px;text-shadow:var(--glow-text);transition:color 0.3s,text-shadow 0.3s,opacity 0.3s}
 .hdr-analysts-value.busy{color:var(--amber)}
-.hdr-analysts-value.analyst-free{color:#00ff41;text-shadow:0 0 14px rgba(0,255,65,0.7)}
+.hdr-analysts-value.analyst-free{color:var(--green);text-shadow:0 0 14px var(--green-a70)}
 .hdr-analysts-value.analyst-busy{opacity:0.5;text-shadow:none}
 .btn-hire{
   font-size:22px;font-family:'Share Tech Mono',monospace;letter-spacing:2px;
-  background:rgba(255,176,0,0.15);color:var(--amber);border:1px solid var(--amber);
+  background:var(--amber-a15);color:var(--amber);border:1px solid var(--amber);
   border-radius:2px;cursor:pointer;padding:0 6px;line-height:1;
 }
-.btn-hire:hover{background:rgba(255,176,0,0.25)}
+.btn-hire:hover{background:var(--amber-a25)}
 .btn-hire.dimmed{opacity:0.35;cursor:not-allowed}
 .btn-hire.hidden{display:none}
 
@@ -283,8 +295,8 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 .vuln-item.expanded{border-color:var(--green)}
 .vuln-item.vuln-fixed{opacity:0.45;border-color:var(--green-dark)}
 .vuln-item.vuln-fixed:hover{opacity:0.65}
-.vuln-item.vuln-failed{border-color:var(--red-dim);background:rgba(255,51,51,0.05)}
-.vuln-item.vuln-configured{border-color:var(--amber-dim);background:rgba(255,176,0,0.05)}
+.vuln-item.vuln-failed{border-color:var(--red-dim);background:var(--red-a05)}
+.vuln-item.vuln-configured{border-color:var(--amber-dim);background:var(--amber-a05)}
 .sev-old{background:transparent;text-decoration:line-through;margin-right:4px;font-size:10px;border:none}
 .sev-old.sev-critical{color:var(--red);background:transparent}
 .sev-old.sev-high{color:#ff6633;background:transparent}
@@ -306,7 +318,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 .fix-btn>span{grid-area:1/1}
 .fix-btn.fix-blocked{cursor:not-allowed;border-color:var(--red-dark);color:var(--green-dark);opacity:0.7}
 .fix-btn.fix-blocked:hover{
-  background:rgba(255,51,51,0.1);border-color:var(--red-dim);color:var(--red);opacity:1;
+  background:var(--red-a10);border-color:var(--red-dim);color:var(--red);opacity:1;
 }
 .fix-reason,.fix-cost{visibility:hidden;font-size:10px}
 .fix-btn.fix-blocked:hover .fix-label{visibility:hidden}
@@ -332,7 +344,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
   padding:4px 12px;cursor:pointer;user-select:none;
   border-bottom:1px solid var(--border);flex-shrink:0;
 }
-#siem-header:hover{background:rgba(0,255,65,0.05)}
+#siem-header:hover{background:var(--green-a05)}
 #siem-header:focus-visible{outline:2px solid var(--amber);outline-offset:-2px}
 #siem-title{font-size:11px;letter-spacing:2px;color:var(--green-dim);font-weight:bold}
 #siem-toggle{font-size:10px;color:var(--green-dark);letter-spacing:1px}
@@ -357,8 +369,8 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
   text-align:center;overflow-y:auto;
 }
 .hq-title{
-  font-size:48px;letter-spacing:8px;text-transform:uppercase;
-  text-shadow:0 0 20px rgba(0,255,65,0.4),0 0 40px rgba(0,255,65,0.2);
+  margin:0;font-size:48px;letter-spacing:8px;text-transform:uppercase;
+  text-shadow:0 0 20px var(--green-a40),0 0 40px var(--green-a20);
   line-height:1.1;
 }
 .hq-subtitle{
@@ -390,7 +402,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 .diff-panel{width:100%;max-width:700px;margin:0 auto}
 .diff-presets{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
 .diff-presets button{font-family:var(--font);font-size:12px;padding:4px 10px;background:var(--surface);border:1px solid var(--border);color:var(--green-dim);cursor:pointer;text-transform:uppercase;letter-spacing:1px}
-.diff-presets button.active{color:var(--green);border-color:var(--green);box-shadow:0 0 6px rgba(0,255,65,0.3)}
+.diff-presets button.active{color:var(--green);border-color:var(--green);box-shadow:0 0 6px var(--green-a30)}
 .diff-presets button:hover{border-color:var(--green-dim)}
 .diff-score{text-align:center;margin:8px 0 14px;font-size:14px;color:var(--green-dim)}
 .diff-score-val{font-size:28px;font-weight:bold;display:inline-block;min-width:50px}
@@ -406,7 +418,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 .diff-track-line{display:none}
 .diff-track-fill{display:none}
 .diff-dot{height:12px;border-radius:2px;border:1px solid var(--border);background:var(--bg);flex:1;display:flex;justify-content:center;align-items:center;position:relative;z-index:1;transition:all 0.15s}
-.diff-dot.active{border-color:var(--green);background:var(--green);box-shadow:0 0 6px rgba(0,255,65,0.4)}
+.diff-dot.active{border-color:var(--green);background:var(--green);box-shadow:0 0 6px var(--green-a40)}
 .diff-dot.rt.active{border-color:var(--red);background:var(--red);box-shadow:0 0 6px rgba(255,60,60,0.4)}
 .diff-dot:hover{border-color:var(--green-dim)}
 /* Modifier Switches */
@@ -420,7 +432,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 .diff-sw-pos:last-child{border-radius:0 3px 3px 0;margin-right:0}
 .diff-sw-pos.active.good{background:rgba(0,180,50,0.3);border-color:var(--green);color:var(--green)}
 .diff-sw-pos.active.bad{background:rgba(255,60,60,0.2);border-color:var(--red);color:var(--red)}
-.diff-sw-pos.active.random{background:rgba(255,176,0,0.2);border-color:var(--amber);color:var(--amber)}
+.diff-sw-pos.active.random{background:var(--amber-a20);border-color:var(--amber);color:var(--amber)}
 .diff-sw-pos:hover{border-color:var(--green-dim)}
 
 /* ═══════════════════════════════════════════════════════════════
@@ -490,7 +502,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 .hint-callout[data-arrow="right"]::before{left:100%;top:16px;border-left-color:var(--amber)}
 @keyframes hintPulse{
   0%,100%{border-color:var(--amber)}
-  50%{border-color:rgba(255,176,0,0.4)}
+  50%{border-color:var(--amber-a40)}
 }
 /* Briefing overlay */
 .briefing-overlay{
@@ -499,18 +511,19 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 }
 .briefing-spotlight{position:relative;z-index:660;pointer-events:none}
 
+.anim-pulse-1{animation:pulse 1s infinite}.anim-pulse-1_5{animation:pulse 1.5s infinite}.anim-pulse-2{animation:pulse 2s infinite}
 .pulse-amber{animation:pulse-amber-glow 1.5s ease-in-out infinite;border-color:var(--amber) !important;color:var(--amber) !important}
-@keyframes pulse-amber-glow{0%,100%{box-shadow:0 0 4px rgba(255,176,0,0.2)}50%{box-shadow:0 0 14px rgba(255,176,0,0.6)}}
+@keyframes pulse-amber-glow{0%,100%{box-shadow:0 0 4px var(--amber-a20)}50%{box-shadow:0 0 14px var(--amber-a60)}}
 @keyframes fade-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-@keyframes scan-complete{0%{box-shadow:0 0 0 rgba(0,255,65,0)}50%{box-shadow:0 0 16px rgba(0,255,65,0.4)}100%{box-shadow:0 0 0 rgba(0,255,65,0)}}
-@keyframes fix-success{0%{background:rgba(0,255,65,0.15)}100%{background:transparent}}
-@keyframes fix-fail{0%{background:rgba(255,51,51,0.15)}100%{background:transparent}}
+@keyframes scan-complete{0%{box-shadow:0 0 0 transparent}50%{box-shadow:0 0 16px var(--green-a40)}100%{box-shadow:0 0 0 transparent}}
+@keyframes fix-success{0%{background:var(--green-a15)}100%{background:transparent}}
+@keyframes fix-fail{0%{background:var(--red-a15)}100%{background:transparent}}
 @keyframes breach-flash{0%,20%{border-color:var(--red)}10%{border-color:transparent}30%{border-color:var(--red)}40%{border-color:transparent}100%{border-color:var(--border)}}
 @keyframes hint-appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .onboard-hint{
   animation:hint-appear 0.4s var(--ease);
-  background:rgba(0,255,65,0.06);border:1px solid var(--green-dim);
+  background:var(--green-a06);border:1px solid var(--green-dim);
   border-radius:4px;padding:10px 14px;margin:8px 0;font-size:11px;
   color:var(--green-dim);line-height:1.6;
 }
@@ -546,7 +559,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
   position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:450;
   background:var(--bg2);border:1px solid var(--amber);padding:10px 20px;
   font-size:12px;color:var(--amber);letter-spacing:1px;
-  box-shadow:0 0 20px rgba(255,176,0,0.2);
+  box-shadow:0 0 20px var(--amber-a20);
   animation:ach-toast-in 0.4s var(--ease);pointer-events:none;
 }
 .ach-toast.out{animation:ach-toast-out 0.4s var(--ease) forwards}
@@ -554,7 +567,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 @keyframes score-row-in{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
 .score-row-anim{animation:score-row-in 0.3s var(--ease) both}
 .results-intel{margin-top:8px;font-size:14px;letter-spacing:1px}
-.results-intel.earned{color:var(--amber);text-shadow:0 0 12px rgba(255,176,0,0.3)}
+.results-intel.earned{color:var(--amber);text-shadow:0 0 12px var(--amber-a30)}
 .results-intel.zero{color:var(--red-dim)}
 @keyframes intel-pop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
 .results-intel.earned{animation:intel-pop 0.5s var(--ease) 1.5s both}
@@ -568,15 +581,15 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 }
 .results-grade{
   font-size:72px;letter-spacing:4px;
-  text-shadow:0 0 30px rgba(0,255,65,0.5);
+  text-shadow:0 0 30px var(--green-a50);
   animation:grade-reveal 1s var(--ease);
 }
 @keyframes grade-reveal{from{opacity:0;transform:scale(2)}to{opacity:1;transform:scale(1)}}
 .results-grade.grade-s{color:var(--cyan);text-shadow:0 0 30px rgba(0,255,255,0.5)}
 .results-grade.grade-a{color:var(--green)}
-.results-grade.grade-b{color:var(--green-dim);text-shadow:0 0 30px rgba(0,255,65,0.3)}
-.results-grade.grade-c{color:var(--amber);text-shadow:0 0 30px rgba(255,176,0,0.4)}
-.results-grade.grade-d{color:var(--amber-dim);text-shadow:0 0 30px rgba(255,176,0,0.3)}
+.results-grade.grade-b{color:var(--green-dim);text-shadow:0 0 30px var(--green-a30)}
+.results-grade.grade-c{color:var(--amber);text-shadow:0 0 30px var(--amber-a40)}
+.results-grade.grade-d{color:var(--amber-dim);text-shadow:0 0 30px var(--amber-a30)}
 .results-grade.grade-f{color:var(--red);text-shadow:0 0 30px rgba(255,50,50,0.5)}
 .results-label{font-size:13px;letter-spacing:2px;margin-top:-12px}
 .score-card{
@@ -611,7 +624,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 .achievement{
   padding:10px;border:1px solid var(--border);font-size:11px;
 }
-.achievement.unlocked{border-color:var(--green);background:rgba(0,255,65,0.03)}
+.achievement.unlocked{border-color:var(--green);background:var(--green-a03)}
 .achievement.locked{opacity:0.35}
 .achievement .ach-name{color:var(--amber);font-size:12px}
 .achievement .ach-desc{color:var(--green-dim);margin-top:2px}
@@ -643,7 +656,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
     text-align:left;letter-spacing:1px;text-transform:uppercase;width:100%;
     font-family:var(--font);
   }
-  .mobile-back:hover,.mobile-back:active{color:var(--green);background:rgba(0,255,65,0.05)}
+  .mobile-back:hover,.mobile-back:active{color:var(--green);background:var(--green-a05)}
   #header{flex-wrap:wrap;padding:4px 8px}
   .hdr-resources{gap:8px;font-size:11px}
   /* Touch-friendly header buttons (WCAG 2.5.8: 44px minimum) */
@@ -667,7 +680,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 <div id="app">
   <!-- ═══════════════ HQ SCREEN ═══════════════ -->
   <div id="hq-screen" class="screen active">
-    <div class="hq-title">PumaSecure</div>
+    <h1 class="hq-title">PumaSecure</h1>
     <div class="hq-subtitle">Infosec Roguelike</div>
     <div class="hq-stats">
       <div><span class="hq-stat-val" id="stat-runs">0</span>Total Runs</div>
@@ -677,18 +690,18 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
     </div>
     <div class="hq-controls">
       <div class="hq-selector">
-        <label>Network Template</label>
-        <select id="sel-template"></select>
+        <label for="sel-template">Network Template</label>
+        <select id="sel-template" aria-label="Network template"></select>
       </div>
       <div class="diff-panel" id="diff-panel"></div>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:8px">
-        <button class="btn-primary" onclick="startRun()">New Run</button>
+        <button class="btn-primary" onclick="startRun()" aria-label="Start new run">New Run</button>
       </div>
     </div>
     <div id="hq-first-run-box"></div>
     <div class="hq-nav">
-      <button onclick="showModal('ach-modal')">Achievements</button>
-      <button onclick="showModal('settings-modal')">Settings</button>
+      <button onclick="showModal('ach-modal')" aria-label="View achievements">Achievements</button>
+      <button onclick="showModal('settings-modal')" aria-label="Open settings">Settings</button>
     </div>
   </div>
 
@@ -716,9 +729,9 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
       <div>
         <button class="btn-sm btn-amber" onclick="showModal('run-help-modal')" title="Help" aria-label="Help">?</button>
         <button class="btn-speed" onclick="setSpeed(0)" id="btn-speed-0" title="Pause" aria-label="Pause">❚❚</button>
-        <button class="btn-speed active" onclick="setSpeed(1)" id="btn-speed-1" title="Normal speed">1x</button>
-        <button class="btn-speed" onclick="setSpeed(2)" id="btn-speed-2" title="Double speed">2x</button>
-        <button class="btn-speed" onclick="setSpeed(4)" id="btn-speed-4" title="Quad speed">4x</button>
+        <button class="btn-speed active" onclick="setSpeed(1)" id="btn-speed-1" title="Normal speed" aria-label="Normal speed">1x</button>
+        <button class="btn-speed" onclick="setSpeed(2)" id="btn-speed-2" title="Double speed" aria-label="Double speed">2x</button>
+        <button class="btn-speed" onclick="setSpeed(4)" id="btn-speed-4" title="Quad speed" aria-label="Quad speed">4x</button>
         <button class="btn-sm" id="btn-mute" onclick="toggleMute()" title="Toggle sound" aria-label="Toggle sound">
           <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 8v4h3l4 4V4L6 8H3z" id="mute-speaker"/>
@@ -738,9 +751,9 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
       </div>
     </div>
     <div class="mobile-tabs" id="mobile-tabs">
-      <button class="active" onclick="mobileTab('map')">Map</button>
-      <button onclick="mobileTab('assets')">Assets</button>
-      <button onclick="mobileTab('detail')">Detail</button>
+      <button class="active" onclick="mobileTab('map')" aria-label="Show map">Map</button>
+      <button onclick="mobileTab('assets')" aria-label="Show assets">Assets</button>
+      <button onclick="mobileTab('detail')" aria-label="Show detail">Detail</button>
     </div>
     <div id="game-area">
       <div id="panel-left">
@@ -751,7 +764,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
       <div id="panel-center">
         <canvas id="net-canvas" aria-label="Network map — select nodes to scan and fix vulnerabilities" role="img"></canvas>
         <div id="canvas-overlay">Scroll to zoom · Drag to pan</div>
-        <button id="map-reset-btn" onclick="resetCamera()" title="Reset map view">RESET</button>
+        <button id="map-reset-btn" onclick="resetCamera()" title="Reset map view" aria-label="Reset map view">RESET</button>
       </div>
       <div id="panel-right">
         <h3>Details</h3>
@@ -765,7 +778,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         </div>
       </div>
     </div>
-    <div id="footer" role="log" aria-live="polite" aria-label="SIEM Feed">
+    <div id="footer" role="log" aria-live="polite" aria-relevant="additions" aria-label="SIEM Feed">
       <div id="siem-header" onclick="toggleSiem()" role="button" tabindex="0" aria-expanded="false" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleSiem()}">
         <span id="siem-title">▸ SIEM FEED</span>
         <span id="siem-toggle">EXPAND</span>
@@ -782,8 +795,8 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
     <div class="score-card" id="res-scorecard"></div>
     <div class="results-intel" id="res-intel"></div>
     <div class="hq-nav" style="margin-top:16px">
-      <button class="btn-primary" onclick="startRun()">Run Again</button>
-      <button onclick="showScreen('hq-screen')">Return to HQ</button>
+      <button class="btn-primary" onclick="startRun()" aria-label="Start another run">Run Again</button>
+      <button onclick="showScreen('hq-screen')" aria-label="Return to headquarters">Return to HQ</button>
     </div>
   </div>
 
@@ -808,7 +821,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
           <span>Sound</span>
           <input type="checkbox" id="set-sound" checked onchange="toggleSound()">
         </label>
-        <button class="btn-red" onclick="resetProgress()" style="margin-top:12px">Reset All Progress</button>
+        <button class="btn-red" onclick="resetProgress()" style="margin-top:12px" aria-label="Reset all progress">Reset All Progress</button>
       </div>
     </div>
   </div>
@@ -816,11 +829,11 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
     <div class="modal" style="max-width:640px">
       <button class="modal-close" onclick="hideModal('run-help-modal')" aria-label="Close">&times;</button>
       <div class="help-tabs">
-        <button class="help-tab active" onclick="switchHelpTab('basics',this)">Basics</button>
-        <button class="help-tab" onclick="switchHelpTab('assets',this)">Assets</button>
-        <button class="help-tab" onclick="switchHelpTab('vulns',this)">Vulns</button>
-        <button class="help-tab" onclick="switchHelpTab('redteam',this)">Red Team</button>
-        <button class="help-tab" onclick="switchHelpTab('about',this)">About</button>
+        <button class="help-tab active" onclick="switchHelpTab('basics',this)" aria-label="Basics tab">Basics</button>
+        <button class="help-tab" onclick="switchHelpTab('assets',this)" aria-label="Assets tab">Assets</button>
+        <button class="help-tab" onclick="switchHelpTab('vulns',this)" aria-label="Vulnerabilities tab">Vulns</button>
+        <button class="help-tab" onclick="switchHelpTab('redteam',this)" aria-label="Red Team tab">Red Team</button>
+        <button class="help-tab" onclick="switchHelpTab('about',this)" aria-label="About tab">About</button>
       </div>
 
       <!-- ═══ BASICS ═══ -->
@@ -852,6 +865,8 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
           <strong style="color:var(--green)">Double-click</strong> — Quick action: Investigate > IR > Vuln Scan > Deploy EDR<br>
           <strong style="color:var(--green)">Drag</strong> — Pan the map<br>
           <strong style="color:var(--green)">Scroll</strong> — Zoom<br>
+          <strong style="color:var(--green)">1 / 2 / 3</strong> — Speed: 1x / 2x / 4x<br>
+          <strong style="color:var(--green)">M</strong> — Toggle mute<br>
           <strong style="color:var(--green)">Space / Esc</strong> — Pause / Resume<br>
           <strong style="color:var(--green)">?</strong> — This help screen
         </p>
@@ -2309,6 +2324,9 @@ function resizeCanvas() {
 
 function renderCanvas() {
   if (!ctx || !R) return;
+  // Skip redraw when paused unless dirty (selection change, etc.)
+  if (R.paused && !R._canvasDirty) return;
+  R._canvasDirty = false;
   const w = canvas.width / devicePixelRatio;
   const h = canvas.height / devicePixelRatio;
   ctx.clearRect(0, 0, w, h);
@@ -2545,7 +2563,8 @@ function renderCanvas() {
     // Name label with dark background
     ctx.font = '9px "Share Tech Mono"';
     ctx.textBaseline = 'top';
-    const nameW = ctx.measureText(n.name).width;
+    if (n._nameW === undefined) n._nameW = ctx.measureText(n.name).width;
+    const nameW = n._nameW;
     ctx.fillStyle = 'rgba(6,18,10,0.8)';
     ctx.fillRect(n.x - nameW / 2 - 3, n.y + 14, nameW + 6, 13);
     ctx.fillStyle = color;
@@ -2756,6 +2775,10 @@ function selectNode(node) {
   initAudio();
   beep(500, 0.03, 0.04); // subtle click
   R.selectedNode = node.id;
+  R._canvasDirty = true;
+  // Clear cached detail panel refs (stale after selection change)
+  R._detFixRefs = null; R._detScanBar = null; R._detScanTxt = null;
+  R._detDsBar = null; R._detDsTxt = null; R._detScanRem = -1; R._detDsRem = -1;
   // Clear pending alert on this node
   if (node.pendingAlert) {
     node.pendingAlert = false;
@@ -3093,50 +3116,70 @@ function gameLoop() {
       updateClockDisplay();
       updateResourceDisplay();
 
-      // Update asset list bars (left panel) — all nodes (using cached refs)
+      // Update asset list bars (left panel) — throttled: only write when value changes
       for (const nd of R.net.nodes) {
         const refs = R._barRefs && R._barRefs[nd.id];
         if (!refs) continue;
-        if (nd.scanning && refs.s) refs.s.style.width = Math.min(100, (nd.scanProgress / nd.scanTotalTime) * 100) + '%';
-        if (nd.deepScanning && refs.d) refs.d.style.width = Math.min(100, (nd.deepScanProgress / nd.deepScanTotalTime) * 100) + '%';
-        if (nd.investigating && refs.i) refs.i.style.width = Math.min(100, (nd.irProgress / nd.irTotalTime) * 100) + '%';
+        if (nd.scanning && refs.s) {
+          const p = Math.min(100, (nd.scanProgress / nd.scanTotalTime) * 100).toFixed(1);
+          if (refs.s._lw !== p) { refs.s.style.width = p + '%'; refs.s._lw = p; }
+        }
+        if (nd.deepScanning && refs.d) {
+          const p = Math.min(100, (nd.deepScanProgress / nd.deepScanTotalTime) * 100).toFixed(1);
+          if (refs.d._lw !== p) { refs.d.style.width = p + '%'; refs.d._lw = p; }
+        }
+        if (nd.investigating && refs.i) {
+          const p = Math.min(100, (nd.irProgress / nd.irTotalTime) * 100).toFixed(1);
+          if (refs.i._lw !== p) { refs.i.style.width = p + '%'; refs.i._lw = p; }
+        }
         nd.vulns.forEach((v, vi) => {
           if (!v.fixing) return;
           const afb = refs.f && refs.f[vi];
-          if (afb) afb.style.width = Math.min(100, (v.fixProgress / v.fixTotalTime) * 100) + '%';
+          if (!afb) return;
+          const p = Math.min(100, (v.fixProgress / v.fixTotalTime) * 100).toFixed(1);
+          if (afb._lw !== p) { afb.style.width = p + '%'; afb._lw = p; }
         });
       }
 
-      // Update detail panel elements without rebuilding DOM
+      // Update detail panel — cache refs, throttle text updates
       if (R.selectedNode !== null) {
         const node = R.net.nodes[R.selectedNode];
         if (node) {
           node.vulns.forEach((v, i) => {
             if (v.fixing) {
-              const bar = document.querySelector(`#vuln-${node.id}-${i} .fix-progress-bar`);
-              if (bar) bar.style.width = Math.min(100, (v.fixProgress / v.fixTotalTime) * 100) + '%';
+              if (!R._detFixRefs) R._detFixRefs = {};
+              if (!R._detFixRefs[i]) R._detFixRefs[i] = document.querySelector(`#vuln-${node.id}-${i} .fix-progress-bar`);
+              const bar = R._detFixRefs[i];
+              if (bar) {
+                const p = Math.min(100, (v.fixProgress / v.fixTotalTime) * 100).toFixed(1);
+                if (bar._lw !== p) { bar.style.width = p + '%'; bar._lw = p; }
+              }
             }
           });
-          // Update detail panel scan progress bar
           if (node.scanning) {
-            const scanBar = document.getElementById('scan-progress-bar');
-            if (scanBar) scanBar.style.width = Math.min(100, (node.scanProgress / node.scanTotalTime) * 100) + '%';
-            const scanContainer = document.getElementById('scan-progress-container');
-            if (scanContainer) {
-              const remaining = Math.ceil(node.scanTotalTime - node.scanProgress);
-              const div = scanContainer.querySelector('div');
-              if (div) div.textContent = `Scanning... ${remaining}s remaining`;
+            if (!R._detScanBar) R._detScanBar = document.getElementById('scan-progress-bar');
+            if (R._detScanBar) {
+              const p = Math.min(100, (node.scanProgress / node.scanTotalTime) * 100).toFixed(1);
+              if (R._detScanBar._lw !== p) { R._detScanBar.style.width = p + '%'; R._detScanBar._lw = p; }
+            }
+            const rem = Math.ceil(node.scanTotalTime - node.scanProgress);
+            if (R._detScanRem !== rem) {
+              R._detScanRem = rem;
+              if (!R._detScanTxt) { const c = document.getElementById('scan-progress-container'); R._detScanTxt = c && c.querySelector('div'); }
+              if (R._detScanTxt) R._detScanTxt.textContent = `Scanning... ${rem}s remaining`;
             }
           }
-          // Update deep scan progress bar
           if (node.deepScanning) {
-            const dsBar = document.getElementById('deep-scan-progress-bar');
-            if (dsBar) dsBar.style.width = Math.min(100, (node.deepScanProgress / node.deepScanTotalTime) * 100) + '%';
-            const dsContainer = document.getElementById('deep-scan-progress-container');
-            if (dsContainer) {
-              const remaining = Math.ceil(node.deepScanTotalTime - node.deepScanProgress);
-              const div = dsContainer.querySelector('div');
-              if (div) div.textContent = `Deploying EDR... ${remaining}s remaining`;
+            if (!R._detDsBar) R._detDsBar = document.getElementById('deep-scan-progress-bar');
+            if (R._detDsBar) {
+              const p = Math.min(100, (node.deepScanProgress / node.deepScanTotalTime) * 100).toFixed(1);
+              if (R._detDsBar._lw !== p) { R._detDsBar.style.width = p + '%'; R._detDsBar._lw = p; }
+            }
+            const rem = Math.ceil(node.deepScanTotalTime - node.deepScanProgress);
+            if (R._detDsRem !== rem) {
+              R._detDsRem = rem;
+              if (!R._detDsTxt) { const c = document.getElementById('deep-scan-progress-container'); R._detDsTxt = c && c.querySelector('div'); }
+              if (R._detDsTxt) R._detDsTxt.textContent = `Deploying EDR... ${rem}s remaining`;
             }
           }
           updateDetailButtons();
@@ -3849,6 +3892,7 @@ function setSpeed(speed) {
   if (!R) return;
   R.paused = speed === 0;
   R.clockSpeed = speed || 1;
+  R._canvasDirty = true;
   if (!R.paused) { lastTick = performance.now(); R._pauseMsg = null; }
   updateSpeedButtons();
   const clockEl = document.getElementById('hdr-clock');
@@ -5044,18 +5088,15 @@ function renderResults(d) {
 /* ═══════════════════════════════════════════════════════════════
    UI UPDATES
    ═══════════════════════════════════════════════════════════════ */
+let _clockEl = null, _clockColor = '';
 function updateClockDisplay() {
   if (!R) return;
   const elapsed = R.elapsed;
-  const pct = Math.min(1, elapsed / R.duration);
-  document.getElementById('hdr-clock').textContent = fmtTime(elapsed);
-
-  // Color based on current phase danger
-  const clockEl = document.getElementById('hdr-clock');
-  if (elapsed >= 600) clockEl.style.color = 'var(--red)';
-  else if (elapsed >= getHeadStart()) clockEl.style.color = 'var(--amber)';
-  else clockEl.style.color = 'var(--green)';
-
+  if (!_clockEl) _clockEl = document.getElementById('hdr-clock');
+  _clockEl.textContent = fmtTime(elapsed);
+  // Color based on danger — only write when changed
+  const c = elapsed >= 600 ? 'var(--red)' : elapsed >= getHeadStart() ? 'var(--amber)' : 'var(--green)';
+  if (c !== _clockColor) { _clockEl.style.color = c; _clockColor = c; }
 }
 
 // Cache DOM refs for resource display — avoids getElementById on every frame
@@ -5150,7 +5191,7 @@ function _renderAssetListNow() {
         const sl = sevLabel(maxSev);
         badge = `<span class="asset-badge badge-${sl}">${revealedVulns.length}?</span>`;
       } else if (n.scanning) {
-        badge = '<span class="asset-badge badge-unknown" style="animation:pulse 1s infinite">⟳</span>';
+        badge = '<span class="asset-badge badge-unknown anim-pulse-1">⟳</span>';
       } else if (n.deepScanning) {
         // During deep scan, show vuln count (node is already scanned)
         const unfixed = n.vulns.filter(v => !v.fixed);
@@ -5195,11 +5236,11 @@ function _renderAssetListNow() {
       const riskPct = n.scanned ? Math.min(100, totalSev / maxPossibleSev * 100) : 0;
       if (riskPct > 0) riskLayers += `<div class="asset-bar-fill ab-risk" id="ab-${bi}-r" style="width:${riskPct}%"></div>`;
       if (n.anomaly && !n.compromiseConfirmed) {
-        riskLayers += `<div class="asset-bar-fill" id="ab-${bi}-a" style="width:100%;background:var(--amber);animation:pulse 1.5s infinite;z-index:2"></div>`;
+        riskLayers += `<div class="asset-bar-fill" id="ab-${bi}-a" class="anim-pulse-1_5" style="width:100%;background:var(--amber);z-index:2"></div>`;
       } else if (n.compromised && (n.compromiseConfirmed || getDetectionTier(n) === 1)) {
         riskLayers += `<div class="asset-bar-fill ab-comp" id="ab-${bi}-c" style="width:100%"></div>`;
       } else if (n.persistence && !n.compromised) {
-        riskLayers += `<div class="asset-bar-fill" id="ab-${bi}-persist" style="width:100%;background:var(--red);opacity:0.4;animation:pulse 2s infinite;z-index:2"></div>`;
+        riskLayers += `<div class="asset-bar-fill" id="ab-${bi}-persist" class="anim-pulse-2" style="width:100%;background:var(--red);opacity:0.4;z-index:2"></div>`;
       }
       if (n.investigating) {
         const irPct = Math.min(100, (n.irProgress / n.irTotalTime) * 100);
@@ -5261,14 +5302,15 @@ function renderDetail() {
       <div class="detail-row"><span class="detail-label">Zone</span><span class="detail-value">${ZONE_NAMES[node.zone]}</span></div>
       <div class="detail-row"><span class="detail-label">Criticality</span><span class="detail-value">${'★'.repeat(node.criticality)}${'☆'.repeat(5 - node.criticality)}</span></div>
       ${node.compromised && node.compromiseConfirmed ? '<div style="color:var(--red);padding:4px 0;font-weight:bold">☠ COMPROMISED — Red team has access</div>' : ''}
-      ${node.anomaly && !node.compromiseConfirmed ? '<div style="color:var(--amber);padding:4px 0;font-weight:bold;animation:pulse 1.5s infinite">⚠ ANOMALY DETECTED — Investigation required</div>' : ''}
-      ${node.persistence ? '<div style="color:var(--red);padding:4px 0;font-weight:bold;animation:pulse 1.5s infinite">🔓 PERSISTENCE — Backdoor active, Burn & Rebuild required</div>' : ''}
+      ${node.anomaly && !node.compromiseConfirmed ? '<div class="anim-pulse-1_5" style="color:var(--amber);padding:4px 0;font-weight:bold">⚠ ANOMALY DETECTED — Investigation required</div>' : ''}
+      ${node.persistence ? '<div class="anim-pulse-1_5" style="color:var(--red);padding:4px 0;font-weight:bold">🔓 PERSISTENCE — Backdoor active, Burn & Rebuild required</div>' : ''}
     </div>`;
 
   // Scan button for unscanned nodes
   if (!node.scanned && !node.scanning) {
     html += `<button id="btn-scan" onclick="scanAsset(${node.id})" style="width:100%;margin-bottom:8px"
-      title="Vuln scan: Reveals all vulnerabilities on this host and discovers connected neighbor assets. Upgrades detection to Tier 2 (delayed alerts). Takes 15-25s and 1 analyst.">
+      title="Vuln scan: Reveals all vulnerabilities on this host and discovers connected neighbor assets. Upgrades detection to Tier 2 (delayed alerts). Takes 15-25s and 1 analyst."
+      aria-label="Vuln scan ${node.name}">
       <span class="fix-label">Vuln Scan</span><span class="fix-reason"></span>
     </button>`;
   } else if (node.scanning) {
@@ -5283,7 +5325,8 @@ function renderDetail() {
   // Deep scan button for already-scanned nodes
   if (node.scanned && !node.deepScanned && !node.deepScanning) {
     html += `<button id="btn-deep-scan" onclick="deepScan(${node.id})" style="width:100%;margin-bottom:8px;font-size:12px"
-      title="Deploy EDR: Reduces vulnerability exploitability by 25-40%, discovers shadow IT connections, and upgrades detection to Tier 1 (instant, specific alerts). Auto-confirms any existing compromise. Takes 20-30s and 1 analyst.">
+      title="Deploy EDR: Reduces vulnerability exploitability by 25-40%, discovers shadow IT connections, and upgrades detection to Tier 1 (instant, specific alerts). Auto-confirms any existing compromise. Takes 20-30s and 1 analyst."
+      aria-label="Deploy EDR on ${node.name}">
       <span class="fix-label">Deploy EDR</span><span class="fix-reason"></span>
     </button>`;
   } else if (node.deepScanning) {
@@ -5300,15 +5343,18 @@ function renderDetail() {
   // Investigate/IR buttons — right below scanning for visibility
   if (node.anomaly && !node.compromiseConfirmed && !node.investigating) {
     html += `<button class="btn-sm btn-amber" onclick="startInvestigation(${node.id})" style="width:100%;margin-bottom:8px"
-      title="Investigate the anomaly to determine if this node is compromised or if it's a false positive. Takes 5-10s and 1 analyst.">
+      title="Investigate the anomaly to determine if this node is compromised or if it's a false positive. Takes 5-10s and 1 analyst."
+      aria-label="Investigate anomaly on ${node.name}">
       Investigate Anomaly</button>`;
   } else if (node.compromised && node.compromiseConfirmed && !node.investigating) {
     html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-bottom:8px"
-      title="Incident Response: Assign an analyst to evict the attacker and harden the node. This is a race — if the red team establishes persistence before IR completes, the foothold survives eviction. Takes 10-20s and 1 analyst. Node is hardened for 4 minutes after reclamation.">
+      title="Incident Response: Assign an analyst to evict the attacker and harden the node. This is a race — if the red team establishes persistence before IR completes, the foothold survives eviction. Takes 10-20s and 1 analyst. Node is hardened for 4 minutes after reclamation."
+      aria-label="Incident response on ${node.name}">
       Incident Response</button>`;
   } else if (node.compromised && !node.compromiseConfirmed && getDetectionTier(node) === 1 && !node.investigating) {
     html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-bottom:8px"
-      title="Incident Response: Assign an analyst to evict the attacker and harden the node. This is a race — if the red team establishes persistence before IR completes, the foothold survives eviction. Takes 10-20s and 1 analyst. Node is hardened for 4 minutes after reclamation.">
+      title="Incident Response: Assign an analyst to evict the attacker and harden the node. This is a race — if the red team establishes persistence before IR completes, the foothold survives eviction. Takes 10-20s and 1 analyst. Node is hardened for 4 minutes after reclamation."
+      aria-label="Incident response on ${node.name}">
       Incident Response</button>`;
   } else if (node.investigating) {
     const pct = Math.min(100, (node.irProgress / node.irTotalTime) * 100);
@@ -5324,7 +5370,8 @@ function renderDetail() {
     const canAfford = R.budget >= rebuildCost;
     const hasSlot = getActiveWorkCount() < R.teamSlots;
     html += `<button class="btn-sm" onclick="burnAndRebuild(${node.id})" style="width:100%;margin-bottom:8px;padding:8px 6px;border-color:var(--red);color:var(--red);opacity:${canAfford && hasSlot ? 1 : 0.4}" ${canAfford && hasSlot ? '' : 'disabled'}
-      title="Scorched-earth system replacement. Eliminates red team persistence, takes the node offline during rebuild, and severs downstream red team access. System comes back clean. Costs $${(rebuildCost/1000).toFixed(0)}K, 25-45s, 1 analyst. WARNING: You permanently lose 1 analyst when complete — someone's getting fired.">
+      title="Scorched-earth system replacement. Eliminates red team persistence, takes the node offline during rebuild, and severs downstream red team access. System comes back clean. Costs $${(rebuildCost/1000).toFixed(0)}K, 25-45s, 1 analyst. WARNING: You permanently lose 1 analyst when complete — someone's getting fired."
+      aria-label="Burn and rebuild ${node.name} for $${(rebuildCost/1000).toFixed(0)}K, loses 1 analyst">
       🔥 Burn & Rebuild — $${(rebuildCost/1000).toFixed(0)}K (Lose 1 Analyst)</button>`;
     if (!canAfford) html += '<div style="font-size:10px;color:var(--red-dim);text-align:center;margin-bottom:4px">Insufficient budget</div>';
     else if (!hasSlot) html += '<div style="font-size:10px;color:var(--amber);text-align:center;margin-bottom:4px">All analysts busy</div>';
@@ -5410,7 +5457,8 @@ function renderDetail() {
           tooltip += ` Cost: ${costStr}. Time: ${ftInfo.timeRange[0]}-${ftInfo.timeRange[1]}s. Requires 1 analyst.`;
           html += `<button class="fix-btn btn-sm" data-fix-type="${ft}" data-min-cost="${minCost}"
             onclick="event.stopPropagation();startFix(${node.id},${i},'${ft}')"
-            title="${tooltip.replace(/"/g, '&quot;')}">
+            title="${tooltip.replace(/"/g, '&quot;')}"
+            aria-label="${label} ${v.name} for ${costStr}">
             <span class="fix-label">${label}</span><span class="fix-cost">${costStr}</span><span class="fix-reason"></span>
           </button>`;
         }
@@ -5936,6 +5984,10 @@ console.log(
     if (!R) return;
     if (e.key === ' ' && !e.target.closest('button, input, select, [role="button"]')) { e.preventDefault(); togglePause(); }
     if (e.key === 's' && R.selectedNode !== null && !e.target.closest('input, select')) scanAsset(R.selectedNode);
+    if (e.key === '1' && !e.target.closest('input, select')) setSpeed(1);
+    if (e.key === '2' && !e.target.closest('input, select')) setSpeed(2);
+    if (e.key === '3' && !e.target.closest('input, select')) setSpeed(4);
+    if ((e.key === 'm' || e.key === 'M') && !e.target.closest('input, select')) toggleMute();
     if (e.key === '?') showModal('run-help-modal');
     // Konami code: ↑↑↓↓←→←→BA
     const _k = window._konami || (window._konami = { seq: [], code: ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'] });
