@@ -1175,14 +1175,14 @@ const REBUILD_COSTS = { 0: 10000, 1: 12000, 2: 10000, 3: 15000, 4: 20000, 5: 800
 const REBUILD_TIMES = { 0: [25,35], 1: [25,35], 2: [20,30], 3: [30,40], 4: [35,45], 5: [20,28] };
 
 const NETWORK_TEMPLATES = [
-  { id: 'small_office', name: 'Small Office', weights: [0.6,0.7,0.5,0.4,0.5,0.3], unlocked: true },
-  { id: 'enterprise',   name: 'Enterprise',   weights: [1,1,1,1,1,0.7], unlocked: false, req: 'Complete any run with grade C+' },
-  { id: 'hospital',     name: 'Hospital',      weights: [0.8,0.8,1.2,1,0.9,0.5], unlocked: false, req: 'Complete Small Office with grade A' },
-  { id: 'fintech',      name: 'Fintech',       weights: [1.2,0.8,0.6,1.1,1.3,0.8], unlocked: false, req: 'Complete Enterprise with grade B+' },
-  { id: 'university',   name: 'University',    weights: [0.7,0.9,1.4,0.8,0.6,1.2], unlocked: false, req: 'Discover 100% of assets in any run' },
-  { id: 'manufacturing',name: 'Manufacturing', weights: [0.9,0.6,0.8,0.7,0.8,0.4], unlocked: false, req: 'Complete 5 runs total' },
-  { id: 'startup',      name: 'Startup',       weights: [0.5,0.5,0.4,0.8,0.6,1.5], unlocked: false, req: 'Complete any run in under 8 min (fast)' },
-  { id: 'government',   name: 'Government',    weights: [1.3,1.1,1,1.2,1.1,0.3], unlocked: false, req: 'Complete any run at Threat Level 7+' },
+  { id: 'small_office', name: 'Small Office', weights: [0.6,0.7,0.5,0.4,0.5,0.3], intelReq: 0 },
+  { id: 'enterprise',   name: 'Enterprise',   weights: [1,1,1,1,1,0.7], intelReq: 25 },
+  { id: 'manufacturing',name: 'Manufacturing', weights: [0.9,0.6,0.8,0.7,0.8,0.4], intelReq: 50 },
+  { id: 'university',   name: 'University',    weights: [0.7,0.9,1.4,0.8,0.6,1.2], intelReq: 100 },
+  { id: 'hospital',     name: 'Hospital',      weights: [0.8,0.8,1.2,1,0.9,0.5], intelReq: 150 },
+  { id: 'startup',      name: 'Startup',       weights: [0.5,0.5,0.4,0.8,0.6,1.5], intelReq: 250 },
+  { id: 'fintech',      name: 'Fintech',       weights: [1.2,0.8,0.6,1.1,1.3,0.8], intelReq: 400 },
+  { id: 'government',   name: 'Government',    weights: [1.3,1.1,1,1.2,1.1,0.3], intelReq: 600 },
 ];
 
 // Legacy constant for backward compat — actual modifier system uses MODIFIER_DEFS
@@ -1667,10 +1667,10 @@ function renderHQ() {
   const sel = document.getElementById('sel-template');
   sel.innerHTML = '';
   NETWORK_TEMPLATES.forEach(t => {
-    const unlocked = t.unlocked || save.unlockedTemplates.includes(t.id);
+    const unlocked = save.intel >= t.intelReq;
     const opt = document.createElement('option');
     opt.value = t.id;
-    opt.textContent = unlocked ? t.name : `🔒 ${t.name} — ${t.req}`;
+    opt.textContent = unlocked ? t.name : `🔒 ${t.name} — ${t.intelReq} Intel`;
     opt.disabled = !unlocked;
     sel.appendChild(opt);
   });
@@ -4891,9 +4891,6 @@ function endRun() {
   // Check achievement unlocks
   checkAchievements({ coverage, grade, breaches, finalScore, budgetRemaining: R.budget, elapsed: R.elapsed, clockSpeed: R.clockSpeed, threatLevel: R.threatLevel, diffScore: R.diffScore });
 
-  // Check template unlocks
-  checkTemplateUnlocks({ grade, coverage, templateId: R.net.template.id, threatLevel: R.threatLevel, elapsed: R.elapsed, diffScore: R.diffScore });
-
   writeSave();
 
   // Render results
@@ -4934,19 +4931,9 @@ function checkAchievements(data) {
   const critVulns = R.net.nodes.flatMap(n => n.vulns.filter(v => v.severity >= 9 && v.revealed));
   if (critVulns.length > 0 && critVulns.every(v => v.fixed)) unlock('crit_cond');
   if ((data.diffScore || data.threatLevel) >= 8 && data.grade !== 'F') unlock('odds');
-  if (save.unlockedTemplates.length >= NETWORK_TEMPLATES.length) unlock('completionist');
+  if (save.intel >= 600) unlock('completionist'); // enough intel to unlock all templates
 }
 
-function checkTemplateUnlocks(data) {
-  const unlock = id => { if (!save.unlockedTemplates.includes(id)) save.unlockedTemplates.push(id); };
-  if (gradeRank(data.grade) >= gradeRank('C')) unlock('enterprise');
-  if (data.templateId === 'small_office' && gradeRank(data.grade) >= gradeRank('A')) unlock('hospital');
-  if (data.templateId === 'enterprise' && gradeRank(data.grade) >= gradeRank('B')) unlock('fintech');
-  if (data.coverage >= 100) unlock('university');
-  if (save.stats.totalRuns >= 5) unlock('manufacturing');
-  if (data.elapsed < 480 && data.grade !== 'F') unlock('startup');
-  if ((data.diffScore || data.threatLevel) >= 7 && data.grade !== 'F') unlock('government');
-}
 
 function renderResults(d) {
   showScreen('results-screen');
