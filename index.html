@@ -12,7 +12,7 @@
    ═══════════════════════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --green:#00ff41;--green-dim:#00aa2b;--green-dark:#003d0e;
+  --green:#00ff41;--green-dim:#00aa2b;--green-dark:#006622;
   --amber:#ffb000;--amber-dim:#aa7500;--amber-dark:#3d2a00;
   --red:#ff3333;--red-dim:#aa0000;--red-dark:#3d0000;
   --cyan:#00e5ff;--cyan-dim:#009db3;
@@ -74,7 +74,7 @@ button:hover,.btn:hover{
 button:active,.btn:active{transform:scale(0.97)}
 button:disabled{opacity:0.3;cursor:not-allowed;box-shadow:none}
 button:disabled:hover{background:transparent;color:var(--green);border-color:var(--border-hi)}
-button:focus-visible,.btn:focus-visible{
+button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focus-visible,.modal-close:focus-visible,.fix-btn:focus-visible,.vuln-item:focus-visible{
   outline:2px solid var(--amber);outline-offset:2px;
 }
 .btn-primary{
@@ -132,10 +132,6 @@ button:focus-visible,.btn:focus-visible{
   color:var(--amber)!important;
 }
 @keyframes pause-blink{0%,100%{opacity:1}50%{opacity:0.3}}
-.hdr-phase{
-  font-size:13px;color:var(--green-dim);text-transform:uppercase;
-  letter-spacing:2px;
-}
 .hdr-center{display:flex;flex-direction:column;align-items:center;min-width:160px}
 .hdr-budget{font-size:22px;letter-spacing:2px;text-shadow:var(--glow-text);transition:color 0.2s,text-shadow 0.2s}
 .hdr-budget.pulse{color:#00ff41;text-shadow:0 0 12px rgba(0,255,65,0.6)}
@@ -593,14 +589,16 @@ button:focus-visible,.btn:focus-visible{
   .mobile-back:hover,.mobile-back:active{color:var(--green);background:rgba(0,255,65,0.05)}
   #header{flex-wrap:wrap;padding:4px 8px}
   .hdr-resources{gap:8px;font-size:11px}
-  /* Touch-friendly header buttons */
-  .btn-speed{min-width:40px;min-height:40px}
-  .btn-sm{min-height:40px;padding:0 10px}
-  .btn-restart{width:40px;height:40px}
+  /* Touch-friendly header buttons (WCAG 2.5.8: 44px minimum) */
+  .btn-speed{min-width:44px;min-height:44px}
+  .btn-sm{min-height:44px;padding:0 12px}
+  .btn-restart{width:44px;height:44px}
   /* Touch-friendly asset items */
   .asset-item{padding:10px 12px;min-height:44px}
-  /* Touch-friendly fix buttons */
-  .fix-btn{min-height:40px;padding:8px 10px}
+  /* Touch-friendly fix buttons (WCAG 2.5.8: 44px minimum) */
+  .fix-btn{min-height:44px;padding:8px 10px}
+  .vuln-item{min-height:44px}
+  #siem-header{min-height:44px}
   /* Touch-friendly SIEM header */
   #siem-header{padding:8px 12px;min-height:40px}
   #footer{height:60px}
@@ -644,7 +642,6 @@ button:focus-visible,.btn:focus-visible{
     <div id="header">
       <div>
         <div class="hdr-clock" id="hdr-clock">0:00</div>
-        <div class="hdr-phase" id="hdr-phase">RECON</div>
       </div>
       <div class="hdr-center">
         <div class="hdr-budget" id="hdr-budget">$50,000</div>
@@ -654,7 +651,7 @@ button:focus-visible,.btn:focus-visible{
       <div class="hdr-analysts-wrap">
         <div class="hdr-analysts-row">
           <span class="hdr-analysts-value" id="hdr-analysts">0 / 2</span>
-          <button class="btn-hire" id="btn-hire" onclick="hireContractor()" title="Hire an additional analyst for $10K. Adds one analyst slot for the rest of this run. Can only be used once per engagement.">+1</button>
+          <button class="btn-hire" id="btn-hire" onclick="hireContractor()" title="Hire an additional analyst for $10K. Adds one analyst slot for the rest of this run. Can only be used once per engagement." aria-label="Hire contractor">+1</button>
         </div>
         <div class="hdr-analysts-labels">
           <span class="hdr-analysts-label">ANALYSTS</span>
@@ -662,12 +659,12 @@ button:focus-visible,.btn:focus-visible{
         </div>
       </div>
       <div>
-        <button class="btn-sm btn-amber" onclick="showModal('run-help-modal')" title="Help">?</button>
-        <button class="btn-speed" onclick="setSpeed(0)" id="btn-speed-0" title="Pause">❚❚</button>
+        <button class="btn-sm btn-amber" onclick="showModal('run-help-modal')" title="Help" aria-label="Help">?</button>
+        <button class="btn-speed" onclick="setSpeed(0)" id="btn-speed-0" title="Pause" aria-label="Pause">❚❚</button>
         <button class="btn-speed active" onclick="setSpeed(1)" id="btn-speed-1" title="Normal speed">1x</button>
         <button class="btn-speed" onclick="setSpeed(2)" id="btn-speed-2" title="Double speed">2x</button>
         <button class="btn-speed" onclick="setSpeed(4)" id="btn-speed-4" title="Quad speed">4x</button>
-        <button class="btn-sm" id="btn-mute" onclick="toggleMute()" title="Toggle sound">
+        <button class="btn-sm" id="btn-mute" onclick="toggleMute()" title="Toggle sound" aria-label="Toggle sound">
           <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 8v4h3l4 4V4L6 8H3z" id="mute-speaker"/>
             <path d="M15 7.5a4 4 0 0 1 0 5" id="mute-wave1"/>
@@ -675,7 +672,7 @@ button:focus-visible,.btn:focus-visible{
             <line x1="2" y1="2" x2="18" y2="18" id="mute-slash" style="display:none" stroke-width="2.5"/>
           </svg>
         </button>
-        <button class="btn-restart" id="btn-restart" onclick="restartClick()" title="Restart run">
+        <button class="btn-restart" id="btn-restart" onclick="restartClick()" title="Restart run" aria-label="Restart run">
           <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 10a6 6 0 1 1 1.5 4" id="restart-arc"/>
             <polyline points="1.5,7 4,10 7,8" id="restart-arrow"/>
@@ -921,16 +918,15 @@ button:focus-visible,.btn:focus-visible{
         </p>
         <p style="margin-top:4px">A pentester's attack chain: <strong>Scan target</strong> (5-12s) &rarr; <strong>Exploit vuln</strong> (4-10s) &rarr; <strong>Compromise</strong> &rarr; <strong>Persist or Pivot</strong>. Each step takes real time, giving you windows to detect and respond.</p>
 
-        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">ATTACK PHASES</p>
-        <p>Phases advance when conditions are met, not just by the clock:</p>
+        <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">ATTACK BEHAVIOR</p>
+        <p>You get a <strong style="color:var(--green)">3-minute head start</strong> before the red team activates. Use this time to scan and prioritize fixes.</p>
+        <p style="margin-top:4px">Once active, each pentester operates independently. Their behavior adapts to their situation:</p>
         <p style="margin-top:4px;padding-left:12px">
-          <strong style="color:var(--green)">RECONNAISSANCE</strong> — Passive probing. Your safest window to scan and fix.<br>
-          <strong style="color:var(--amber)">INITIAL ACCESS</strong> (after 2:00) — Active exploitation of perimeter nodes.<br>
-          <strong style="color:var(--amber)">LATERAL MOVEMENT</strong> (after 4:00) — Triggered by the first foothold. Pivoting inward.<br>
-          <strong style="color:var(--red)">PRIV ESCALATION</strong> (after 6:00) — Targeting deeper zones. Falls back to perimeter if no footholds.<br>
-          <strong style="color:var(--red)">EXFILTRATION</strong> (after 8:00) — Aggressive push toward critical assets.
+          <strong style="color:var(--amber)">No footholds</strong> — Probe and attack perimeter nodes (zone 0-1), looking for an entry point.<br>
+          <strong style="color:var(--amber)">Has foothold</strong> — Expand inward, prioritizing high-value and deeper-zone neighbors.<br>
+          <strong style="color:var(--red)">Deep footholds</strong> — Aggressively target critical assets (zone 4). Attack speed increases.<br>
+          <strong style="color:var(--green)">Locked out</strong> — Regroup and re-target the perimeter. The red team <strong>never gives up</strong>.
         </p>
-        <p style="margin-top:4px">The red team <strong>never gives up</strong>. Even in late phases with no footholds, they regroup and re-target the perimeter.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">PERSISTENCE vs PIVOT</p>
         <p><strong style="color:var(--red)">Persistence</strong> (15-30s) — Establishes a durable foothold on high-value nodes. Survives your incident response. Even after you kick the attacker out, the persistence marker remains — the red team can re-enter in just 5 seconds. Use <strong>Burn & Rebuild</strong> to fully eliminate it.</p>
@@ -981,6 +977,7 @@ button:focus-visible,.btn:focus-visible{
    ═══════════════════════════════════════════════════════════════ */
 const STORAGE_KEY = 'pumasecure_save_v1';
 const RUN_DURATION = 900; // 15 minutes in seconds
+const HEAD_START = 180;   // 3 minutes before red team activates
 const PASSIVE_VULN_CATS = new Set(['exposed_svc','crypto_weak','default_creds','misconfig','cloud_misconfig','eol']);
 const PASSIVE_INTERVALS = [15, 35, 60, 90, 120]; // escalating seconds between passive reveals
 const UNDOC_DISCOVER_MSGS = [
@@ -991,23 +988,8 @@ const UNDOC_DISCOVER_MSGS = [
   'Undocumented endpoint found: {name} — no change ticket on file',
   'Found rogue asset: {name} — someone forgot the paperwork',
 ];
-// Hybrid phase system: min time (floor) + max time (ceiling) + event trigger
-const PHASE_SEQUENCE = [
-  { name: 'RECONNAISSANCE', min: 0, max: 180, color: 'var(--green)',
-    trigger: () => R.redTeam.probedNodes.size >= 3 },
-  { name: 'INITIAL ACCESS', min: 120, max: 180, color: 'var(--amber)',
-    trigger: () => true }, // always ready after min
-  { name: 'LATERAL MOVEMENT', min: 240, max: 360, color: 'var(--amber)',
-    trigger: () => R.redTeam.footholds.length >= 1 },
-  { name: 'PRIV ESCALATION', min: 360, max: 600, color: 'var(--red)',
-    trigger: () => R.redTeam.footholds.length >= 2 || R.redTeam.footholds.some(fId => R.net.nodes[fId] && R.net.nodes[fId].zone >= 2) },
-  { name: 'EXFILTRATION', min: 480, max: 780, color: 'var(--red)',
-    trigger: () => R.redTeam.footholds.some(fId => R.net.nodes[fId] && R.net.nodes[fId].zone >= 3) },
-];
-// Keep old constant for backward compat in any remaining references
-const PHASE_BOUNDARIES = PHASE_SEQUENCE.map((p, i, arr) => ({
-  name: p.name, start: p.min, end: i < arr.length - 1 ? arr[i + 1].min : 900, color: p.color
-}));
+// Phase system removed — pentesters operate independently via state machines
+// R.phase is only used for 'COMPLETE' to signal game end
 
 const ASSET_TYPES = {
   firewall:    { icon: '🛡', label: 'Firewall', zones: [0] },
@@ -1070,22 +1052,23 @@ const ZONE_NODE_RANGE = [[2,4],[3,6],[5,10],[4,8],[2,5],[2,6]];
 // Pre-known asset discovery % per zone (documented infrastructure baseline)
 const PRE_KNOWN_PCT = [1.0, 1.0, 0.6, 0.4, 1.0, 0.3];
 
+// fixBonus: added to success rate for this category's natural fix types (you either change the key or you don't)
 const VULN_CATEGORIES = [
-  { id: 'unpatched',   name: 'Unpatched Software',   fixTypes: ['patch','replace'],     vectors: ['Network','Network','Adjacent'] },
-  { id: 'default_creds', name: 'Default Credentials', fixTypes: ['configure'],          vectors: ['Network','Network','Adjacent'] },
-  { id: 'misconfig',   name: 'Misconfiguration',     fixTypes: ['configure'],           vectors: ['Network','Adjacent'] },
-  { id: 'crypto_weak', name: 'Encryption Weakness',  fixTypes: ['configure','patch'],   vectors: ['Network','Adjacent'] },
-  { id: 'injection',   name: 'Injection Flaw',       fixTypes: ['patch'],               vectors: ['Network'] },
-  { id: 'auth_bypass', name: 'Authentication Bypass', fixTypes: ['patch'],              vectors: ['Network'] },
-  { id: 'privesc',     name: 'Privilege Escalation',  fixTypes: ['patch','configure'],  vectors: ['Local'] },
-  { id: 'exposed_svc', name: 'Exposed Service',      fixTypes: ['configure'],           vectors: ['Network','Network','Adjacent'] },
-  { id: 'no_monitor',  name: 'Missing Monitoring',   fixTypes: ['configure'],           vectors: ['Local','Adjacent'] },
-  { id: 'data_expose', name: 'Data Exposure',        fixTypes: ['configure','patch'],   vectors: ['Network','Local'] },
-  { id: 'supply_chain',name: 'Supply Chain Risk',    fixTypes: ['replace','mitigate'],  vectors: ['Network','Adjacent'] },
-  { id: 'physical',    name: 'Physical Security',    fixTypes: ['mitigate'],            vectors: ['Physical'] },
-  { id: 'cloud_misconfig', name: 'Cloud Misconfiguration', fixTypes: ['configure'],     vectors: ['Network'] },
-  { id: 'eol',         name: 'End-of-Life',          fixTypes: ['replace'],             vectors: ['Network','Adjacent','Local'] },
-  { id: 'zeroday',     name: 'Zero Day',             fixTypes: ['mitigate'],            vectors: ['Network','Network','Adjacent'] },
+  { id: 'unpatched',   name: 'Unpatched Software',   fixTypes: ['patch','replace'],     vectors: ['Network','Network','Adjacent'], fixBonus: 0 },
+  { id: 'default_creds', name: 'Default Credentials', fixTypes: ['configure'],          vectors: ['Network','Network','Adjacent'], fixBonus: 0.20 },
+  { id: 'misconfig',   name: 'Misconfiguration',     fixTypes: ['configure'],           vectors: ['Network','Adjacent'], fixBonus: 0.05 },
+  { id: 'crypto_weak', name: 'Encryption Weakness',  fixTypes: ['configure','patch'],   vectors: ['Network','Adjacent'], fixBonus: 0.10 },
+  { id: 'injection',   name: 'Injection Flaw',       fixTypes: ['patch'],               vectors: ['Network'], fixBonus: 0 },
+  { id: 'auth_bypass', name: 'Authentication Bypass', fixTypes: ['patch'],              vectors: ['Network'], fixBonus: 0 },
+  { id: 'privesc',     name: 'Privilege Escalation',  fixTypes: ['patch','configure'],  vectors: ['Local'], fixBonus: 0 },
+  { id: 'exposed_svc', name: 'Exposed Service',      fixTypes: ['configure'],           vectors: ['Network','Network','Adjacent'], fixBonus: 0.15 },
+  { id: 'no_monitor',  name: 'Missing Monitoring',   fixTypes: ['configure'],           vectors: ['Local','Adjacent'], fixBonus: 0.10 },
+  { id: 'data_expose', name: 'Data Exposure',        fixTypes: ['configure','patch'],   vectors: ['Network','Local'], fixBonus: 0.05 },
+  { id: 'supply_chain',name: 'Supply Chain Risk',    fixTypes: ['replace','mitigate'],  vectors: ['Network','Adjacent'], fixBonus: 0 },
+  { id: 'physical',    name: 'Physical Security',    fixTypes: ['mitigate'],            vectors: ['Physical'], fixBonus: 0.15 },
+  { id: 'cloud_misconfig', name: 'Cloud Misconfiguration', fixTypes: ['configure'],     vectors: ['Network'], fixBonus: 0.05 },
+  { id: 'eol',         name: 'End-of-Life',          fixTypes: ['replace'],             vectors: ['Network','Adjacent','Local'], fixBonus: 0.05 },
+  { id: 'zeroday',     name: 'Zero Day',             fixTypes: ['mitigate'],            vectors: ['Network','Network','Adjacent'], fixBonus: 0 },
 ];
 
 const VULN_NAMES = {
@@ -1833,11 +1816,16 @@ function renderCanvas() {
   const sel = R.selectedNode;
   let selNeighbors = null;
   if (sel !== null && sel !== undefined) {
-    selNeighbors = new Set();
-    for (const [aId, bId] of R.net.edges) {
-      if (aId === sel) selNeighbors.add(bId);
-      else if (bId === sel) selNeighbors.add(aId);
+    // Cache neighbor set per selection to avoid scanning edges every frame
+    if (R._cachedSelNode !== sel) {
+      R._cachedSelNode = sel;
+      R._cachedSelNeighbors = new Set();
+      for (const [aId, bId] of R.net.edges) {
+        if (aId === sel) R._cachedSelNeighbors.add(bId);
+        else if (bId === sel) R._cachedSelNeighbors.add(aId);
+      }
     }
+    selNeighbors = R._cachedSelNeighbors;
   }
 
   // Draw edges — curved to follow ring structure, with selection highlighting
@@ -2279,6 +2267,11 @@ function startFix(nodeId, vulnIdx, fixType) {
   let time = rand(ft.timeRange[0], ft.timeRange[1]);
   let successRate = randf(ft.successRange[0], ft.successRange[1]);
 
+  // Category bonus — some vulns have inherently higher fix success (you either change the key or you don't)
+  const vulnCat = vuln.category;
+  if (vulnCat && vulnCat.fixBonus && vulnCat.fixTypes.includes(fixType)) {
+    successRate = Math.min(1, successRate + vulnCat.fixBonus);
+  }
   // Upgrade bonuses
   if (fixType === 'patch' && hasUpgrade('patch_auto')) successRate = Math.min(1, successRate + 0.1);
   if (fixType === 'configure' && hasUpgrade('config_tmpl')) time = Math.ceil(time * 0.5);
@@ -2351,7 +2344,7 @@ function startRun() {
     elapsed: 0,
     duration,
     paused: false,
-    phase: 'RECONNAISSANCE',
+    phase: 'ACTIVE',  // only used for COMPLETE detection
     budget,
     budgetSpent: 0,
     startBudget: budget,
@@ -2449,42 +2442,20 @@ function gameLoop() {
     if (R && !R.paused) {
       R.elapsed += dt * R.clockSpeed;
 
-      // Update phase — hybrid: min time floor + event trigger OR max time ceiling
-      const oldPhase = R.phase;
-      const curIdx = PHASE_SEQUENCE.findIndex(p => p.name === R.phase);
-      if (curIdx >= 0 && curIdx < PHASE_SEQUENCE.length - 1) {
-        const next = PHASE_SEQUENCE[curIdx + 1];
-        // Advance if: past max time, OR past min time AND trigger met
-        if (R.elapsed >= next.max || (R.elapsed >= next.min && next.trigger())) {
-          R.phase = next.name;
-        }
+      // Game end: time limit
+      if (R.elapsed >= RUN_DURATION && R.phase !== 'COMPLETE') {
+        R.phase = 'COMPLETE';
+        endRun();
       }
-      if (R.elapsed >= RUN_DURATION) R.phase = 'COMPLETE';
 
       // Early win: no compromises, no footholds, all pentesters idle, all discovered scanned, 5+ min elapsed
-      if (R.elapsed >= 300 && curIdx >= 2 && R.redTeam.compromised.size === 0 &&
+      if (R.phase !== 'COMPLETE' && R.elapsed >= 300 && R.redTeam.compromised.size === 0 &&
           R.redTeam.footholds.length === 0 && R.redTeam.pentesters.length > 0 &&
           R.redTeam.pentesters.every(p => p.state === 'idle') &&
           R.net.nodes.every(n => !n.discovered || n.scanned)) {
         addLog('✓ RED TEAM: Engagement concluded — no viable attack paths', 'ok');
         R.phase = 'COMPLETE';
-      }
-
-      // Phase transition announcements
-      if (R.phase !== oldPhase) {
-        if (R.phase === 'COMPLETE') {
-          endRun();
-          return;
-        }
-        const phaseAlerts = {
-          'INITIAL ACCESS': ['=== RED TEAM: Moving to active exploitation ===', 'crit'],
-          'LATERAL MOVEMENT': ['=== ALERT: Lateral movement detected ===', 'crit'],
-          'PRIV ESCALATION': ['=== CRITICAL: Privilege escalation in progress ===', 'crit'],
-          'EXFILTRATION': ['=== CRITICAL: Exfiltration attempts detected ===', 'crit'],
-        };
-        const alert = phaseAlerts[R.phase];
-        if (alert) { addLog(alert[0], alert[1]); screenShake(); }
-        else addLog(`— Phase: ${R.phase} —`, 'info');
+        endRun();
       }
 
       // Process red team (runs continuously from the start)
@@ -2507,23 +2478,16 @@ function gameLoop() {
       updateClockDisplay();
       updateResourceDisplay();
 
-      // Update asset list bars (left panel) — all nodes
+      // Update asset list bars (left panel) — all nodes (using cached refs)
       for (const nd of R.net.nodes) {
-        if (nd.scanning) {
-          const asb = document.getElementById(`ab-${nd.id}-s`);
-          if (asb) asb.style.width = Math.min(100, (nd.scanProgress / nd.scanTotalTime) * 100) + '%';
-        }
-        if (nd.deepScanning) {
-          const adb = document.getElementById(`ab-${nd.id}-d`);
-          if (adb) adb.style.width = Math.min(100, (nd.deepScanProgress / nd.deepScanTotalTime) * 100) + '%';
-        }
-        if (nd.investigating) {
-          const aib = document.getElementById(`ab-${nd.id}-i`);
-          if (aib) aib.style.width = Math.min(100, (nd.irProgress / nd.irTotalTime) * 100) + '%';
-        }
+        const refs = R._barRefs && R._barRefs[nd.id];
+        if (!refs) continue;
+        if (nd.scanning && refs.s) refs.s.style.width = Math.min(100, (nd.scanProgress / nd.scanTotalTime) * 100) + '%';
+        if (nd.deepScanning && refs.d) refs.d.style.width = Math.min(100, (nd.deepScanProgress / nd.deepScanTotalTime) * 100) + '%';
+        if (nd.investigating && refs.i) refs.i.style.width = Math.min(100, (nd.irProgress / nd.irTotalTime) * 100) + '%';
         nd.vulns.forEach((v, vi) => {
           if (!v.fixing) return;
-          const afb = document.getElementById(`ab-${nd.id}-f${vi}`);
+          const afb = refs.f && refs.f[vi];
           if (afb) afb.style.width = Math.min(100, (v.fixProgress / v.fixTotalTime) * 100) + '%';
         });
       }
@@ -3084,16 +3048,11 @@ function setSpeed(speed) {
   R.clockSpeed = speed || 1;
   if (!R.paused) { lastTick = performance.now(); R._pauseMsg = null; }
   updateSpeedButtons();
-  // Show/hide pause indicator in header
   const clockEl = document.getElementById('hdr-clock');
-  const phaseEl = document.getElementById('hdr-phase');
   if (R.paused) {
     clockEl.classList.add('paused-blink');
-    phaseEl.textContent = 'PAUSED';
-    phaseEl.style.color = 'var(--amber)';
   } else {
     clockEl.classList.remove('paused-blink');
-    phaseEl.style.color = '';
     updateClockDisplay();
   }
 }
@@ -3148,13 +3107,6 @@ function resetRestartBtn() {
    RED TEAM AUDIT
    ═══════════════════════════════════════════════════════════════ */
 // Red team attack intervals per phase (seconds between attempts, scaled by threat level)
-const RT_INTERVALS = {
-  'RECONNAISSANCE': [10, 15],
-  'INITIAL ACCESS': [6, 10],
-  'LATERAL MOVEMENT': [5, 8],
-  'PRIV ESCALATION': [4, 6],
-  'EXFILTRATION': [3, 5],
-};
 
 const RT_PROBE_MSGS = [
   'Port scan detected on','SYN flood probe against','Service enumeration on',
@@ -3163,8 +3115,18 @@ const RT_PROBE_MSGS = [
 ];
 
 function rtGetInterval() {
-  const range = RT_INTERVALS[R.phase] || [8, 12];
-  const threatScale = 1 - (R.threatLevel - 1) * 0.08; // higher threat = faster
+  // Interval based on deepest foothold, not global phase
+  const rt = R.redTeam;
+  const deepest = rt.footholds.reduce((max, fId) => {
+    const fn = R.net.nodes[fId]; return fn ? Math.max(max, fn.zone) : max;
+  }, -1);
+  let range;
+  if (deepest >= 4) range = [3, 5];       // deep inside — fast and aggressive
+  else if (deepest >= 3) range = [4, 6];
+  else if (deepest >= 1) range = [5, 8];
+  else if (deepest >= 0) range = [6, 10];
+  else range = [8, 12];                    // no footholds — slow probing
+  const threatScale = 1 - (R.threatLevel - 1) * 0.08;
   return randf(range[0], range[1]) * Math.max(0.4, threatScale);
 }
 
@@ -3254,10 +3216,8 @@ function rtTryExploit(node, pentester) {
     if (vuln.fixed) continue;
 
     // Intel filtering: skip vuln categories the red team hasn't discovered
-    if (intel) {
-      if (R.phase === 'INITIAL ACCESS' && !intel.has(vuln.category.id)) continue;
-      if (R.phase === 'LATERAL MOVEMENT' && !intel.has(vuln.category.id) && vuln.attackVector !== 'Network') continue;
-    }
+    // Network vulns are always attempted; others need gathered intel
+    if (intel && !intel.has(vuln.category.id) && vuln.attackVector !== 'Network') continue;
 
     // Physical vector: requires pentester to be physically onsite
     let chance;
@@ -3286,9 +3246,12 @@ function rtTryExploit(node, pentester) {
     if (rt.buffs.has('bypass_perimeter') && node.zone <= 1) chance *= 1.3;
     if (rt.buffs.has('tunnel_access') && node.zone >= 3) chance *= 1.1;
 
-    // Phase-based multiplier
-    if (R.phase === 'PRIV ESCALATION') chance *= 1.15;
-    else if (R.phase === 'EXFILTRATION') chance *= 1.25;
+    // Depth-based multiplier: deeper footholds = more leverage
+    const deepestFoothold = rt.footholds.reduce((max, fId) => {
+      const fn = R.net.nodes[fId]; return fn ? Math.max(max, fn.zone) : max;
+    }, 0);
+    if (deepestFoothold >= 3) chance *= 1.15;
+    if (deepestFoothold >= 4) chance *= 1.1; // stacks: 1.15 * 1.1 ≈ 1.27
     // Hardened nodes are much harder to re-compromise
     if (node.hardened) chance *= 0.2;
     // Deep-scanned nodes have reduced exploitability
@@ -3523,21 +3486,14 @@ function ptPickPhysicalTarget(pt) {
 
 function ptPickTarget(pt) {
   const rt = R.redTeam;
-  const phase = R.phase;
-
-  // Don't target nodes being rebuilt
   const isViable = n => n && !rt.compromised.has(n.id) && !n.rebuilding;
 
-  if (phase === 'RECONNAISSANCE') {
-    // Probe perimeter for intel
-    const perimeterNodes = R.net.nodes.filter(n => n.zone <= 1 && n.discovered);
-    if (!perimeterNodes.length) return null;
-    return rtWeightedPick(perimeterNodes, n => {
-      const s = NODE_STRATEGY[n.type]; return (s ? s.targetPriority : 0.3) + 0.1;
-    });
-  }
+  // Pentester-local targeting: based on what THIS pentester has access to
+  // No footholds → attack perimeter
+  // Has footholds → expand from them, prioritizing deeper/critical targets
 
-  if (phase === 'INITIAL ACCESS') {
+  if (!rt.footholds.length) {
+    // No footholds: target perimeter (zone 0-1)
     const perimeter = R.net.nodes.filter(n => n.zone <= 1 && isViable(n));
     if (!perimeter.length) return null;
     const probed = perimeter.filter(n => rt.probedNodes.has(n.id));
@@ -3554,98 +3510,58 @@ function ptPickTarget(pt) {
     return target;
   }
 
-  // LATERAL MOVEMENT, PRIV ESCALATION, EXFILTRATION: use footholds
-  if (!rt.footholds.length) {
-    // Fallback: keep trying perimeter
+  // Has footholds: expand from them
+  const foothold = pick(rt.footholds);
+  let neighbors = rtGetNeighbors(foothold).filter(id => isViable(R.net.nodes[id]));
+
+  // VPN tunnel buff: can reach deep zones if no direct neighbors
+  if (!neighbors.length && rt.buffs.has('tunnel_access') && Math.random() < 0.5) {
+    const deep = R.net.nodes.filter(n => n.zone >= 3 && isViable(n));
+    if (deep.length) neighbors = deep.map(n => n.id);
+  }
+
+  // Check for reachable critical assets (zone 4) — prioritize them
+  const reachableCritical = R.net.nodes.filter(n => n.zone === 4 && isViable(n) &&
+    rt.footholds.some(fId => rtGetNeighbors(fId).includes(n.id)));
+  if (reachableCritical.length && Math.random() > 0.3) {
+    const target = rtWeightedPick(reachableCritical, n => {
+      const s = NODE_STRATEGY[n.type]; return (s ? s.targetPriority : 0.3) + 0.2;
+    });
+    if (target && !target.discovered) {
+      target.discovered = true;
+      R.totalDiscovered++;
+      renderAssetList();
+    }
+    return target;
+  }
+
+  if (!neighbors.length) {
+    // No neighbors to expand to — fall back to perimeter
     const perimeter = R.net.nodes.filter(n => n.zone <= 1 && isViable(n));
     if (!perimeter.length) return null;
     return pick(perimeter);
   }
 
-  if (phase === 'LATERAL MOVEMENT') {
-    const foothold = pick(rt.footholds);
-    let neighbors = rtGetNeighbors(foothold).filter(id => isViable(R.net.nodes[id]));
-    if (!neighbors.length && rt.buffs.has('tunnel_access') && Math.random() < 0.5) {
-      const deep = R.net.nodes.filter(n => n.zone >= 3 && isViable(n));
-      if (deep.length) neighbors = deep.map(n => n.id);
-    }
-    if (!neighbors.length) return null;
-    const targetId = rtWeightedPick(neighbors, id => {
-      const n = R.net.nodes[id]; const s = n ? NODE_STRATEGY[n.type] : null;
-      let w = (s ? s.pivotValue : 0.3) + 0.1;
-      if (n && n.hardened) w *= 0.15;
-      if (n && n.deepScanned) w *= 0.5;
-      const fixRatio = n ? n.vulns.filter(v => v.fixed).length / Math.max(1, n.vulns.length) : 0;
-      w *= (1 - fixRatio * 0.7);
-      return w;
-    });
-    const target = targetId != null ? R.net.nodes[targetId] : null;
-    if (target && !target.discovered) {
-      target.discovered = true;
-      R.totalDiscovered++;
-      queueDetectionAlert(target, 'scanning', pt.id);
-      renderAssetList();
-    }
-    return target;
+  // Weight neighbors: prefer deeper zones and high-value targets
+  const targetId = rtWeightedPick(neighbors, id => {
+    const n = R.net.nodes[id]; const s = n ? NODE_STRATEGY[n.type] : null;
+    let w = (s ? s.pivotValue || s.targetPriority : 0.3) + 0.1;
+    if (n && n.zone >= 3) w *= 1.5; // prefer inner zones
+    if (n && n.zone === 4) w *= 2.0; // strongly prefer critical
+    if (n && n.hardened) w *= 0.15;
+    if (n && n.deepScanned) w *= 0.5;
+    const fixRatio = n ? n.vulns.filter(v => v.fixed).length / Math.max(1, n.vulns.length) : 0;
+    w *= (1 - fixRatio * 0.7);
+    return w;
+  });
+  const target = targetId != null ? R.net.nodes[targetId] : null;
+  if (target && !target.discovered) {
+    target.discovered = true;
+    R.totalDiscovered++;
+    queueDetectionAlert(target, 'scanning', pt.id);
+    renderAssetList();
   }
-
-  if (phase === 'PRIV ESCALATION') {
-    const foothold = pick(rt.footholds);
-    const neighbors = rtGetNeighbors(foothold).filter(id => {
-      const n = R.net.nodes[id]; return n && isViable(n);
-    });
-    const inner = neighbors.filter(id => R.net.nodes[id].zone >= 3);
-    const pool = inner.length ? inner : neighbors;
-    if (!pool.length) return null;
-    const targetId = rtWeightedPick(pool, id => {
-      const n = R.net.nodes[id]; const s = n ? NODE_STRATEGY[n.type] : null;
-      let w = (s ? s.targetPriority : 0.3) + 0.1;
-      if (n && n.hardened) w *= 0.15;
-      if (n && n.deepScanned) w *= 0.5;
-      const fixRatio = n ? n.vulns.filter(v => v.fixed).length / Math.max(1, n.vulns.length) : 0;
-      w *= (1 - fixRatio * 0.7);
-      return w;
-    });
-    const target = targetId != null ? R.net.nodes[targetId] : null;
-    if (target && !target.discovered) {
-      target.discovered = true;
-      R.totalDiscovered++;
-      queueDetectionAlert(target, 'scanning', pt.id);
-      renderAssetList();
-    }
-    return target;
-  }
-
-  if (phase === 'EXFILTRATION') {
-    // Prioritize critical assets
-    const criticalTargets = R.net.nodes.filter(n => n.zone === 4 && isViable(n));
-    if (criticalTargets.length) {
-      const reachable = criticalTargets.filter(t =>
-        rt.footholds.some(fId => rtGetNeighbors(fId).includes(t.id))
-      );
-      if (reachable.length) {
-        const target = rtWeightedPick(reachable, n => {
-          const s = NODE_STRATEGY[n.type]; return (s ? s.targetPriority : 0.3) + 0.1;
-        });
-        if (target && !target.discovered) {
-          target.discovered = true;
-          R.totalDiscovered++;
-          renderAssetList();
-        }
-        return target;
-      }
-    }
-    // Fallback: expand toward critical assets
-    const foothold = pick(rt.footholds);
-    const neighbors = rtGetNeighbors(foothold).filter(id => {
-      const n = R.net.nodes[id]; return n && isViable(n);
-    });
-    if (!neighbors.length) return null;
-    const targetId = pick(neighbors);
-    return R.net.nodes[targetId] || null;
-  }
-
-  return null;
+  return target;
 }
 
 // ── Pentester state machine ──
@@ -3761,10 +3677,8 @@ function updatePentester(pt, dt) {
     pt.progress = 0;
     pt.totalTime = randf(5, 12) * pt.speedMult;
 
-    // Detection: scanning alert (not during RECON — that's passive probing)
-    if (R.phase !== 'RECONNAISSANCE') {
-      queueDetectionAlert(target, 'scanning', pt.id);
-    }
+    // Detection: scanning alert
+    queueDetectionAlert(target, 'scanning', pt.id);
     return;
   }
 
@@ -3789,8 +3703,9 @@ function updatePentester(pt, dt) {
       const learnCount = Math.min(unknownCats.length, rand(1, 3));
       for (let i = 0; i < learnCount; i++) intelSet.add(unknownCats[i]);
 
-      // During RECON phase, just gather intel — don't exploit
-      if (R.phase === 'RECONNAISSANCE') {
+      // During head start, pentesters don't reach this code (blocked in processRedTeam)
+      // but just in case — gather intel only before head start ends
+      if (R.elapsed < HEAD_START) {
         const msg = pick(RT_PROBE_MSGS);
         const tier = getDetectionTier(target);
         if (tier === 1) addLog(`⚠ ${msg} ${target.name}`, 'warn');
@@ -3962,6 +3877,8 @@ function rtGetNeighbors(nodeId) {
 
 function processRedTeam(dt) {
   if (!R || R.phase === 'COMPLETE') return;
+  // Head start: red team inactive for first 3 minutes
+  if (R.elapsed < HEAD_START) return;
   const rt = R.redTeam;
 
   // Strategic buff decay
@@ -4004,7 +3921,7 @@ function processRedTeam(dt) {
   }
 
   // Physical intrusion: send a pentester onsite when stuck long enough
-  if (rt.stuckTimer > 45 && R.phase !== 'RECONNAISSANCE') {
+  if (rt.stuckTimer > 45) {
     const idlePt = rt.pentesters.find(p => (p.state === 'idle' || p.state === 'cooldown') && !p.onsite);
     if (idlePt) {
       idlePt.state = 'traveling';
@@ -4294,12 +4211,11 @@ function updateClockDisplay() {
   const elapsed = R.elapsed;
   const pct = Math.min(1, elapsed / R.duration);
   document.getElementById('hdr-clock').textContent = fmtTime(elapsed);
-  document.getElementById('hdr-phase').textContent = R.phase;
 
   // Color based on current phase danger
   const clockEl = document.getElementById('hdr-clock');
   if (elapsed >= 600) clockEl.style.color = 'var(--red)';
-  else if (elapsed >= 180) clockEl.style.color = 'var(--amber)';
+  else if (elapsed >= HEAD_START) clockEl.style.color = 'var(--amber)';
   else clockEl.style.color = 'var(--green)';
 
 }
@@ -4466,6 +4382,17 @@ function _renderAssetListNow() {
       list.appendChild(item);
     }
   }
+  // Cache bar element refs for game loop performance
+  R._barRefs = {};
+  for (const nd of R.net.nodes) {
+    const refs = {};
+    refs.s = document.getElementById(`ab-${nd.id}-s`);
+    refs.d = document.getElementById(`ab-${nd.id}-d`);
+    refs.i = document.getElementById(`ab-${nd.id}-i`);
+    refs.f = {};
+    nd.vulns.forEach((v, vi) => { refs.f[vi] = document.getElementById(`ab-${nd.id}-f${vi}`); });
+    R._barRefs[nd.id] = refs;
+  }
 }
 
 function renderDetail() {
@@ -4530,6 +4457,43 @@ function renderDetail() {
     html += '<div style="color:var(--cyan);font-size:11px;padding:2px 0;margin-bottom:4px">◉ Deep scanned — threat surface reduced</div>';
   }
 
+  // Investigate/IR buttons — right below scanning for visibility
+  if (node.anomaly && !node.compromiseConfirmed && !node.investigating) {
+    html += `<button class="btn-sm btn-amber" onclick="startInvestigation(${node.id})" style="width:100%;margin-bottom:8px"
+      title="Investigate the anomaly to determine if this node is compromised or if it's a false positive. Takes 5-10s and 1 analyst.">
+      Investigate Anomaly (1 analyst)</button>`;
+  } else if (node.compromised && node.compromiseConfirmed && !node.investigating) {
+    html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-bottom:8px"
+      title="Incident Response: Assign an analyst to evict the attacker and harden the node. This is a race — if the red team establishes persistence before IR completes, the foothold survives eviction. Takes 10-20s and 1 analyst. Node is hardened for 4 minutes after reclamation.">
+      Incident Response (1 analyst)</button>`;
+  } else if (node.compromised && !node.compromiseConfirmed && getDetectionTier(node) === 1 && !node.investigating) {
+    html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-bottom:8px"
+      title="Incident Response: Assign an analyst to evict the attacker and harden the node. This is a race — if the red team establishes persistence before IR completes, the foothold survives eviction. Takes 10-20s and 1 analyst. Node is hardened for 4 minutes after reclamation.">
+      Incident Response (1 analyst)</button>`;
+  } else if (node.investigating) {
+    const pct = Math.min(100, (node.irProgress / node.irTotalTime) * 100);
+    const irLabel = node.irType === 'anomaly' ? 'Investigating anomaly' : 'Incident response';
+    const barColor = node.irType === 'anomaly' ? 'var(--amber)' : 'var(--cyan)';
+    html += `<div style="margin-bottom:8px"><div style="font-size:11px;color:${barColor}">${irLabel}... ${Math.round(pct)}%</div>
+      <div class="fix-progress"><div class="fix-progress-bar" style="width:${pct}%;background:${barColor}"></div></div></div>`;
+  }
+
+  // Burn & Rebuild: right below IR
+  if (node.persistence && !node.compromised && !node.rebuilding) {
+    const rebuildCost = REBUILD_COSTS[node.zone] || 12000;
+    const canAfford = R.budget >= rebuildCost;
+    const hasSlot = getActiveWorkCount() < R.teamSlots;
+    html += `<button class="btn-sm" onclick="burnAndRebuild(${node.id})" style="width:100%;margin-bottom:8px;border-color:var(--red);color:var(--red);opacity:${canAfford && hasSlot ? 1 : 0.4}" ${canAfford && hasSlot ? '' : 'disabled'}
+      title="Scorched-earth system replacement. Eliminates red team persistence, takes the node offline during rebuild, and severs downstream red team access through this node. The system comes back clean with zero vulnerabilities. Costs $${(rebuildCost/1000).toFixed(0)}K, takes 25-45s, requires 1 analyst.">
+      🔥 Burn & Rebuild — $${(rebuildCost/1000).toFixed(0)}K (1 analyst)</button>`;
+    if (!canAfford) html += '<div style="font-size:10px;color:var(--red-dim);text-align:center;margin-bottom:4px">Insufficient budget</div>';
+    else if (!hasSlot) html += '<div style="font-size:10px;color:var(--amber);text-align:center;margin-bottom:4px">All analysts busy</div>';
+  } else if (node.rebuilding) {
+    const pct = Math.min(100, (node.rebuildProgress / node.rebuildTotalTime) * 100);
+    html += `<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--red)">🔥 Rebuilding system... ${Math.round(pct)}%</div>
+      <div class="fix-progress"><div class="fix-progress-bar" style="width:${pct}%;background:var(--red)"></div></div></div>`;
+  }
+
   // Show vulns: all if scanned, only revealed if not
   const visibleVulns = node.scanned ? node.vulns : node.vulns.filter(v => v.revealed);
   if (node.scanned && node.vulns.length === 0) {
@@ -4553,7 +4517,7 @@ function renderDetail() {
       }
       // Show exploitability only if deep scanned (hide on normal scan)
       const showExpl = node.deepScanned;
-      html += `<div class="vuln-item${fixedClass}" id="vuln-${node.id}-${i}" onclick="toggleVuln(${node.id},${i})">
+      html += `<div class="vuln-item${fixedClass}" id="vuln-${node.id}-${i}" role="button" tabindex="0" onclick="toggleVuln(${node.id},${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleVuln(${node.id},${i})}">
         <div class="vuln-header">
           <span class="vuln-name">${v.name}</span>
           ${sevDisplay}
@@ -4619,48 +4583,6 @@ function renderDetail() {
   } else if (!node.scanned) {
     html += '<div style="color:var(--green-dim);padding:8px;text-align:center;font-size:12px">Passive sensors monitoring...</div>';
   }
-
-  // Investigate/IR buttons for anomaly and compromised nodes
-  if (node.anomaly && !node.compromiseConfirmed && !node.investigating) {
-    // Anomaly: needs investigation to confirm
-    html += `<button class="btn-sm btn-amber" onclick="startInvestigation(${node.id})" style="width:100%;margin-top:8px"
-      title="Investigate the anomaly to determine if this node is compromised or if it's a false positive. Takes 5-10s and 1 analyst.">
-      Investigate Anomaly (1 analyst)</button>`;
-  } else if (node.compromised && node.compromiseConfirmed && !node.investigating) {
-    // Confirmed compromise: full IR
-    html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-top:8px"
-      title="Incident Response: Assign an analyst to evict the attacker and harden the node. This is a race — if the red team establishes persistence before IR completes, the foothold survives eviction. Takes 10-20s and 1 analyst. Node is hardened for 4 minutes after reclamation.">
-      Incident Response (1 analyst)</button>`;
-  } else if (node.compromised && !node.compromiseConfirmed && getDetectionTier(node) === 1 && !node.investigating) {
-    // Tier 1 auto-confirmed: full IR
-    html += `<button class="btn-sm btn-red" onclick="startInvestigation(${node.id})" style="width:100%;margin-top:8px"
-      title="Incident Response: Assign an analyst to evict the attacker and harden the node. This is a race — if the red team establishes persistence before IR completes, the foothold survives eviction. Takes 10-20s and 1 analyst. Node is hardened for 4 minutes after reclamation.">
-      Incident Response (1 analyst)</button>`;
-  } else if (node.investigating) {
-    const pct = Math.min(100, (node.irProgress / node.irTotalTime) * 100);
-    const irLabel = node.irType === 'anomaly' ? 'Investigating anomaly' : 'Incident response';
-    const barColor = node.irType === 'anomaly' ? 'var(--amber)' : 'var(--cyan)';
-    html += `<div style="margin-top:8px"><div style="font-size:11px;color:${barColor}">${irLabel}... ${Math.round(pct)}%</div>
-      <div class="fix-progress"><div class="fix-progress-bar" style="width:${pct}%;background:${barColor}"></div></div></div>`;
-  }
-
-  // Burn & Rebuild: available when node has persistence and is NOT actively compromised
-  if (node.persistence && !node.compromised && !node.rebuilding) {
-    const rebuildCost = REBUILD_COSTS[node.zone] || 12000;
-    const canAfford = R.budget >= rebuildCost;
-    const hasSlot = getActiveWorkCount() < R.teamSlots;
-    html += `<button class="btn-sm" onclick="burnAndRebuild(${node.id})" style="width:100%;margin-top:8px;border-color:var(--red);color:var(--red);opacity:${canAfford && hasSlot ? 1 : 0.4}" ${canAfford && hasSlot ? '' : 'disabled'}
-      title="Scorched-earth system replacement. Eliminates red team persistence, takes the node offline during rebuild, and severs downstream red team access through this node. The system comes back clean with zero vulnerabilities. Costs $${(rebuildCost/1000).toFixed(0)}K, takes 25-45s, requires 1 analyst.">
-      🔥 Burn & Rebuild — $${(rebuildCost/1000).toFixed(0)}K (1 analyst)</button>`;
-    if (!canAfford) html += '<div style="font-size:10px;color:var(--red-dim);text-align:center">Insufficient budget</div>';
-    else if (!hasSlot) html += '<div style="font-size:10px;color:var(--amber);text-align:center">All analysts busy</div>';
-  } else if (node.rebuilding) {
-    const pct = Math.min(100, (node.rebuildProgress / node.rebuildTotalTime) * 100);
-    html += `<div style="margin-top:8px"><div style="font-size:11px;color:var(--red)">🔥 Rebuilding system... ${Math.round(pct)}%</div>
-      <div class="fix-progress"><div class="fix-progress-bar" style="width:${pct}%;background:var(--red)"></div></div></div>`;
-  }
-
-  // Hire contractor button moved to header bar
 
   el.innerHTML = html;
 }
@@ -4728,6 +4650,7 @@ function updateDetailButtons() {
 /* ═══════════════════════════════════════════════════════════════
    ACTION LOG
    ═══════════════════════════════════════════════════════════════ */
+const MAX_LOG_DOM_ENTRIES = 200;
 function addLog(msg, type = 'info') {
   if (!R) return;
   const time = fmtTime(R.elapsed);
@@ -4739,6 +4662,8 @@ function addLog(msg, type = 'info') {
   entry.className = 'log-entry siem-entry-anim';
   entry.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-${type}">${msg}</span>`;
   inner.appendChild(entry);
+  // Cap DOM entries to prevent late-game slowdown
+  while (inner.childElementCount > MAX_LOG_DOM_ENTRIES) inner.removeChild(inner.firstElementChild);
   scroller.scrollTop = scroller.scrollHeight;
 }
 
@@ -4941,12 +4866,8 @@ function showBoot() {
   ];
 
   const bootLines = [
-    { left: 'BIOS POST', right: '[ OK ]', delay: 120 },
-    { left: 'Memory check: 65536K', right: '[ OK ]', delay: 80 },
-    { text: '', delay: 60 },
     { ascii: asciiArt, delay: 200 },
-    { text: 'VULNERABILITY MANAGEMENT PLATFORM v3.1.4', delay: 100, style: 'color:var(--green-dim);font-size:9px;letter-spacing:3px;margin-top:2px' },
-    { text: 'greykit.com // Threat Operations Division', delay: 80, style: 'color:var(--amber-dim);font-size:9px;letter-spacing:1px' },
+    { text: 'VULNERABILITY MANAGEMENT PLATFORM v3.1.5', delay: 100, style: 'color:var(--green-dim);font-size:9px;letter-spacing:3px;margin-top:2px' },
     { text: '', delay: 120 },
     { text: 'Initializing kernel modules...', delay: 100, style: 'color:var(--green-dim)' },
     { left: '  net_scanner.ko', right: '[ OK ]', delay: 60 },
