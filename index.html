@@ -420,6 +420,50 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 .help-tab-content.active{display:block}
 
 /* ═══════════════════════════════════════════════════════════════
+   Hint Callouts
+   ═══════════════════════════════════════════════════════════════ */
+.hint-callout{
+  position:fixed;z-index:700;max-width:320px;padding:14px 16px 12px;
+  background:var(--bg2);border:1px solid var(--amber);border-radius:4px;
+  font-size:12px;color:var(--text);line-height:1.5;
+  box-shadow:0 4px 24px rgba(0,0,0,0.6);
+  animation:hintPulse 2s ease-in-out infinite;
+  pointer-events:auto;
+}
+.hint-callout h4{color:var(--amber);margin:0 0 6px;font-size:13px;letter-spacing:1px}
+.hint-callout p{margin:0 0 8px}
+.hint-callout .hint-actions{display:flex;gap:8px;align-items:center;margin-top:8px}
+.hint-callout .hint-dismiss{
+  background:none;border:1px solid var(--border);color:var(--text-dim);
+  padding:3px 10px;font-size:10px;cursor:pointer;font-family:inherit;
+}
+.hint-callout .hint-dismiss:hover{border-color:var(--amber);color:var(--amber)}
+.hint-callout .hint-next{
+  background:var(--amber);border:none;color:#000;
+  padding:4px 14px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold;
+}
+.hint-callout .hint-noshow{font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px;margin-left:auto}
+.hint-callout .hint-noshow input{margin:0}
+/* Arrow */
+.hint-callout::before{
+  content:'';position:absolute;width:0;height:0;
+  border:8px solid transparent;
+}
+.hint-callout[data-arrow="up"]::before{bottom:100%;left:24px;border-bottom-color:var(--amber)}
+.hint-callout[data-arrow="down"]::before{top:100%;left:24px;border-top-color:var(--amber)}
+.hint-callout[data-arrow="left"]::before{right:100%;top:16px;border-right-color:var(--amber)}
+.hint-callout[data-arrow="right"]::before{left:100%;top:16px;border-left-color:var(--amber)}
+@keyframes hintPulse{
+  0%,100%{border-color:var(--amber)}
+  50%{border-color:rgba(255,176,0,0.4)}
+}
+/* Briefing overlay */
+.briefing-overlay{
+  position:fixed;inset:0;z-index:650;background:rgba(0,8,2,0.75);
+  pointer-events:auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    Skill Tree
    ═══════════════════════════════════════════════════════════════ */
 .skill-tree{display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
@@ -760,6 +804,11 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
           <span>Sound</span>
           <input type="checkbox" id="set-sound" checked onchange="toggleSound()">
         </label>
+        <label style="display:flex;justify-content:space-between;align-items:center">
+          <span>Gameplay Hints</span>
+          <input type="checkbox" id="set-hints" checked onchange="toggleHints()">
+        </label>
+        <button class="btn-sm" onclick="resetHints()" style="margin-top:4px;font-size:10px;border-color:var(--green-dim);color:var(--green-dim)">Reset All Hints</button>
         <button class="btn-red" onclick="resetProgress()" style="margin-top:12px">Reset All Progress</button>
       </div>
     </div>
@@ -949,7 +998,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">INCIDENT RESPONSE</p>
         <p><strong style="color:var(--amber)">Anomaly Investigation</strong> (5-10s, 1 analyst) — Confirms whether an anomaly is a real compromise or false positive. Required for Tier 2 detections. Tier 1 nodes skip this step — compromise is auto-confirmed.</p>
         <p style="margin-top:4px"><strong style="color:var(--red)">Incident Response</strong> (10-20s, 1 analyst) — Evicts the attacker and hardens the node for 4 minutes. This is a <strong>race</strong> — if the pentester completes persistence before your IR finishes, the foothold survives even after the attacker is kicked out.</p>
-        <p style="margin-top:4px"><strong style="color:var(--red)">Burn & Rebuild</strong> ($8-20K, 25-45s, 1 analyst) — Scorched-earth system replacement. The only way to fully eliminate persistence. Takes the node offline during rebuild, severs downstream red team access. The node comes back clean with zero vulnerabilities. Cannot be done during active compromise — complete IR first.</p>
+        <p style="margin-top:4px"><strong style="color:var(--red)">Burn & Rebuild</strong> ($8-20K, 25-45s, 1 analyst) — Scorched-earth system replacement. The only way to fully eliminate persistence. Takes the node offline during rebuild, severs downstream red team access. The node comes back clean with zero vulnerabilities. Cannot be done during active compromise — complete IR first. <strong>Warning:</strong> completing a rebuild costs you one analyst permanently — someone's getting fired for letting it get this bad.</p>
       </div>
       </div>
 
@@ -977,7 +1026,15 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
    ═══════════════════════════════════════════════════════════════ */
 const STORAGE_KEY = 'pumasecure_save_v1';
 const RUN_DURATION = 900; // 15 minutes in seconds
-const HEAD_START = 180;   // 3 minutes before red team activates
+// Head start scales by threat level — more time at lower difficulties
+function getHeadStart() {
+  if (!R) return 180;
+  if (R.threatLevel <= 1) return 240;  // 4 min
+  if (R.threatLevel <= 2) return 210;  // 3.5 min
+  if (R.threatLevel <= 3) return 180;  // 3 min
+  if (R.threatLevel <= 4) return 150;  // 2.5 min
+  return 120;                           // 2 min
+}
 const PASSIVE_VULN_CATS = new Set(['exposed_svc','crypto_weak','default_creds','misconfig','cloud_misconfig','eol']);
 const PASSIVE_INTERVALS = [15, 35, 60, 90, 120]; // escalating seconds between passive reveals
 const UNDOC_DISCOVER_MSGS = [
@@ -1178,6 +1235,8 @@ function defaultSave() {
     stats: { totalRuns: 0, bestGrade: null, highestThreatCleared: 0, totalAssetsDiscovered: 0, totalVulnsFixed: 0, fastestRun: null },
     unlockedTemplates: ['small_office'],
     settings: { clockSpeed: 1, sound: true, reducedMotion: false },
+    hintsSeen: {},
+    hintsEnabled: true,
   };
 }
 function loadSave() {
@@ -1267,6 +1326,215 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 });
 
 /* ═══════════════════════════════════════════════════════════════
+   HINT SYSTEM
+   ═══════════════════════════════════════════════════════════════ */
+let _activeHint = null;
+let _briefingActive = false;
+
+// Ensure backward compat for saves without hint fields
+if (!save.hintsSeen) save.hintsSeen = {};
+if (save.hintsEnabled === undefined) save.hintsEnabled = true;
+
+function showHint(id, { target, text, title, arrow = 'up', showNoShow = true, nextLabel, onNext, onDismiss }) {
+  if (!save.hintsEnabled) return false;
+  if (save.hintsSeen[id]) return false;
+  dismissHint(); // clear any existing hint
+
+  const el = typeof target === 'string' ? document.querySelector(target) : target;
+  if (!el) return false;
+
+  const rect = el.getBoundingClientRect();
+  const callout = document.createElement('div');
+  callout.className = 'hint-callout';
+  callout.id = 'hint-' + id;
+  callout.dataset.arrow = arrow;
+  callout.dataset.hintId = id;
+
+  let html = '';
+  if (title) html += `<h4>${title}</h4>`;
+  html += `<p>${text}</p>`;
+  html += '<div class="hint-actions">';
+  if (nextLabel) html += `<button class="hint-next" onclick="hintNext()">${nextLabel}</button>`;
+  html += `<button class="hint-dismiss" onclick="dismissHint(true)">Dismiss</button>`;
+  if (showNoShow) html += `<label class="hint-noshow"><input type="checkbox" id="hint-noshow-cb">Don't show again</label>`;
+  html += '</div>';
+  callout.innerHTML = html;
+  document.body.appendChild(callout);
+
+  // Position relative to target
+  const cw = callout.offsetWidth, ch = callout.offsetHeight;
+  let left, top;
+  if (arrow === 'up') {
+    left = rect.left + rect.width / 2 - cw / 2;
+    top = rect.bottom + 12;
+  } else if (arrow === 'down') {
+    left = rect.left + rect.width / 2 - cw / 2;
+    top = rect.top - ch - 12;
+  } else if (arrow === 'left') {
+    left = rect.right + 12;
+    top = rect.top + rect.height / 2 - ch / 2;
+  } else {
+    left = rect.left - cw - 12;
+    top = rect.top + rect.height / 2 - ch / 2;
+  }
+  // Clamp to viewport
+  left = Math.max(8, Math.min(left, window.innerWidth - cw - 8));
+  top = Math.max(8, Math.min(top, window.innerHeight - ch - 8));
+  callout.style.left = left + 'px';
+  callout.style.top = top + 'px';
+
+  _activeHint = { id, callout, onNext, onDismiss };
+  return true;
+}
+
+function dismissHint(userAction) {
+  if (!_activeHint) return;
+  const { id, callout, onDismiss } = _activeHint;
+  // Check "don't show again" checkbox
+  if (userAction) {
+    const cb = document.getElementById('hint-noshow-cb');
+    if (cb && cb.checked) {
+      save.hintsSeen[id] = true;
+      writeSave();
+    }
+  }
+  callout.remove();
+  _activeHint = null;
+  if (userAction && onDismiss) onDismiss();
+}
+
+function hintNext() {
+  if (!_activeHint) return;
+  const { onNext } = _activeHint;
+  const callout = _activeHint.callout;
+  callout.remove();
+  _activeHint = null;
+  if (onNext) onNext();
+}
+
+function toggleHints() {
+  save.hintsEnabled = document.getElementById('set-hints').checked;
+  writeSave();
+}
+
+function resetHints() {
+  save.hintsSeen = {};
+  save.hintsEnabled = true;
+  document.getElementById('set-hints').checked = true;
+  writeSave();
+  // Brief toast
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--green);color:var(--green);padding:8px 16px;font-size:11px;z-index:800;font-family:inherit;border-radius:3px';
+  toast.textContent = 'Hints reset — you\'ll see them again next run';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// ── Mission Briefing ──
+const BRIEFING_SLIDES = [
+  { target: '#net-canvas', arrow: 'left', title: 'MISSION BRIEFING',
+    text: 'Your network is under threat. Protect the <strong style="color:var(--red)">critical assets</strong> in the innermost zone at all costs. If they\'re breached, it\'s game over.' },
+  { target: '#asset-list', arrow: 'right', title: 'YOUR ASSETS',
+    text: 'Start by scanning your <strong>perimeter nodes</strong> (outermost zone). That\'s where the red team will attack first. Click a node, then click <strong>Scan</strong>.' },
+  { target: '#hdr-clock', arrow: 'down', title: 'HEAD START',
+    text: 'You have a few minutes before the red team activates. Use this time to scan and start fixing the most dangerous vulnerabilities.' },
+  { target: '#hdr-budget', arrow: 'down', title: 'RESOURCES',
+    text: 'You have limited <strong>analysts</strong> and <strong>budget</strong>. Don\'t try to fix everything — prioritize the path between perimeter and critical assets.' },
+];
+let _briefingSlide = 0;
+
+function startBriefing() {
+  if (!save.hintsEnabled) return;
+  if (save.hintsSeen['briefing']) return;
+  _briefingSlide = 0;
+  _briefingActive = true;
+  // Add dim overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'briefing-overlay';
+  overlay.id = 'briefing-overlay';
+  document.body.appendChild(overlay);
+  showBriefingSlide();
+}
+
+function showBriefingSlide() {
+  if (_briefingSlide >= BRIEFING_SLIDES.length) {
+    endBriefing();
+    return;
+  }
+  const slide = BRIEFING_SLIDES[_briefingSlide];
+  const isLast = _briefingSlide === BRIEFING_SLIDES.length - 1;
+  showHint('briefing_' + _briefingSlide, {
+    target: slide.target,
+    text: slide.text,
+    title: slide.title,
+    arrow: slide.arrow,
+    showNoShow: false,
+    nextLabel: isLast ? 'Start' : 'Next',
+    onNext: () => { _briefingSlide++; showBriefingSlide(); },
+    onDismiss: () => endBriefing(),
+  });
+}
+
+function endBriefing() {
+  _briefingActive = false;
+  const overlay = document.getElementById('briefing-overlay');
+  if (overlay) overlay.remove();
+  dismissHint();
+  save.hintsSeen['briefing'] = true;
+  writeSave();
+}
+
+// ── Contextual Hints ──
+const CONTEXTUAL_HINTS = [
+  { id: 'hint_headstart_end', target: '#hdr-clock', arrow: 'down', title: 'RED TEAM ACTIVE',
+    text: 'The red team is now active. Watch the <strong>SIEM log</strong> at the bottom for alerts.', maxTL: 3 },
+  { id: 'hint_first_scan_done', target: '#detail-content', arrow: 'left', title: 'SCAN COMPLETE',
+    text: 'Scan complete! Review the vulnerabilities and fix the <strong style="color:var(--red)">highest-severity</strong> ones first. Red = most dangerous.', maxTL: 2 },
+  { id: 'hint_first_compromise', target: null, arrow: 'right', title: 'NODE COMPROMISED',
+    text: 'A node has been compromised! Click it and start an <strong>Investigation</strong>, then <strong>Incident Response</strong> to kick the attacker out.', maxTL: 4 },
+  { id: 'hint_persistence', target: '#siem-log', arrow: 'up', title: 'PERSISTENCE DETECTED',
+    text: 'The red team has established persistence. Even after IR, they can return quickly. You may need to <strong style="color:var(--red)">Burn & Rebuild</strong>.', maxTL: 4 },
+  { id: 'hint_critical_exposed', target: '#asset-list', arrow: 'right', title: 'CRITICAL ASSETS UNSCANNED',
+    text: 'Your critical assets are still unscanned. The red team is heading for them — scan the <strong>inner zones</strong> soon.', maxTL: 3 },
+];
+
+function tryContextualHint(id, overrideTarget) {
+  if (!save.hintsEnabled || _briefingActive) return;
+  if (!R || R.phase === 'COMPLETE') return;
+  if (R._hintsFired && R._hintsFired[id]) return;
+  const def = CONTEXTUAL_HINTS.find(h => h.id === id);
+  if (!def) return;
+  if (def.maxTL && R.threatLevel > def.maxTL) return;
+  if (save.hintsSeen[id]) return;
+  if (!R._hintsFired) R._hintsFired = {};
+  R._hintsFired[id] = true;
+  const target = overrideTarget || def.target;
+  if (!target) return;
+  showHint(id, { target, text: def.text, title: def.title, arrow: def.arrow });
+}
+
+// Throttled hint checker for game loop (once per second)
+let _lastHintCheck = 0;
+function checkGameLoopHints() {
+  if (!R || !save.hintsEnabled || _briefingActive) return;
+  const now = R.elapsed;
+  if (now - _lastHintCheck < 1) return;
+  _lastHintCheck = now;
+
+  // Head start ended
+  const hs = getHeadStart();
+  if (now >= hs && now < hs + 5) tryContextualHint('hint_headstart_end');
+
+  // Critical assets unscanned after 2 minutes
+  if (now >= 120) {
+    const criticalNodes = R.net.nodes.filter(n => n.isCritical || n.zone === 4);
+    if (criticalNodes.length && criticalNodes.every(n => !n.scanned)) {
+      tryContextualHint('hint_critical_exposed');
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
    HQ RENDERING
    ═══════════════════════════════════════════════════════════════ */
 function renderHQ() {
@@ -1332,10 +1600,11 @@ function generateNetwork(templateId, threatLevel) {
   const edges = [];
   let nodeId = 0;
 
-  // Roll modifiers
-  const modCount = threatLevel >= 5 ? 2 : 1;
+  // Roll modifiers — TL 1-2 skips harsh modifiers to protect new players
+  const modCount = threatLevel <= 2 ? 0 : threatLevel >= 5 ? 2 : 1;
+  const HARSH_MODS = ['skeleton', 'insider', 'zeroday_mod']; // too punishing for beginners
   const mods = [];
-  const modPool = [...RUN_MODIFIERS];
+  const modPool = threatLevel <= 3 ? RUN_MODIFIERS.filter(m => !HARSH_MODS.includes(m.id)) : [...RUN_MODIFIERS];
   for (let i = 0; i < modCount && modPool.length; i++) {
     const idx = rand(0, modPool.length - 1);
     mods.push(modPool.splice(idx, 1)[0]);
@@ -1622,8 +1891,11 @@ function generateVulns(node, threatLevel, mods) {
   const isLegacy = mods.find(m => m.id === 'legacy') && Math.random() < 0.3;
   const vulns = [];
 
+  // At TL 1-2, skip "Missing Monitoring" vulns — new players get Tier 2 detection minimum
+  const availCats = threatLevel <= 2 ? VULN_CATEGORIES.filter(c => c.id !== 'no_monitor') : VULN_CATEGORIES;
+
   for (let i = 0; i < count; i++) {
-    const cat = pick(VULN_CATEGORIES);
+    const cat = pick(availCats);
     const names = VULN_NAMES[cat.id] || ['Unknown Vulnerability'];
     const name = pick(names);
     const av = pick(cat.vectors);
@@ -2327,7 +2599,8 @@ function startRun() {
   let dripAmount = 5000 + threatLevel * 400; // ~$5K-$7K based on threat
   if (hasUpgrade('budget_neg')) dripAmount += 1000;
   if (hasUpgrade('board_appr')) dripAmount += 2000;
-  let budget = Math.round(baseBudget * 0.50); // start with ~50% of total
+  const budgetPct = threatLevel <= 1 ? 0.60 : 0.50; // TL1 gets 60% start
+  let budget = Math.round(baseBudget * budgetPct);
   let teamSlots = 2;
   if (hasUpgrade('jr_analyst')) teamSlots++;
   if (hasUpgrade('sr_engineer')) teamSlots++;
@@ -2431,6 +2704,11 @@ function startRun() {
   lastTick = performance.now();
   if (animFrame) cancelAnimationFrame(animFrame);
   gameLoop();
+
+  // Show mission briefing for new/low-TL players (after first render)
+  if (save.stats.totalRuns <= 2 || threatLevel <= 2) {
+    setTimeout(() => startBriefing(), 500);
+  }
 }
 
 function gameLoop() {
@@ -2472,7 +2750,8 @@ function gameLoop() {
       // Budget drip
       processBudgetDrip(dt * R.clockSpeed);
 
-      // Strategic hints
+      // Contextual hints (throttled to once/second)
+      checkGameLoopHints();
 
       // Update displays
       updateClockDisplay();
@@ -2640,6 +2919,8 @@ function processScans(dt) {
         renderAssetList();
         flashAssetItem(node.id, 'scan-complete-flash');
         if (R.selectedNode === node.id) renderDetail();
+        // Contextual hint for first scan
+        tryContextualHint('hint_first_scan_done');
       }
     }
     // Process deep scans
@@ -2965,6 +3246,11 @@ function processRebuilds(dt) {
         }
       }
       addLog(`✓ REBUILT: ${node.name} — clean system online, persistence eliminated`, 'ok');
+      // Someone's getting fired for letting this happen
+      if (R.teamSlots > 1) {
+        R.teamSlots--;
+        addLog(`⚠ Analyst dismissed — accountability for ${node.name} compromise (${R.teamSlots} remaining)`, 'warn');
+      }
       sfxFixOk();
       updateResourceDisplay();
       renderAssetList();
@@ -3307,6 +3593,8 @@ function ptCompromiseNode(pt, node, vulnUsed) {
       : `🔴 RED TEAM: Exploited "${vulnUsed.name}" on ${node.name}`;
     addLog(msg, 'crit');
     sfxBreach();
+    // Contextual hint for first compromise
+    setTimeout(() => tryContextualHint('hint_first_compromise', `#asset-item-${node.id}`), 1500);
   } else if (tier === 2) {
     // Delayed anomaly detection
     node.compromised = true; // internally compromised but player doesn't know yet
@@ -3357,7 +3645,7 @@ function ptCompromiseNode(pt, node, vulnUsed) {
     // Establish persistence on high-value targets
     pt.state = 'persisting';
     pt.progress = 0;
-    pt.totalTime = randf(15, 30) * pt.speedMult;
+    pt.totalTime = randf(R.threatLevel <= 2 ? 25 : 15, R.threatLevel <= 2 ? 40 : 30) * pt.speedMult;
     // Temporary foothold during persistence attempt
     if (!rt.footholds.includes(node.id)) rt.footholds.push(node.id);
   } else {
@@ -3705,7 +3993,7 @@ function updatePentester(pt, dt) {
 
       // During head start, pentesters don't reach this code (blocked in processRedTeam)
       // but just in case — gather intel only before head start ends
-      if (R.elapsed < HEAD_START) {
+      if (R.elapsed < getHeadStart()) {
         const msg = pick(RT_PROBE_MSGS);
         const tier = getDetectionTier(target);
         if (tier === 1) addLog(`⚠ ${msg} ${target.name}`, 'warn');
@@ -3778,7 +4066,10 @@ function updatePentester(pt, dt) {
       if (!rt.footholds.includes(target.id)) rt.footholds.push(target.id);
 
       const tier = getDetectionTier(target);
-      if (tier === 1) addLog(`🔴 Persistence established on ${target.name}!`, 'crit');
+      if (tier === 1) {
+        addLog(`🔴 Persistence established on ${target.name}!`, 'crit');
+        setTimeout(() => tryContextualHint('hint_persistence'), 2000);
+      }
 
       // Post-exploitation recon: learn vulns on neighbors
       rtPostExploitRecon(target);
@@ -3878,7 +4169,7 @@ function rtGetNeighbors(nodeId) {
 function processRedTeam(dt) {
   if (!R || R.phase === 'COMPLETE') return;
   // Head start: red team inactive for first 3 minutes
-  if (R.elapsed < HEAD_START) return;
+  if (R.elapsed < getHeadStart()) return;
   const rt = R.redTeam;
 
   // Strategic buff decay
@@ -4020,11 +4311,17 @@ function endRun() {
     containment * 0.30 + posture * 0.25 + assessment * 0.15 +
     response * 0.15 + efficiency * 0.15
   );
-  const finalScore = criticalBreached ? Math.min(rawScore, 39) : rawScore;
+  let finalScore;
+  if (criticalBreached && R.threatLevel <= 2) {
+    // TL 1-2: heavy penalty instead of auto-F — let new players learn
+    finalScore = Math.max(0, rawScore - 30);
+  } else {
+    finalScore = criticalBreached ? Math.min(rawScore, 39) : rawScore;
+  }
 
   let grade, label;
-  if (criticalBreached) {
-    grade = 'F'; label = 'CRITICAL BREACH';
+  if (criticalBreached && R.threatLevel > 2) {
+    grade = 'F'; label = 'CRITICAL BREACH — AUTOMATIC FAILURE';
   } else if (finalScore >= 95 && R.threatLevel >= 5) {
     grade = 'S'; label = 'EXCEPTIONAL POSTURE';
   } else if (finalScore >= 85) {
@@ -4040,7 +4337,7 @@ function endRun() {
   }
 
   // Intel earned
-  let intel = grade === 'F' ? 0 : Math.floor(finalScore * R.threatLevel * 0.5);
+  let intel = (grade === 'F' && R.threatLevel > 2) ? 0 : Math.floor(finalScore * R.threatLevel * 0.5);
   if (hasUpgrade('exec_brief')) intel = Math.floor(intel * 1.15);
 
   const coverage = clamp((discovered / totalNodes) * 100, 0, 100);
@@ -4121,7 +4418,8 @@ function renderResults(d) {
 
   // Build label with detail line
   let labelText = d.label;
-  if (d.breaches > 0) labelText += ' \u2014 AUTOMATIC FAILURE';
+  if (d.breaches > 0 && d.threatLevel > 2) labelText += ' \u2014 AUTOMATIC FAILURE';
+  else if (d.breaches > 0) labelText += ' \u2014 Critical Breach (Heavy Penalty)';
   else if (d.noFootholds) labelText += ' \u2014 No footholds established';
   else if (d.stillCompromised === 0 && d.compromisedCount > 0) labelText += ' \u2014 All compromises reclaimed';
   else if (d.stillCompromised > 0) labelText += ` \u2014 ${d.stillCompromised} node${d.stillCompromised !== 1 ? 's' : ''} still compromised`;
@@ -4187,6 +4485,23 @@ function renderResults(d) {
     });
   }
 
+  // ── DEBRIEF: contextual post-game tips ──
+  const tips = [];
+  if (d.breaches > 0) tips.push('Critical assets were breached. Focus on scanning and hardening the path between perimeter and inner zones first.');
+  if (d.posture < 30) tips.push('Most vulnerabilities were left unaddressed. Prioritize high-severity vulns on critical-path nodes.');
+  if (d.assessment < 50) tips.push('Many vulnerabilities were never discovered. Scan more nodes, especially closer to critical assets.');
+  if (d.response < 50 && d.compromisedCount > 0) tips.push('Incident response was slow. Investigate anomalies quickly and keep an analyst available for emergencies.');
+  if (d.efficiency < 20 && d.budgetSpent > 20000) tips.push('Budget was spent inefficiently. Mitigate or configure before expensive patches or replacements.');
+  if (d.compromisedCount === 0 && d.grade !== 'F') tips.push('Excellent defense! Consider increasing the threat level for a greater challenge.');
+
+  if (tips.length > 0) {
+    let debriefHtml = '<div class="score-section-label" style="margin-top:4px">DEBRIEF</div>';
+    tips.slice(0, 3).forEach(tip => {
+      debriefHtml += `<div style="font-size:10px;color:var(--amber);padding:3px 0;line-height:1.4">\u25B8 ${tip}</div>`;
+    });
+    document.getElementById('res-scorecard').innerHTML += debriefHtml;
+  }
+
   // Intel earned with flair
   const intelEl = document.getElementById('res-intel');
   if (d.intel > 0) {
@@ -4215,7 +4530,7 @@ function updateClockDisplay() {
   // Color based on current phase danger
   const clockEl = document.getElementById('hdr-clock');
   if (elapsed >= 600) clockEl.style.color = 'var(--red)';
-  else if (elapsed >= HEAD_START) clockEl.style.color = 'var(--amber)';
+  else if (elapsed >= getHeadStart()) clockEl.style.color = 'var(--amber)';
   else clockEl.style.color = 'var(--green)';
 
 }
@@ -4484,7 +4799,7 @@ function renderDetail() {
     const canAfford = R.budget >= rebuildCost;
     const hasSlot = getActiveWorkCount() < R.teamSlots;
     html += `<button class="btn-sm" onclick="burnAndRebuild(${node.id})" style="width:100%;margin-bottom:8px;border-color:var(--red);color:var(--red);opacity:${canAfford && hasSlot ? 1 : 0.4}" ${canAfford && hasSlot ? '' : 'disabled'}
-      title="Scorched-earth system replacement. Eliminates red team persistence, takes the node offline during rebuild, and severs downstream red team access through this node. The system comes back clean with zero vulnerabilities. Costs $${(rebuildCost/1000).toFixed(0)}K, takes 25-45s, requires 1 analyst.">
+      title="Scorched-earth system replacement. Eliminates red team persistence, takes the node offline during rebuild, and severs downstream red team access. System comes back clean. Costs $${(rebuildCost/1000).toFixed(0)}K, 25-45s, 1 analyst. WARNING: You permanently lose 1 analyst when complete — someone's getting fired.">
       🔥 Burn & Rebuild — $${(rebuildCost/1000).toFixed(0)}K (1 analyst)</button>`;
     if (!canAfford) html += '<div style="font-size:10px;color:var(--red-dim);text-align:center;margin-bottom:4px">Insufficient budget</div>';
     else if (!hasSlot) html += '<div style="font-size:10px;color:var(--amber);text-align:center;margin-bottom:4px">All analysts busy</div>';
@@ -4644,6 +4959,26 @@ function updateDetailButtons() {
   if (investBtn) {
     investBtn.disabled = teamFull;
     if (teamFull) investBtn.textContent = 'Investigate (NO ANALYSTS)';
+  }
+
+  // Update Burn & Rebuild button
+  const burnBtn = document.querySelector('[onclick^="burnAndRebuild"]');
+  if (burnBtn) {
+    const node = R.net.nodes[R.selectedNode];
+    if (node) {
+      const rebuildCost = REBUILD_COSTS[node.zone] || 12000;
+      const canAfford = R.budget >= rebuildCost;
+      const hasSlot = getActiveWorkCount() < R.teamSlots;
+      burnBtn.disabled = !(canAfford && hasSlot);
+      burnBtn.style.opacity = (canAfford && hasSlot) ? 1 : 0.4;
+      // Update the status text below the button
+      const statusEl = burnBtn.nextElementSibling;
+      if (statusEl && statusEl.style.fontSize === '10px') {
+        if (!canAfford) statusEl.textContent = 'Insufficient budget';
+        else if (!hasSlot) statusEl.textContent = 'All analysts busy';
+        else statusEl.remove(); // can now afford — remove the blocker text
+      }
+    }
   }
 }
 
@@ -5056,6 +5391,7 @@ console.log(
   // Init settings UI
   document.getElementById('set-motion').checked = save.settings.reducedMotion;
   document.getElementById('set-sound').checked = save.settings.sound;
+  document.getElementById('set-hints').checked = save.hintsEnabled !== false;
   updateMuteButton();
 
   // Event delegation for asset list — use mousedown for instant response
