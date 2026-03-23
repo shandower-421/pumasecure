@@ -480,8 +480,6 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
   background:var(--amber);border:none;color:#000;
   padding:4px 14px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold;
 }
-.hint-callout .hint-noshow{font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:4px;margin-left:auto}
-.hint-callout .hint-noshow input{margin:0}
 /* Arrow */
 .hint-callout::before{
   content:'';position:absolute;width:0;height:0;
@@ -500,6 +498,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
   position:fixed;inset:0;z-index:650;background:rgba(0,8,2,0.75);
   pointer-events:auto;
 }
+.briefing-spotlight{position:relative;z-index:660;pointer-events:none}
 
 /* ═══════════════════════════════════════════════════════════════
    Skill Tree
@@ -1256,7 +1255,7 @@ const MODIFIER_DEFS = {
   governance_lock:   { name: 'Governance Requirements',desc: '30% of vulns can only be mitigated',                    group: 'bad',  icon: '🔒', randomChance: 0.55 },
   insider:           { name: 'Insider Threat',        desc: 'One node starts compromised with persistence',           group: 'bad',  icon: '🕵', randomChance: 0.25 },
   pandemic:          { name: 'Pandemic Protocol',     desc: 'One idle analyst goes AFK every ~90s',                   group: 'bad',  icon: '🤢', randomChance: 0.55 },
-  legacy:            { name: 'Legacy Infrastructure', desc: '30% of nodes get legacy flag, boosting vuln severity',   group: 'bad',  icon: '💾', randomChance: 0.40 },
+  legacy:            { name: 'Legacy Env', desc: '30% of nodes get legacy flag, boosting vuln severity',   group: 'bad',  icon: '💾', randomChance: 0.40 },
   zeroday_mod:       { name: 'Zero Day',             desc: 'One critical vuln has no available fix',                  group: 'bad',  icon: '💀', randomChance: 0.25 },
   budget_cuts:       { name: 'Budget Cuts',           desc: 'Budget drip reduced 25%',                                group: 'bad',  icon: '✂️', randomChance: 0.55 },
 };
@@ -1266,15 +1265,15 @@ const MODIFIER_DEFS = {
 // For player resources: higher = more. For RT: higher = more (harder).
 const DIFFICULTY_PRESETS = {
   tutorial:  { label: 'Tutorial',   sliders: { startBudget:4, dripAmount:4, startAnalysts:4, teamExpertise:4, rtSize:0, rtExpertise:0, headStart:4 },
-               mods: { mssp_monitor:2, remote_attacker:2 } },
+               mods: { mssp_monitor:2, remote_attacker:2, well_funded:2, grizzled_vet:2, netflix_release:2, strong_iam:2, threat_intel_feed:2 } },
   easy:      { label: 'Easy',       sliders: { startBudget:3, dripAmount:3, startAnalysts:3, teamExpertise:3, rtSize:0, rtExpertise:1, headStart:3 },
-               mods: {} },
+               mods: { mssp_monitor:2, grizzled_vet:2, remote_attacker:1, well_funded:1, netflix_release:1, strong_iam:1, threat_intel_feed:1 } },
   normal:    { label: 'Normal',     sliders: { startBudget:2, dripAmount:2, startAnalysts:2, teamExpertise:2, rtSize:1, rtExpertise:2, headStart:2 },
-               mods: {} },
+               mods: { mssp_monitor:1, remote_attacker:1, well_funded:1, grizzled_vet:1, netflix_release:1, strong_iam:1, threat_intel_feed:1, govt_oversight:1, pandemic:1, governance_lock:1 } },
   hard:      { label: 'Hard',       sliders: { startBudget:1, dripAmount:1, startAnalysts:1, teamExpertise:1, rtSize:2, rtExpertise:3, headStart:1 },
-               mods: { legacy:1, zeroday_mod:1, insider:1, govt_oversight:1 } },
+               mods: { well_funded:1, netflix_release:1, strong_iam:1, threat_intel_feed:1, govt_oversight:1, governance_lock:1, insider:1, pandemic:1, legacy:1, zeroday_mod:1, budget_cuts:1 } },
   nightmare: { label: 'Nightmare',  sliders: { startBudget:0, dripAmount:0, startAnalysts:0, teamExpertise:0, rtSize:4, rtExpertise:4, headStart:0 },
-               mods: { legacy:2, zeroday_mod:2, insider:2, govt_oversight:2, pandemic:2, budget_cuts:2, governance_lock:2 } },
+               mods: { legacy:2, zeroday_mod:2, govt_oversight:2, governance_lock:2, insider:1, pandemic:1, budget_cuts:1 } },
 };
 
 // Active difficulty config — mutated by UI, read by startRun
@@ -1495,7 +1494,7 @@ let _briefingActive = false;
 if (!save.hintsSeen) save.hintsSeen = {};
 if (save.hintsEnabled === undefined) save.hintsEnabled = true;
 
-function showHint(id, { target, text, title, arrow = 'up', showNoShow = true, nextLabel, onNext, onDismiss }) {
+function showHint(id, { target, text, title, arrow = 'up', nextLabel, onNext, onDismiss }) {
   if (!save.hintsEnabled) return false;
   if (save.hintsSeen[id]) return false;
   dismissHint(); // clear any existing hint
@@ -1516,7 +1515,6 @@ function showHint(id, { target, text, title, arrow = 'up', showNoShow = true, ne
   html += '<div class="hint-actions">';
   if (nextLabel) html += `<button class="hint-next" onclick="hintNext()">${nextLabel}</button>`;
   html += `<button class="hint-dismiss" onclick="dismissHint(true)">Dismiss</button>`;
-  if (showNoShow) html += `<label class="hint-noshow"><input type="checkbox" id="hint-noshow-cb">Don't show again</label>`;
   html += '</div>';
   callout.innerHTML = html;
   document.body.appendChild(callout);
@@ -1549,15 +1547,7 @@ function showHint(id, { target, text, title, arrow = 'up', showNoShow = true, ne
 
 function dismissHint(userAction) {
   if (!_activeHint) return;
-  const { id, callout, onDismiss } = _activeHint;
-  // Check "don't show again" checkbox
-  if (userAction) {
-    const cb = document.getElementById('hint-noshow-cb');
-    if (cb && cb.checked) {
-      save.hintsSeen[id] = true;
-      writeSave();
-    }
-  }
+  const { callout, onDismiss } = _activeHint;
   callout.remove();
   _activeHint = null;
   if (userAction && onDismiss) onDismiss();
@@ -1590,22 +1580,26 @@ function resetHints() {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// ── Mission Briefing ──
+// ── Mission Briefing (Tutorial mode only) ──
 const BRIEFING_SLIDES = [
-  { target: '#net-canvas', arrow: 'left', title: 'MISSION BRIEFING',
-    text: 'Your network is under threat. Protect the <strong style="color:var(--red)">critical assets</strong> in the innermost zone at all costs. If they\'re breached, it\'s game over.' },
-  { target: '#asset-list', arrow: 'right', title: 'YOUR ASSETS',
-    text: 'Start by scanning your <strong>perimeter nodes</strong> (outermost zone). That\'s where the red team will attack first. Click a node, then click <strong>Scan</strong>.' },
-  { target: '#hdr-clock', arrow: 'down', title: 'HEAD START',
-    text: 'You have a few minutes before the red team activates. Use this time to scan and start fixing the most dangerous vulnerabilities.' },
-  { target: '#hdr-budget', arrow: 'down', title: 'RESOURCES',
-    text: 'You have limited <strong>analysts</strong> and <strong>budget</strong>. Don\'t try to fix everything — prioritize the path between perimeter and critical assets.' },
+  { target: '#hdr-clock', arrow: 'up', title: 'MISSION CLOCK',
+    text: 'This is your mission clock and game speed controls. Time advances during gameplay — pause with <strong>❚❚</strong> or <strong>spacebar</strong>. Speed up with 2× or 4× when you\'re waiting.' },
+  { target: '.asset-item', arrow: 'left', title: 'ASSET LIST',
+    text: 'Your network assets. Each node has three bars: <strong>top</strong> = scan progress, <strong>middle</strong> = risk level, <strong>bottom</strong> = fix progress. The number shows known vulnerabilities.' },
+  { target: '#net-canvas', arrow: 'right', title: 'NETWORK MAP',
+    text: 'Your network topology. Nodes are connected by lines — as you scan, more connections and hidden assets are revealed. <strong style="color:var(--red)">Inner zones</strong> hold your critical assets.' },
+  { target: '#detail-content', arrow: 'right', title: 'DETAIL PANEL',
+    text: 'Click any asset to see its details here — type, zone, criticality, and vulnerabilities. This is where you take action: scan, deep-scan, and fix.' },
+  { target: '#detail-content', arrow: 'right', title: 'VULNERABILITIES',
+    text: 'Each vulnerability has a severity and exploitability score. Fix them with <strong>Mitigate</strong>, <strong>Configure</strong>, <strong>Patch</strong>, or <strong>Replace</strong> — each costs different time and money, with varying effectiveness.' },
+  { target: '#siem-log', arrow: 'down', title: 'SIEM FEED',
+    text: 'Event notifications appear here. Watch for <strong style="color:var(--red)">red team alerts</strong> — they tell you when and where the attacker is probing or moving through your network.' },
 ];
 let _briefingSlide = 0;
 
 function startBriefing() {
+  if (!R || !R.isTutorial) return; // Tutorial mode only
   if (!save.hintsEnabled) return;
-  if (save.hintsSeen['briefing']) return;
   _briefingSlide = 0;
   _briefingActive = true;
   // Add dim overlay
@@ -1621,7 +1615,12 @@ function showBriefingSlide() {
     endBriefing();
     return;
   }
+  // Remove spotlight from previous target
+  document.querySelectorAll('.briefing-spotlight').forEach(el => el.classList.remove('briefing-spotlight'));
   const slide = BRIEFING_SLIDES[_briefingSlide];
+  // Spotlight current target
+  const spotEl = typeof slide.target === 'string' ? document.querySelector(slide.target) : slide.target;
+  if (spotEl) spotEl.classList.add('briefing-spotlight');
   const isLast = _briefingSlide === BRIEFING_SLIDES.length - 1;
   showHint('briefing_' + _briefingSlide, {
     target: slide.target,
@@ -1629,7 +1628,7 @@ function showBriefingSlide() {
     title: slide.title,
     arrow: slide.arrow,
     showNoShow: false,
-    nextLabel: isLast ? 'Start' : 'Next',
+    nextLabel: isLast ? 'Begin' : 'Next',
     onNext: () => { _briefingSlide++; showBriefingSlide(); },
     onDismiss: () => endBriefing(),
   });
@@ -1639,32 +1638,72 @@ function endBriefing() {
   _briefingActive = false;
   const overlay = document.getElementById('briefing-overlay');
   if (overlay) overlay.remove();
+  document.querySelectorAll('.briefing-spotlight').forEach(el => el.classList.remove('briefing-spotlight'));
   dismissHint();
   save.hintsSeen['briefing'] = true;
   writeSave();
+  // Start tutorial coaching and unpause — skip passive since we pre-seeded
+  if (R && R.isTutorial) {
+    R._tutorialStep = 'scan';
+    setSpeed(1); // unpause
+    // Show scan hint directly (no advanceTutorial to avoid double timeout)
+    if (!R._hintsFired) R._hintsFired = {};
+    R._hintsFired['tutorial_scan'] = true;
+    setTimeout(() => {
+      showHint('tutorial_scan', {
+        target: '#btn-scan',
+        title: 'SCAN THIS NODE',
+        text: 'Click <strong>Scan</strong> to run a vulnerability scan and discover what\'s lurking on this system. You can also <strong>double-click</strong> a node to quick-scan it.',
+        arrow: 'right',
+  
+      });
+    }, 600);
+  }
+}
+
+// ── Tutorial Step Coaching ──
+function advanceTutorial(step, targetSelector, title, text, arrow = 'right') {
+  if (!R || !R.isTutorial || R._tutorialStep !== step) return;
+  const hintId = 'tutorial_' + step;
+  if (!R._hintsFired) R._hintsFired = {};
+  if (R._hintsFired[hintId]) return; // only show once per run
+  R._hintsFired[hintId] = true;
+  dismissHint();
+  // Small delay so the UI has time to update
+  setTimeout(() => {
+    showHint(hintId, {
+      target: targetSelector,
+      title,
+      text,
+      arrow,
+
+      nextLabel: null, // no Next button — player must do the action
+    });
+  }, 600);
 }
 
 // ── Contextual Hints ──
 const CONTEXTUAL_HINTS = [
-  { id: 'hint_headstart_end', target: '#hdr-clock', arrow: 'down', title: 'RED TEAM ACTIVE',
-    text: 'The red team is now active. Watch the <strong>SIEM log</strong> at the bottom for alerts.', maxTL: 3 },
-  { id: 'hint_first_scan_done', target: '#detail-content', arrow: 'left', title: 'SCAN COMPLETE',
+  { id: 'hint_headstart_end', target: '#siem-log', arrow: 'down', title: 'RED TEAM ACTIVE',
+    text: 'The red team is now active. Watch the <strong>SIEM log</strong> here for alerts about their movements.', maxTL: 3 },
+  { id: 'hint_first_scan_done', target: '#detail-content', arrow: 'right', title: 'SCAN COMPLETE',
     text: 'Scan complete! Review the vulnerabilities and fix the <strong style="color:var(--red)">highest-severity</strong> ones first. Red = most dangerous.', maxTL: 2 },
-  { id: 'hint_first_compromise', target: null, arrow: 'right', title: 'NODE COMPROMISED',
+  { id: 'hint_first_compromise', target: '#siem-log', arrow: 'down', title: 'NODE COMPROMISED',
     text: 'A node has been compromised! Click it and start an <strong>Investigation</strong>, then <strong>Incident Response</strong> to kick the attacker out.', maxTL: 4 },
-  { id: 'hint_persistence', target: '#siem-log', arrow: 'up', title: 'PERSISTENCE DETECTED',
+  { id: 'hint_persistence', target: '#siem-log', arrow: 'down', title: 'PERSISTENCE DETECTED',
     text: 'The red team has established persistence. Even after IR, they can return quickly. You may need to <strong style="color:var(--red)">Burn & Rebuild</strong>.', maxTL: 4 },
-  { id: 'hint_critical_exposed', target: '#asset-list', arrow: 'right', title: 'CRITICAL ASSETS UNSCANNED',
+  { id: 'hint_critical_exposed', target: '#siem-log', arrow: 'down', title: 'CRITICAL ASSETS UNSCANNED',
     text: 'Your critical assets are still unscanned. The red team is heading for them — scan the <strong>inner zones</strong> soon.', maxTL: 3 },
 ];
 
 function tryContextualHint(id, overrideTarget) {
+  if (!R || !R.isTutorial) return; // Tutorial mode only
   if (!save.hintsEnabled || _briefingActive) return;
-  if (!R || R.phase === 'COMPLETE') return;
+  if (R.phase === 'COMPLETE') return;
+  if (R._tutorialStep && R._tutorialStep !== 'done') return; // don't override tutorial coaching
   if (R._hintsFired && R._hintsFired[id]) return;
   const def = CONTEXTUAL_HINTS.find(h => h.id === id);
   if (!def) return;
-  if (def.maxTL && R.diffScore > def.maxTL * 1.5) return; // scale maxTL to difficulty score
   if (save.hintsSeen[id]) return;
   if (!R._hintsFired) R._hintsFired = {};
   R._hintsFired[id] = true;
@@ -1676,7 +1715,7 @@ function tryContextualHint(id, overrideTarget) {
 // Throttled hint checker for game loop (once per second)
 let _lastHintCheck = 0;
 function checkGameLoopHints() {
-  if (!R || !save.hintsEnabled || _briefingActive) return;
+  if (!R || !R.isTutorial || !save.hintsEnabled || _briefingActive) return;
   const now = R.elapsed;
   if (now - _lastHintCheck < 1) return;
   _lastHintCheck = now;
@@ -1773,7 +1812,7 @@ function renderDifficultyPanel() {
   html += '</div>';
 
   // Difficulty score
-  const intelMult = (score / 4.6).toFixed(1);
+  const intelMult = (score / 4.3).toFixed(1);
   html += `<div class="diff-score">DIFFICULTY <span class="diff-score-val" style="color:${scoreColor}">${score.toFixed(1)}</span> <span style="font-size:13px;color:var(--green-dim);margin-left:12px">Intel: ×${intelMult}</span></div>`;
 
   // Two columns
@@ -2764,6 +2803,15 @@ function selectNode(node) {
     el.classList.toggle('selected', Number(el.dataset.nodeId) === node.id);
   });
   renderDetail();
+  // Tutorial: player selected a node — point at scan button
+  if (R.isTutorial && R._tutorialStep === 'scan' && !node.scanned) {
+    dismissHint();
+    setTimeout(() => {
+      const scanBtn = document.getElementById('btn-scan');
+      if (scanBtn) advanceTutorial('scan', '#btn-scan', 'SCAN THIS NODE',
+        'Click <strong>Scan</strong> to run a vulnerability scan. You can also <strong>double-click</strong> a node to quick-scan it.', 'right');
+    }, 400);
+  }
 }
 
 // Probe system removed — discovery via pre-known assets + scanning neighbors
@@ -2923,6 +2971,8 @@ function startRun() {
     duration,
     paused: false,
     phase: 'ACTIVE',  // only used for COMPLETE detection
+    isTutorial: detectPreset() === 'tutorial',
+    _tutorialStep: null, // null until briefing ends, then 'passive' → 'scan' → 'deepscan' → 'fix' → 'done'
     budget,
     budgetSpent: 0,
     startBudget: budget,
@@ -3021,8 +3071,22 @@ function startRun() {
   if (animFrame) cancelAnimationFrame(animFrame);
   gameLoop();
 
-  // Show mission briefing for new/low-TL players (after first render)
-  if (save.stats.totalRuns <= 2 || diffScore < 4) {
+  // Tutorial mode: pre-seed state, pause, and show guided tour
+  if (R.isTutorial) {
+    // Pre-seed: select a perimeter node and reveal one passive vuln
+    const perimNode = R.net.nodes.find(n => n.discovered && n.zone <= 1 && n.vulns.length > 0);
+    if (perimNode) {
+      const passiveVuln = perimNode.vulns.find(v => !v.revealed && PASSIVE_VULN_CATS.has(v.category.id))
+                       || perimNode.vulns.find(v => !v.revealed)
+                       || perimNode.vulns[0];
+      if (passiveVuln) passiveVuln.revealed = true;
+      perimNode.passiveReveals = 1;
+      R._tutorialNodeId = perimNode.id;
+      selectNode(perimNode);
+      renderAssetList();
+      renderDetail();
+    }
+    setSpeed(0); // start paused
     setTimeout(() => startBriefing(), 500);
   }
 }
@@ -3240,6 +3304,15 @@ function processScans(dt) {
         if (R.selectedNode === node.id) renderDetail();
         // Contextual hint for first scan
         tryContextualHint('hint_first_scan_done');
+        // Tutorial: scan done → suggest deep scan
+        if (R.isTutorial && R._tutorialStep === 'scan') {
+          R._tutorialStep = 'deepscan';
+          setTimeout(() => {
+            const dsBtn = document.getElementById('btn-deep-scan');
+            if (dsBtn) advanceTutorial('deepscan', '#btn-deep-scan', 'DEEP SCAN',
+              'Good work! Now run a <strong>Deep Scan</strong> for a complete threat analysis and defense bonus. You can also <strong>double-click</strong> a scanned node to deep-scan it.', 'right');
+          }, 800);
+        }
       }
     }
     // Process deep scans
@@ -3278,6 +3351,17 @@ function processScans(dt) {
         updateResourceDisplay();
         renderAssetList();
         if (R.selectedNode === node.id) renderDetail();
+        // Tutorial: deep scan done → suggest remediation
+        if (R.isTutorial && R._tutorialStep === 'deepscan') {
+          R._tutorialStep = 'fix';
+          setTimeout(() => {
+            const fixBtn = document.querySelector('.fix-btn');
+            if (fixBtn) advanceTutorial('fix', '.fix-btn', 'REMEDIATE',
+              'Now choose a remediation for the <strong style="color:var(--red)">highest-severity</strong> vulnerability. Higher-tier fixes are more effective but cost more time and money.', 'right');
+            else advanceTutorial('fix', '#detail-content', 'REMEDIATE',
+              'Scroll down to see the vulnerabilities and choose a remediation. Start with the <strong style="color:var(--red)">highest-severity</strong> ones.', 'right');
+          }, 800);
+        }
       }
     }
   }
@@ -3413,6 +3497,21 @@ function processFixes(dt) {
         // Refresh detail panel so button states (team slots, budget) update
         if (R.selectedNode !== null) renderDetail();
         renderAssetList();
+        // Tutorial: fix complete → congratulations (once per run)
+        if (R.isTutorial && R._tutorialStep === 'fix' && !R._hintsFired['tutorial_done']) {
+          R._tutorialStep = 'done';
+          R._hintsFired['tutorial_done'] = true;
+          dismissHint();
+          setTimeout(() => {
+            showHint('tutorial_done', {
+              target: '#siem-log',
+              title: 'WELL DONE!',
+              text: 'You\'ve scanned, analyzed, and remediated your first vulnerability. Keep securing the network — the <strong style="color:var(--red)">red team</strong> will be here soon! Focus on the path to your critical assets.',
+              arrow: 'down',
+        
+            });
+          }, 800);
+        }
       }
     }
   }
@@ -3595,6 +3694,13 @@ function processPassiveIntel(dt) {
         addLog(`Passive scan detected: ${v.name} on ${node.name}`, 'info');
         if (R.selectedNode === node.id) renderDetail();
         renderAssetList();
+        // Tutorial: first passive vuln → suggest clicking the node
+        if (R.isTutorial && R._tutorialStep === 'passive') {
+          R._tutorialStep = 'scan';
+          R._tutorialNodeId = node.id;
+          advanceTutorial('scan', `.asset-item[data-node-id="${node.id}"]`, 'VULNERABILITY DETECTED',
+            `A vulnerability was passively detected on <strong>${node.name}</strong>. Click the node to see it, then click <strong>Scan</strong> to find more.`, 'right');
+        }
       }
     }
   }
@@ -3976,7 +4082,7 @@ function ptCompromiseNode(pt, node, vulnUsed) {
     addLog(msg, 'crit');
     sfxBreach();
     // Contextual hint for first compromise
-    setTimeout(() => tryContextualHint('hint_first_compromise', `#asset-item-${node.id}`), 1500);
+    setTimeout(() => tryContextualHint('hint_first_compromise', `.asset-item[data-node-id="${node.id}"]`), 1500);
   } else if (tier === 2) {
     // Delayed anomaly detection
     node.compromised = true; // internally compromised but player doesn't know yet
@@ -4720,7 +4826,7 @@ function endRun() {
   }
 
   // Intel earned
-  let intel = (grade === 'F' && R.diffScore >= 4) ? 0 : Math.floor(finalScore * (R.diffScore / 4.6));
+  let intel = (grade === 'F' && R.diffScore >= 4) ? 0 : Math.floor(finalScore * (R.diffScore / 4.3));
   if (hasUpgrade('exec_brief')) intel = Math.floor(intel * 1.15);
 
   const coverage = clamp((discovered / totalNodes) * 100, 0, 100);
