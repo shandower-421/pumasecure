@@ -411,7 +411,6 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 .diff-dot:hover{border-color:var(--green-dim)}
 /* Modifier Switches */
 .diff-mod{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px}
-.diff-mod-icon{width:20px;text-align:center}
 .diff-mod-name{flex:1;color:var(--green-dim);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .diff-mod-name.good{color:var(--green-dim)}
 .diff-mod-name.bad{color:rgba(255,100,100,0.7)}
@@ -500,29 +499,6 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
 }
 .briefing-spotlight{position:relative;z-index:660;pointer-events:none}
 
-/* ═══════════════════════════════════════════════════════════════
-   Skill Tree
-   ═══════════════════════════════════════════════════════════════ */
-.skill-tree{display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
-.skill-branch{
-  flex:1;min-width:180px;max-width:220px;
-  border:1px solid var(--border);padding:12px;
-}
-.skill-branch h4{
-  text-align:center;font-size:12px;letter-spacing:2px;
-  text-transform:uppercase;margin-bottom:12px;color:var(--amber);
-}
-.skill-node{
-  padding:8px;margin:6px 0;border:1px solid var(--border);
-  cursor:pointer;font-size:11px;transition:all 0.15s;
-  position:relative;
-}
-.skill-node:hover{border-color:var(--border-hi);background:var(--surface)}
-.skill-node.purchased{border-color:var(--green);color:var(--green);background:rgba(0,255,65,0.05)}
-.skill-node.affordable{border-color:var(--amber-dim);animation:pulse-border 2s infinite}
-.skill-node.locked{opacity:0.4;cursor:not-allowed}
-.skill-cost{font-size:10px;color:var(--amber-dim);margin-top:2px}
-@keyframes pulse-border{0%,100%{border-color:var(--amber-dim)}50%{border-color:var(--amber)}}
 .pulse-amber{animation:pulse-amber-glow 1.5s ease-in-out infinite;border-color:var(--amber) !important;color:var(--amber) !important}
 @keyframes pulse-amber-glow{0%,100%{box-shadow:0 0 4px rgba(255,176,0,0.2)}50%{box-shadow:0 0 14px rgba(255,176,0,0.6)}}
 @keyframes fade-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
@@ -706,7 +682,6 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
       </div>
       <div class="diff-panel" id="diff-panel"></div>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:8px">
-        <button id="btn-skill-tree" class="btn-primary" onclick="showModal('skill-modal')" style="background:transparent">Skill Tree</button>
         <button class="btn-primary" onclick="startRun()">New Run</button>
       </div>
     </div>
@@ -813,13 +788,6 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
   </div>
 
   <!-- ═══════════════ MODALS ═══════════════ -->
-  <div class="modal-overlay" id="skill-modal">
-    <div class="modal">
-      <button class="modal-close" onclick="hideModal('skill-modal')" aria-label="Close">&times;</button>
-      <h2>Skill Tree <span style="font-size:12px;color:var(--amber)" id="skill-intel"></span></h2>
-      <div class="skill-tree" id="skill-tree"></div>
-    </div>
-  </div>
   <div class="modal-overlay" id="ach-modal">
     <div class="modal">
       <button class="modal-close" onclick="hideModal('ach-modal')" aria-label="Close">&times;</button>
@@ -840,11 +808,6 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
           <span>Sound</span>
           <input type="checkbox" id="set-sound" checked onchange="toggleSound()">
         </label>
-        <label style="display:flex;justify-content:space-between;align-items:center">
-          <span>Gameplay Hints</span>
-          <input type="checkbox" id="set-hints" checked onchange="toggleHints()">
-        </label>
-        <button class="btn-sm" onclick="resetHints()" style="margin-top:4px;font-size:10px;border-color:var(--green-dim);color:var(--green-dim)">Reset All Hints</button>
         <button class="btn-red" onclick="resetProgress()" style="margin-top:12px">Reset All Progress</button>
       </div>
     </div>
@@ -869,7 +832,7 @@ button:focus-visible,.btn:focus-visible,.help-tab:focus-visible,.skill-node:focu
         <p>Discover the network, scan assets, remediate vulnerabilities, and detect and respond to compromises. You're scored on containment, security posture, assessment coverage, incident response speed, and budget efficiency. Any critical asset breached = <strong style="color:var(--red)">automatic F</strong>.</p>
 
         <p style="margin-top:12px;color:var(--amber);font-size:13px;letter-spacing:1px">RESOURCES</p>
-        <p><strong style="color:var(--green)">Analysts</strong> — Your most precious resource. Each analyst can do one thing at a time: vuln scan, deploy EDR, fix vulnerabilities, investigate, respond to incidents, or rebuild systems. You start with 2. Hire a contractor mid-run (+1 analyst, $10K) using the yellow button next to the analyst count, or unlock permanent analysts in the Skill Tree.</p>
+        <p><strong style="color:var(--green)">Analysts</strong> — Your most precious resource. Each analyst can do one thing at a time: vuln scan, deploy EDR, fix vulnerabilities, investigate, respond to incidents, or rebuild systems. You start with 2. Hire a contractor mid-run (+1 analyst, $10K) using the yellow button next to the analyst count.</p>
         <p style="margin-top:6px"><strong style="color:var(--green)">Budget ($)</strong> — Money for fixes, rebuilds, and hiring. Budget replenishes every 60 seconds. The progress bar under the amount shows when the next allocation arrives and how much you'll receive.</p>
         <p style="margin-top:6px"><strong style="color:var(--green)">Time</strong> — The clock counts up to 15:00. The red team escalates as conditions are met, not by the clock alone. If you secure everything and eliminate all threats after 5 minutes, the engagement ends early.</p>
 
@@ -1238,6 +1201,7 @@ const SLIDER_DEFS = {
   teamExpertise:  { label: 'Team Expertise',       values: [1.5, 1.2, 1.0, 0.8, 0.6],        unit: 'x', format: v => v+'x', harder: false },
   rtSize:         { label: 'Red Team Size',        values: [1, 2, 3, 4, 5],                   unit: '',  format: v => v, harder: true },
   rtExpertise:    { label: 'Red Team Expertise',   values: [1.4, 1.2, 1.0, 0.8, 0.6],        unit: 'x', format: v => v+'x', harder: true },
+  rtCoordination: { label: 'Red Team Coordination',values: [0, 0.25, 0.5, 0.75, 1.0],        unit: '',  format: v => ['None','Low','Mid','High','Full'][Math.round(v*4)], harder: true },
   headStart:      { label: 'Head Start',           values: [60, 120, 180, 240, 300],          unit: 's', format: v => Math.round(v/60)+'min', harder: false },
 };
 
@@ -1245,11 +1209,12 @@ const MODIFIER_DEFS = {
   // Advantages (green) — help the player. randomChance = probability when set to Random
   mssp_monitor:      { name: 'MSSP Monitoring',      desc: 'No "missing monitoring" vulnerabilities',                 group: 'good', icon: '📡', randomChance: 0.45 },
   remote_attacker:   { name: 'Remote Attacker',      desc: 'No physical vulns, no onsite attacks',                    group: 'good', icon: '🌐', randomChance: 0.45 },
-  well_funded:       { name: 'Well Funded',          desc: '2× starting budget and drip rate',                         group: 'good', icon: '💰', randomChance: 0.30 },
   grizzled_vet:      { name: 'Grizzled IT Veteran',  desc: 'Fixes never fail',                                       group: 'good', icon: '🧔', randomChance: 0.30 },
-  netflix_release:   { name: 'Netflix Release',      desc: 'Pentesters distracted — extra delay between actions',     group: 'good', icon: '📺', randomChance: 0.45 },
   strong_iam:        { name: 'Strong IAM',           desc: 'Suppress brute force — credentials are strong & rotated', group: 'good', icon: '🔑', randomChance: 0.45 },
   threat_intel_feed: { name: 'Threat Intel Feed',    desc: 'Reveals the current target of one red team pentester',    group: 'good', icon: '🎯', randomChance: 0.45 },
+  net_mapper:        { name: 'Network Mapper',       desc: 'Zone outlines visible on the map at start',               group: 'good', icon: '🗺', randomChance: 0.45 },
+  passive_recon:     { name: 'Passive Recon',        desc: 'Start with 20% more assets pre-discovered',               group: 'good', icon: '📡', randomChance: 0.45 },
+  playbooks:         { name: 'Incident Playbooks',   desc: 'First remediation on each asset is free',                 group: 'good', icon: '📋', randomChance: 0.30 },
   // Complications (red) — challenge the player
   govt_oversight:    { name: 'Government Oversight',  desc: 'Fix times 1.5× longer (paperwork)',                      group: 'bad',  icon: '📋', randomChance: 0.40 },
   governance_lock:   { name: 'Governance Requirements',desc: '30% of vulns can only be mitigated',                    group: 'bad',  icon: '🔒', randomChance: 0.55 },
@@ -1257,28 +1222,29 @@ const MODIFIER_DEFS = {
   pandemic:          { name: 'Pandemic Protocol',     desc: 'One idle analyst goes AFK every ~90s',                   group: 'bad',  icon: '🤢', randomChance: 0.55 },
   legacy:            { name: 'Legacy Env', desc: '30% of nodes get legacy flag, boosting vuln severity',   group: 'bad',  icon: '💾', randomChance: 0.40 },
   zeroday_mod:       { name: 'Zero Day',             desc: 'One critical vuln has no available fix',                  group: 'bad',  icon: '💀', randomChance: 0.25 },
-  budget_cuts:       { name: 'Budget Cuts',           desc: 'Budget drip reduced 25%',                                group: 'bad',  icon: '✂️', randomChance: 0.55 },
+  shadow_it:         { name: 'Shadow IT',            desc: 'Unmanaged devices appear mid-game — red team finds them first', group: 'bad', icon: '👻', randomChance: 0.40 },
+  supply_chain:      { name: 'Supply Chain',         desc: 'Backdoored dependency — same critical vuln hits multiple nodes', group: 'bad', icon: '🔗', randomChance: 0.25 },
 };
 
 // Preset configurations: slider positions (0-4, left-to-right = least-to-most)
 // Modifier positions: 0=OFF, 1=Random, 2=ON
 // For player resources: higher = more. For RT: higher = more (harder).
 const DIFFICULTY_PRESETS = {
-  tutorial:  { label: 'Tutorial',   sliders: { startBudget:4, dripAmount:4, startAnalysts:4, teamExpertise:4, rtSize:0, rtExpertise:0, headStart:4 },
-               mods: { mssp_monitor:2, remote_attacker:2, well_funded:2, grizzled_vet:2, netflix_release:2, strong_iam:2, threat_intel_feed:2 } },
-  easy:      { label: 'Easy',       sliders: { startBudget:3, dripAmount:3, startAnalysts:3, teamExpertise:3, rtSize:0, rtExpertise:1, headStart:3 },
-               mods: { mssp_monitor:2, grizzled_vet:2, remote_attacker:1, well_funded:1, netflix_release:1, strong_iam:1, threat_intel_feed:1 } },
-  normal:    { label: 'Normal',     sliders: { startBudget:2, dripAmount:2, startAnalysts:2, teamExpertise:2, rtSize:1, rtExpertise:2, headStart:2 },
-               mods: { mssp_monitor:1, remote_attacker:1, well_funded:1, grizzled_vet:1, netflix_release:1, strong_iam:1, threat_intel_feed:1, govt_oversight:1, pandemic:1, governance_lock:1 } },
-  hard:      { label: 'Hard',       sliders: { startBudget:1, dripAmount:1, startAnalysts:1, teamExpertise:1, rtSize:2, rtExpertise:3, headStart:1 },
-               mods: { well_funded:1, netflix_release:1, strong_iam:1, threat_intel_feed:1, govt_oversight:1, governance_lock:1, insider:1, pandemic:1, legacy:1, zeroday_mod:1, budget_cuts:1 } },
-  nightmare: { label: 'Nightmare',  sliders: { startBudget:0, dripAmount:0, startAnalysts:0, teamExpertise:0, rtSize:4, rtExpertise:4, headStart:0 },
-               mods: { legacy:2, zeroday_mod:2, govt_oversight:2, governance_lock:2, insider:1, pandemic:1, budget_cuts:1 } },
+  tutorial:  { label: 'Tutorial',   sliders: { startBudget:4, dripAmount:4, startAnalysts:4, teamExpertise:4, rtSize:0, rtExpertise:0, rtCoordination:0, headStart:4 },
+               mods: { mssp_monitor:2, remote_attacker:2, grizzled_vet:2, strong_iam:2, threat_intel_feed:2, net_mapper:2, passive_recon:2, playbooks:2 } },
+  easy:      { label: 'Easy',       sliders: { startBudget:3, dripAmount:3, startAnalysts:3, teamExpertise:3, rtSize:0, rtExpertise:1, rtCoordination:1, headStart:3 },
+               mods: { mssp_monitor:2, grizzled_vet:2, remote_attacker:1, strong_iam:1, threat_intel_feed:1, net_mapper:1, passive_recon:1, playbooks:1 } },
+  normal:    { label: 'Normal',     sliders: { startBudget:2, dripAmount:2, startAnalysts:2, teamExpertise:2, rtSize:1, rtExpertise:2, rtCoordination:2, headStart:2 },
+               mods: { mssp_monitor:1, remote_attacker:1, grizzled_vet:1, strong_iam:1, threat_intel_feed:1, net_mapper:1, passive_recon:1, playbooks:1, govt_oversight:1, pandemic:1, governance_lock:1 } },
+  hard:      { label: 'Hard',       sliders: { startBudget:1, dripAmount:1, startAnalysts:1, teamExpertise:1, rtSize:2, rtExpertise:3, rtCoordination:3, headStart:1 },
+               mods: { strong_iam:1, threat_intel_feed:1, govt_oversight:1, governance_lock:1, insider:1, pandemic:1, legacy:1, zeroday_mod:1, shadow_it:1, supply_chain:1 } },
+  nightmare: { label: 'Nightmare',  sliders: { startBudget:0, dripAmount:0, startAnalysts:0, teamExpertise:0, rtSize:4, rtExpertise:4, rtCoordination:4, headStart:0 },
+               mods: { legacy:2, zeroday_mod:2, govt_oversight:2, governance_lock:2, insider:1, pandemic:1, shadow_it:2, supply_chain:2 } },
 };
 
 // Active difficulty config — mutated by UI, read by startRun
 let diffConfig = {
-  sliders: { startBudget:2, dripAmount:2, startAnalysts:2, teamExpertise:2, rtSize:1, rtExpertise:2, headStart:2 }, // Normal
+  sliders: { startBudget:2, dripAmount:2, startAnalysts:2, teamExpertise:2, rtSize:1, rtExpertise:2, rtCoordination:2, headStart:2 }, // Normal
   mods: {},
 };
 
@@ -1289,8 +1255,8 @@ function computeDifficultyScore() {
   // For 'harder' sliders (RT): position 4 = hardest → pos/4
   // For player sliders: position 4 = easiest → (4-pos)/4
   const sw = {
-    startBudget: 0.15, dripAmount: 0.10, startAnalysts: 0.10, teamExpertise: 0.10,
-    rtSize: 0.20, rtExpertise: 0.15, headStart: 0.10,
+    startBudget: 0.14, dripAmount: 0.09, startAnalysts: 0.09, teamExpertise: 0.09,
+    rtSize: 0.18, rtExpertise: 0.14, rtCoordination: 0.08, headStart: 0.09,
   };
   let sliderScore = 0;
   for (const [k, w] of Object.entries(sw)) {
@@ -1340,30 +1306,6 @@ function applyPreset(id) {
   renderDifficultyPanel();
 }
 
-const SKILL_TREE = {
-  recon: [
-    { id: 'ext_scan',    name: 'Rapid Scanning',        desc: 'Scans complete 30% faster', cost: 50 },
-    { id: 'net_mapper',  name: 'Network Mapper',       desc: 'Reveal zone outlines at start', cost: 100 },
-    { id: 'deep_scan',   name: 'EDR Fast Deploy',       desc: 'EDR deployments complete 30% faster', cost: 150 },
-    { id: 'passive_rec', name: 'Passive Recon',        desc: 'Auto-discover 2 random assets at start', cost: 250 },
-    { id: 'osint',       name: 'OSINT Integration',    desc: 'See asset types before probing', cost: 400 },
-  ],
-  engineering: [
-    { id: 'jr_analyst',  name: 'Junior Analyst',       desc: '+1 analyst', cost: 75 },
-    { id: 'patch_auto',  name: 'Patch Automation',     desc: 'Patch success rate +10%', cost: 150 },
-    { id: 'config_tmpl', name: 'Config Templates',     desc: 'Configure actions 50% faster', cost: 200 },
-    { id: 'sr_engineer', name: 'Senior Engineer',      desc: '+1 analyst', cost: 350 },
-    { id: 'playbooks',   name: 'Incident Playbooks',   desc: 'First fix on each asset is free', cost: 500 },
-  ],
-  strategy: [
-    { id: 'budget_neg',  name: 'Budget Negotiation',   desc: '+$5,000 starting budget', cost: 50 },
-    { id: 'risk_frame',  name: 'Risk Framework',       desc: 'See exploitability before scanning', cost: 125 },
-    { id: 'exec_brief',  name: 'Executive Briefing',   desc: '+15% intel earned per run', cost: 200 },
-    { id: 'threat_intel',name: 'Threat Intelligence',   desc: 'See 1 attack chain path before audit', cost: 300 },
-    { id: 'board_appr',  name: 'Board Approval',       desc: '+$15,000 starting budget', cost: 500 },
-  ],
-};
-
 const ACHIEVEMENTS = [
   { id: 'first_scan',    name: 'First Scan',         desc: 'Complete your first run', check: s => s.totalRuns >= 1 },
   { id: 'clean_sweep',   name: 'Clean Sweep',        desc: 'Discover 100% of assets in a run', check: null },
@@ -1388,7 +1330,6 @@ function defaultSave() {
   return {
     version: 1,
     intel: 0,
-    upgrades: [],
     achievements: [],
     stats: { totalRuns: 0, bestGrade: null, highestThreatCleared: 0, totalAssetsDiscovered: 0, totalVulnsFixed: 0, fastestRun: null },
     unlockedTemplates: ['small_office'],
@@ -1424,7 +1365,6 @@ function fmtTime(secs) {
   const m = Math.floor(secs / 60), s = Math.floor(secs % 60);
   return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 }
-function hasUpgrade(id) { return save.upgrades.includes(id); }
 function hasAchievement(id) { return save.achievements.includes(id); }
 function sevLabel(sev) {
   if (sev >= 9) return 'critical';
@@ -1447,7 +1387,6 @@ function showModal(id) {
   _modalReturnFocus = document.activeElement;
   const overlay = document.getElementById(id);
   overlay.classList.add('active');
-  if (id === 'skill-modal') renderSkillTree();
   if (id === 'ach-modal') renderAchievements();
   // Focus first focusable element inside modal
   requestAnimationFrame(() => {
@@ -1560,24 +1499,6 @@ function hintNext() {
   callout.remove();
   _activeHint = null;
   if (onNext) onNext();
-}
-
-function toggleHints() {
-  save.hintsEnabled = document.getElementById('set-hints').checked;
-  writeSave();
-}
-
-function resetHints() {
-  save.hintsSeen = {};
-  save.hintsEnabled = true;
-  document.getElementById('set-hints').checked = true;
-  writeSave();
-  // Brief toast
-  const toast = document.createElement('div');
-  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--green);color:var(--green);padding:8px 16px;font-size:11px;z-index:800;font-family:inherit;border-radius:3px';
-  toast.textContent = 'Hints reset — you\'ll see them again next run';
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
 }
 
 // ── Mission Briefing (Tutorial mode only) ──
@@ -1774,13 +1695,6 @@ function renderHQ() {
     frBox.innerHTML = '';
   }
 
-  // Pulse Skill Tree button if player can afford an upgrade
-  const btnST = document.getElementById('btn-skill-tree');
-  const canBuy = Object.values(SKILL_TREE).some(branch =>
-    branch.some((skill, i) => !hasUpgrade(skill.id) && (i === 0 || hasUpgrade(branch[i - 1].id)) && save.intel >= skill.cost)
-  );
-  btnST.classList.toggle('pulse-amber', canBuy);
-
   // Restore last config or default to normal
   if (save.lastConfig) {
     diffConfig.sliders = { ...save.lastConfig.sliders };
@@ -1789,6 +1703,8 @@ function renderHQ() {
     for (const [id, pos] of Object.entries(save.lastConfig.mods || {})) {
       diffConfig.mods[id] = pos <= 0 ? 0 : pos >= 4 ? 2 : pos >= 1 ? 1 : 0;
     }
+  } else {
+    applyPreset('normal');
   }
   renderDifficultyPanel();
 }
@@ -1821,7 +1737,7 @@ function renderDifficultyPanel() {
   // Left: Sliders
   html += '<div class="diff-col">';
   html += '<h3>Configuration</h3>';
-  const sliderOrder = ['startBudget','dripAmount','startAnalysts','teamExpertise','headStart','rtSize','rtExpertise'];
+  const sliderOrder = ['startBudget','dripAmount','startAnalysts','teamExpertise','headStart','rtSize','rtExpertise','rtCoordination'];
   for (const key of sliderOrder) {
     const def = SLIDER_DEFS[key];
     const pos = diffConfig.sliders[key] || 0;
@@ -1848,7 +1764,6 @@ function renderDifficultyPanel() {
       if (def.group !== group) continue;
       const pos = Math.min(diffConfig.mods[id] || 0, 2); // clamp old 0-4 to 0-2
       html += `<div class="diff-mod" title="${def.desc}">`;
-      html += `<span class="diff-mod-icon">${def.icon}</span>`;
       html += `<span class="diff-mod-name ${colorClass}">${def.name}</span>`;
       html += `<div class="diff-sw" data-mod="${id}">`;
       for (let i = 0; i < 3; i++) {
@@ -1935,7 +1850,7 @@ function generateNetwork(templateId, threatLevel, activeMods = []) {
         x: 0, y: 0, // set by layout
         fixing: null, // current fix in progress
         fixQueue: [],
-        firstFixFree: hasUpgrade('playbooks'),
+        firstFixFree: activeMods.includes('playbooks'),
         compromised: false,
         anomaly: false,
         compromiseConfirmed: false,
@@ -2009,7 +1924,7 @@ function generateNetwork(templateId, threatLevel, activeMods = []) {
       x: 0, y: 0,
       fixing: null,
       fixQueue: [],
-      firstFixFree: hasUpgrade('playbooks'),
+      firstFixFree: activeMods.includes('playbooks'),
       compromised: false,
       anomaly: false,
       compromiseConfirmed: false,
@@ -2028,11 +1943,45 @@ function generateNetwork(templateId, threatLevel, activeMods = []) {
     edges.push([pick(z1Nodes).id, shadowNode.id]);
     edges.push([shadowNode.id, pick(z2Nodes).id]);
   }
+  // Shadow IT modifier: add 2-3 extra unmanaged nodes in zones 1-3
+  if (activeMods.includes('shadow_it')) {
+    const shadowCount = rand(2, 3);
+    for (let s = 0; s < shadowCount; s++) {
+      const zone = rand(1, 3);
+      const zoneNodes = nodes.filter(n => n.zone === zone);
+      const typeKey = pick(Object.keys(ASSET_TYPES).filter(k => {
+        const zones = ASSET_TYPES[k].zones;
+        return zones.includes(zone) || zones.includes(zone - 1) || zones.includes(zone + 1);
+      }));
+      const typeInfo = ASSET_TYPES[typeKey] || ASSET_TYPES.workstation;
+      const sNode = {
+        id: nodeId++,
+        name: 'ROGUE-' + String(nodeId).padStart(2, '0'),
+        type: typeKey, typeInfo,
+        zone, criticality: rand(2, 5),
+        discovered: false, scanned: false, vulns: [],
+        x: 0, y: 0, fixing: null, fixQueue: [],
+        firstFixFree: activeMods.includes('playbooks'),
+        compromised: false, anomaly: false, compromiseConfirmed: false,
+        persistence: false, rebuilding: false, rebuildProgress: 0, rebuildTotalTime: 0,
+        irType: null, shadowIT: true, shadowMod: true,
+        passiveTimer: 0, passiveReveals: 0,
+        radarPhase: Math.random() * Math.PI * 2,
+      };
+      nodes.push(sNode);
+      // Connect to a random node in the same zone
+      if (zoneNodes.length) edges.push([pick(zoneNodes).id, sNode.id]);
+      // Maybe connect to adjacent zone too
+      const adjNodes = nodes.filter(n => Math.abs(n.zone - zone) === 1 && n.id !== sNode.id);
+      if (adjNodes.length && Math.random() > 0.4) edges.push([sNode.id, pick(adjNodes).id]);
+    }
+  }
+
   // Re-layout with edge-aware placement to minimize crossings
   layoutNodes(nodes, edges);
 
   // Pre-known "documented" network: discover assets based on zone baseline
-  const passiveBonus = hasUpgrade('passive_rec') ? 0.2 : 0;
+  const passiveBonus = activeMods.includes('passive_recon') ? 0.2 : 0;
   for (const n of nodes) {
     if (n.shadowIT) continue; // shadow IT never pre-known
     const pct = Math.min(1.0, PRE_KNOWN_PCT[n.zone] + passiveBonus);
@@ -2048,7 +1997,7 @@ function generateNetwork(templateId, threatLevel, activeMods = []) {
   }
 
   // Network mapper upgrade: mark zones as "outlined" (discovered but not individual assets)
-  const zoneOutlines = hasUpgrade('net_mapper');
+  const zoneOutlines = activeMods.includes('net_mapper');
 
   // Insider threat modifier: pre-compromise one corporate node
   let insiderNode = null;
@@ -2858,7 +2807,7 @@ function scanAsset(nodeId) {
   }
   node.scanning = true;
   node.scanProgress = 0;
-  node.scanTotalTime = hasUpgrade('ext_scan') ? rand(10, 18) : rand(15, 25);
+  node.scanTotalTime = rand(15, 25);
   addLog(`Vuln scanning ${node.name}... ETA ${node.scanTotalTime}s`, 'info');
   updateResourceDisplay();
   renderDetail();
@@ -2897,10 +2846,6 @@ function startFix(nodeId, vulnIdx, fixType) {
   if (vulnCat && vulnCat.fixBonus && vulnCat.fixTypes.includes(fixType)) {
     successRate = Math.min(1, successRate + vulnCat.fixBonus);
   }
-  // Upgrade bonuses
-  if (fixType === 'patch' && hasUpgrade('patch_auto')) successRate = Math.min(1, successRate + 0.1);
-  if (fixType === 'configure' && hasUpgrade('config_tmpl')) time = Math.ceil(time * 0.5);
-
   // Modifier effects on fixes
   if (R.activeMods.includes('grizzled_vet')) successRate = 1.0;
   if (R.activeMods.includes('govt_oversight')) time = Math.ceil(time * 1.5);
@@ -2965,18 +2910,7 @@ function startRun() {
   const teamExpertise = getSliderValue('teamExpertise');
   const headStart = getSliderValue('headStart');
 
-  // Upgrade bonuses
-  if (hasUpgrade('budget_neg')) dripAmount += 1000;
-  if (hasUpgrade('board_appr')) dripAmount += 2000;
-  if (hasUpgrade('jr_analyst')) teamSlots++;
-  if (hasUpgrade('sr_engineer')) teamSlots++;
-
   // Apply active modifiers to resources
-  // Budget modifiers: take strongest good, multiply by bad
-  const budgetGoodMult = activeMods.includes('well_funded') ? 2 : 1;
-  const budgetBadMult = activeMods.includes('budget_cuts') ? 0.75 : 1;
-  budget = Math.round(budget * budgetGoodMult);
-  dripAmount = Math.round(dripAmount * budgetGoodMult * budgetBadMult);
 
   let duration = RUN_DURATION;
 
@@ -3022,6 +2956,7 @@ function startRun() {
       intel: new Map(),
       pentesters: [],
       stuckTimer: 0,
+      coordination: getSliderValue('rtCoordination'),
     },
     pendingAlerts: [],
     log: [],
@@ -3042,6 +2977,7 @@ function startRun() {
       onsite: false,
       doubledWith: null,
       speedMult: rtExpertise,
+      personalFootholds: new Set(),
     });
   }
 
@@ -3060,6 +2996,8 @@ function startRun() {
     ins.compromisedAt = 0;
     R.redTeam.compromised.add(ins.id);
     R.redTeam.footholds.push(ins.id);
+    // Give insider foothold to first pentester
+    if (R.redTeam.pentesters.length) R.redTeam.pentesters[0].personalFootholds.add(ins.id);
   }
 
   showScreen('run-screen');
@@ -3544,7 +3482,7 @@ function deepScan(nodeId) {
   }
   node.deepScanning = true;
   node.deepScanProgress = 0;
-  node.deepScanTotalTime = hasUpgrade('deep_scan') ? rand(14, 21) : rand(20, 30);
+  node.deepScanTotalTime = rand(20, 30);
   addLog(`Deploying EDR on ${node.name}... ETA ${node.deepScanTotalTime}s`, 'info');
   updateResourceDisplay();
   renderDetail();
@@ -3828,6 +3766,86 @@ function processModifierTimers(dt) {
       }
     }
   }
+
+  // Shadow IT modifier: red team discovers rogue nodes at ~3-5 min
+  if (R.activeMods.includes('shadow_it') && !R._shadowITFired) {
+    if (!R._shadowITTrigger) R._shadowITTrigger = randf(180, 300); // 3-5 min
+    if (R.elapsed >= R._shadowITTrigger) {
+      R._shadowITFired = true;
+      const rogueNodes = R.net.nodes.filter(n => n.shadowMod && !n.discovered);
+      if (rogueNodes.length) {
+        screenShake();
+        addLog('🔴 ALERT: Unmanaged devices detected on network — shadow IT!', 'crit');
+        for (const node of rogueNodes) {
+          node.discovered = true;
+          if (node.vulns.length === 0) {
+            node.vulns = generateVulns(node, R.threatLevel, R.net.mods);
+            R.totalVulns += node.vulns.length;
+          }
+          // Reveal some vulns immediately (they're unmonitored)
+          const toReveal = node.vulns.filter(v => !v.revealed).slice(0, rand(1, 3));
+          toReveal.forEach(v => { v.revealed = true; });
+          R.totalDiscovered++;
+          // Red team knows about them
+          R.redTeam.probedNodes.add(node.id);
+          addLog(`⚠ Rogue device: ${node.name} — ${node.vulns.length} potential vulnerabilities`, 'warn');
+        }
+        renderAssetList();
+      }
+    }
+  }
+
+  // Supply Chain Compromise: backdoored dependency hits multiple nodes at ~5-8 min
+  if (R.activeMods.includes('supply_chain') && !R._supplyChainFired) {
+    if (!R._supplyChainTrigger) R._supplyChainTrigger = randf(300, 480); // 5-8 min
+    if (R.elapsed >= R._supplyChainTrigger) {
+      R._supplyChainFired = true;
+      const depNames = ['log4j-core', 'xz-utils', 'polyfill.io', 'openssl-legacy', 'libcurl-rce', 'node-ipc'];
+      const depName = pick(depNames);
+      // Target 3-5 scanned nodes
+      const candidates = R.net.nodes.filter(n => n.discovered && n.scanned && !n.rebuilding);
+      const count = Math.min(candidates.length, rand(3, 5));
+      const targets = [];
+      const pool = [...candidates];
+      for (let i = 0; i < count && pool.length; i++) {
+        const idx = rand(0, pool.length - 1);
+        targets.push(pool.splice(idx, 1)[0]);
+      }
+      if (targets.length) {
+        const cat = VULN_CATEGORIES.find(c => c.id === 'supply_chain') || VULN_CATEGORIES[0];
+        const severity = randf(8.5, 10.0);
+        const vulnId = 'PUMA-2025-' + rand(1000, 9999);
+        screenShake();
+        addLog(`🔴 CRITICAL: Supply chain compromise — ${depName} backdoor affects ${targets.length} systems!`, 'crit');
+        for (const node of targets) {
+          const vuln = {
+            id: vulnId,
+            name: `${depName} backdoor`,
+            category: cat,
+            attackVector: 'Network',
+            severity: Math.round(severity * 10) / 10,
+            exploitability: randf(0.7, 0.95),
+            fixType: 'replace',
+            fixLabel: 'Replace ' + depName,
+            cost: rand(800, 1500),
+            time: rand(20, 35),
+            successRate: 0.75,
+            requiresDowntime: true,
+            fixed: false,
+            mitigated: false,
+            mitigationFactor: 0,
+            revealed: true, // publicly known
+            fixLocked: false,
+          };
+          node.vulns.push(vuln);
+          R.totalVulns++;
+          addLog(`⚠ ${node.name} affected by ${depName} backdoor (CVSS ${vuln.severity})`, 'warn');
+        }
+        renderAssetList();
+        if (R.selectedNode !== null) renderDetail();
+      }
+    }
+  }
 }
 
 function setSpeed(speed) {
@@ -4069,8 +4087,6 @@ function rtTryExploit(node, pentester) {
 
 function ptReset(pt, cooldownTime) {
   let cd = cooldownTime || 0;
-  // Netflix Release: pentesters take an extra 5-10s between actions
-  if (R && R.activeMods.includes('netflix_release')) cd += randf(5, 10);
   pt.state = cd > 0 ? 'cooldown' : 'idle';
   pt.cooldown = cd;
   pt.targetNode = null;
@@ -4154,6 +4170,7 @@ function ptCompromiseNode(pt, node, vulnUsed) {
     pt.totalTime = randf(15, 30) * pt.speedMult; // speedMult from rtExpertise slider
     // Temporary foothold during persistence attempt
     if (!rt.footholds.includes(node.id)) rt.footholds.push(node.id);
+    pt.personalFootholds.add(node.id);
   } else {
     // Quick pivot on low-value targets
     pt.state = 'pivoting';
@@ -4162,6 +4179,7 @@ function ptCompromiseNode(pt, node, vulnUsed) {
     pt.totalTime = randf(3, 8) * pt.speedMult;
     // Temporary foothold
     if (!rt.footholds.includes(node.id)) rt.footholds.push(node.id);
+    pt.personalFootholds.add(node.id);
 
     // Pick pivot target (neighbor)
     const neighbors = rtGetNeighbors(node.id).filter(id => !rt.compromised.has(id));
@@ -4283,10 +4301,21 @@ function ptPickTarget(pt) {
   const isViable = n => n && !rt.compromised.has(n.id) && !n.rebuilding;
 
   // Pentester-local targeting: based on what THIS pentester has access to
-  // No footholds → attack perimeter
-  // Has footholds → expand from them, prioritizing deeper/critical targets
+  // Coordination controls which footholds a pentester can use:
+  // 0 = only personal footholds, 1.0 = all team footholds, in between = probabilistic
+  const coord = rt.coordination || 0;
+  let availableFootholds;
+  if (coord >= 1.0) {
+    availableFootholds = [...rt.footholds];
+  } else if (coord <= 0) {
+    availableFootholds = rt.footholds.filter(fId => pt.personalFootholds.has(fId));
+  } else {
+    // Include personal footholds always, team footholds with probability = coord
+    availableFootholds = rt.footholds.filter(fId =>
+      pt.personalFootholds.has(fId) || Math.random() < coord);
+  }
 
-  if (!rt.footholds.length) {
+  if (!availableFootholds.length) {
     // No footholds: target perimeter (zone 0-1)
     const perimeter = R.net.nodes.filter(n => n.zone <= 1 && isViable(n));
     if (!perimeter.length) return null;
@@ -4304,8 +4333,8 @@ function ptPickTarget(pt) {
     return target;
   }
 
-  // Has footholds: expand from them
-  const foothold = pick(rt.footholds);
+  // Has footholds: expand from them (using coordination-filtered list)
+  const foothold = pick(availableFootholds);
   let neighbors = rtGetNeighbors(foothold).filter(id => isViable(R.net.nodes[id]));
 
   // VPN tunnel buff: can reach deep zones if no direct neighbors
@@ -4316,7 +4345,7 @@ function ptPickTarget(pt) {
 
   // Check for reachable critical assets (zone 4) — prioritize them
   const reachableCritical = R.net.nodes.filter(n => n.zone === 4 && isViable(n) &&
-    rt.footholds.some(fId => rtGetNeighbors(fId).includes(n.id)));
+    availableFootholds.some(fId => rtGetNeighbors(fId).includes(n.id)));
   if (reachableCritical.length && Math.random() > 0.3) {
     const target = rtWeightedPick(reachableCritical, n => {
       const s = NODE_STRATEGY[n.type]; return (s ? s.targetPriority : 0.3) + 0.2;
@@ -4570,6 +4599,7 @@ function updatePentester(pt, dt) {
       target.persistence = true;
       rt.persistedNodes.add(target.id);
       if (!rt.footholds.includes(target.id)) rt.footholds.push(target.id);
+      pt.personalFootholds.add(target.id);
 
       const tier = getDetectionTier(target);
       if (tier === 1) {
@@ -4845,7 +4875,6 @@ function endRun() {
 
   // Intel earned
   let intel = (grade === 'F' && R.diffScore >= 4) ? 0 : Math.floor(finalScore * (R.diffScore / 4.3));
-  if (hasUpgrade('exec_brief')) intel = Math.floor(intel * 1.15);
 
   const coverage = clamp((discovered / totalNodes) * 100, 0, 100);
 
@@ -5539,44 +5568,6 @@ function toggleSiem() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SKILL TREE RENDERING
-   ═══════════════════════════════════════════════════════════════ */
-function renderSkillTree() {
-  document.getElementById('skill-intel').textContent = `Intel: ${save.intel}`;
-  const container = document.getElementById('skill-tree');
-  container.innerHTML = '';
-
-  for (const [branch, skills] of Object.entries(SKILL_TREE)) {
-    const col = document.createElement('div');
-    col.className = 'skill-branch';
-    col.innerHTML = `<h4>${branch}</h4>`;
-
-    skills.forEach((skill, i) => {
-      const owned = hasUpgrade(skill.id);
-      const prevOwned = i === 0 || hasUpgrade(skills[i - 1].id);
-      const canAfford = save.intel >= skill.cost;
-      const available = !owned && prevOwned && canAfford;
-
-      const node = document.createElement('div');
-      node.className = 'skill-node' + (owned ? ' purchased' : available ? ' affordable' : !prevOwned ? ' locked' : '');
-      node.innerHTML = `<div>${skill.name}</div><div style="font-size:10px;color:var(--green-dim)">${skill.desc}</div>
-        ${owned ? '<div class="skill-cost" style="color:var(--green)">OWNED</div>' : `<div class="skill-cost">${skill.cost} Intel</div>`}`;
-
-      if (available) {
-        node.onclick = () => {
-          save.intel -= skill.cost;
-          save.upgrades.push(skill.id);
-          writeSave();
-          renderSkillTree();
-        };
-      }
-      col.appendChild(node);
-    });
-    container.appendChild(col);
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════════
    ACHIEVEMENTS RENDERING
    ═══════════════════════════════════════════════════════════════ */
 function renderAchievements() {
@@ -5905,7 +5896,7 @@ console.log(
   // Init settings UI
   document.getElementById('set-motion').checked = save.settings.reducedMotion;
   document.getElementById('set-sound').checked = save.settings.sound;
-  document.getElementById('set-hints').checked = save.hintsEnabled !== false;
+  // Hints toggle removed — hints only appear in Tutorial mode
   updateMuteButton();
 
   // Event delegation for asset list — use mousedown for instant response
