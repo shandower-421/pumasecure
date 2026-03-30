@@ -4,9 +4,13 @@ An infosec roguelike in a single HTML file. You're a security team dropped into 
 
 **No install. No dependencies.** Open `index.html` in any modern browser and go.
 
+![HQ — configure your engagement before each run](screenshots/hq-screen.png)
+
 ## Gameplay
 
 You have **15 minutes** to defend a procedurally generated network while 1-5 AI pentester agents independently scan, exploit, and pivot through your infrastructure. Secure the network before they reach your critical assets, or end the engagement early by locking them out completely.
+
+![Mid-game — scan assets, discover vulnerabilities, and fix them before the red team gets in](screenshots/gameplay-mid.png)
 
 ### The network
 
@@ -60,6 +64,8 @@ Vuln scanning a silently-compromised node reveals an anomaly. EDR deployment aut
 
 Fixes can fail for realistic reasons. Failed fixes can be reworked (1.5x cost). A mitigated vulnerability can later be properly patched when resources free up. Some vuln categories (zero-days, physical security) can only be mitigated.
 
+![The red team probes your network while you triage vulnerabilities](screenshots/gameplay-active.png)
+
 ### Incident response
 
 When a compromise is detected, assign an analyst to investigate. IR is a **race** against the pentester's current activity:
@@ -102,6 +108,8 @@ Any critical asset (zone 4) breached at difficulty 4+ = automatic **F**. Otherwi
 Grades: **S** (95+, difficulty 5+ only) / **A** (85+) / **B** (70+) / **C** (55+) / **D** (40+) / **F**
 
 **Early win**: If you secure all discovered nodes, eliminate all compromises, and the red team has no footholds after 5 minutes, the engagement ends early.
+
+![Post-engagement debrief — performance assessment across five scoring axes](screenshots/results-screen.png)
 
 ### Career progression
 
